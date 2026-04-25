@@ -1,6 +1,6 @@
 import 'dotenv/config';
-import { Client, ChannelType, GatewayIntentBits } from 'discord.js';
-import { loadCommands, loadEvents, registerCommands } from '@/utils/loader.js';
+import { ActivityType, Client, Events, GatewayIntentBits } from 'discord.js';
+import { loadCommands, registerCommands } from '@/utils/loader.js';
 import { getPrismaClient, disconnectPrisma } from '@/services/database.js';
 import { logWithTimestamp } from '@/utils/helpers.js';
 
@@ -11,17 +11,11 @@ if (!TOKEN) {
 }
 
 const client = new Client({
-  intents: [
-    GatewayIntentBits.Guilds,
-    GatewayIntentBits.GuildMembers,
-    GatewayIntentBits.GuildMessages,
-    GatewayIntentBits.MessageContent,
-    GatewayIntentBits.DirectMessages,
-  ],
+  intents: [GatewayIntentBits.Guilds],
 });
 
 // Initialize Prisma client
-const prisma = getPrismaClient();
+getPrismaClient();
 
 // Handle uncaught errors
 process.on('unhandledRejection', (reason, promise) => {
@@ -41,7 +35,7 @@ client.once('ready', async () => {
   logWithTimestamp('info', `Bot logged in as ${client.user.tag}`);
 
   // Load commands and register with Discord
-  const commands = await loadCommands(client);
+  const commands = await loadCommands();
 
   if (commands.size > 0) {
     await registerCommands(client, commands);
@@ -51,11 +45,40 @@ client.once('ready', async () => {
   (client as any).commands = commands;
 
   // Set bot status
-  client.user.setActivity('the server', { type: 'WATCHING' });
+  client.user.setActivity('the server', { type: ActivityType.Watching });
 });
 
-// Load events
-await loadEvents(client);
+client.on(Events.InteractionCreate, async (interaction) => {
+  if (!interaction.isChatInputCommand()) {
+    return;
+  }
+
+  const command = (interaction.client as any).commands?.get(interaction.commandName);
+
+  if (!command) {
+    console.warn(`No command matching ${interaction.commandName} was found.`);
+    return;
+  }
+
+  try {
+    await command.execute(interaction);
+  } catch (error) {
+    console.error(`Error executing command ${interaction.commandName}:`, error);
+
+    if (interaction.replied || interaction.deferred) {
+      await interaction.followUp({
+        content: 'There was an error while executing this command!',
+        ephemeral: true,
+      });
+      return;
+    }
+
+    await interaction.reply({
+      content: 'There was an error while executing this command!',
+      ephemeral: true,
+    });
+  }
+});
 
 // Graceful shutdown
 async function shutdown(signal: string): Promise<void> {

@@ -1,7 +1,10 @@
-import { Client, SlashCommandBuilder } from 'discord.js';
+import { SlashCommandBuilder, SlashCommandOptionsOnlyBuilder } from 'discord.js';
 
 export interface Command {
-  data: SlashCommandBuilder | Omit<SlashCommandBuilder, 'addSubcommand' | 'addSubcommandGroup'>;
+  data:
+    | SlashCommandBuilder
+    | SlashCommandOptionsOnlyBuilder
+    | Omit<SlashCommandBuilder, 'addSubcommand' | 'addSubcommandGroup'>;
   execute: (interaction: any) => Promise<void>;
 }
 
