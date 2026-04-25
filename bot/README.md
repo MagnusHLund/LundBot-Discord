@@ -130,9 +130,20 @@ npm run start
 
 ## Docker Compose
 
-The recommended deployment path is to build the bot image in GitHub Actions and pull it from GitHub Container Registry.
+The recommended deployment path is to build the bot image in GitHub Actions and deploy it to your server over SSH.
 
-You can run the bot and its HTTP API with Docker Compose from the repo root.
+GitHub Actions will:
+
+1. build the Docker image
+2. push it to GitHub Container Registry
+3. SSH into your server
+4. write the Compose file and `.env` on the server
+5. log in to GHCR on the server
+6. run `docker compose pull` and `docker compose up -d`
+
+Your server needs Docker and Docker Compose installed, and it must allow SSH access from the key you add to GitHub Secrets.
+
+You can still run the bot locally with Docker Compose from the repo root.
 
 ### 1. Create your env file
 
@@ -145,7 +156,7 @@ Run that from the repo root so Compose picks up the same `.env` file. Fill in th
 - `DISCORD_TOKEN`
 - `DATABASE_URL`
 
-If you want to pin a specific image tag, also set `BOT_IMAGE_TAG`. By default, Compose pulls `latest`.
+If you want to run Compose locally, also set `BOT_IMAGE_TAG` if you want a specific image tag. By default, Compose pulls `latest`.
 
 ### 2. Start everything
 
@@ -153,15 +164,33 @@ If you want to pin a specific image tag, also set `BOT_IMAGE_TAG`. By default, C
 docker compose up -d
 ```
 
-If the image is private, authenticate to GitHub Container Registry first with a token that has `read:packages` access:
+For local runs, if the image is private, authenticate to GitHub Container Registry first with a token that has `read:packages` access:
 
 ```bash
 docker login ghcr.io
 ```
 
+For the automated server deployment, this login happens on the server inside GitHub Actions.
+
 The bot container will connect to your existing database, run Prisma migrations on startup, then start the Discord bot and HTTP API.
 
-### 3. What runs
+### 3. GitHub Actions secrets for deployment
+
+Set these repository secrets in GitHub:
+
+- `DEPLOY_HOST` - your server hostname or IP
+- `DEPLOY_USER` - SSH username on the server
+- `DEPLOY_SSH_KEY` - private SSH key used by GitHub Actions
+- `DEPLOY_PORT` - optional SSH port, defaults to `22`
+- `DEPLOY_PATH` - optional directory on the server, defaults to `/opt/lundbot-discord`
+- `GHCR_USERNAME` - your GitHub username
+- `GHCR_TOKEN` - classic PAT with `read:packages`
+- `DISCORD_TOKEN` - Discord bot token
+- `DATABASE_URL` - database connection string
+- `BOT_API_KEY` - API key used by your HTTP API
+- `BOT_API_PORT` - optional, defaults to `3000`
+
+### 4. What runs
 
 - MariaDB on `localhost:3306`
 - The bot + HTTP API on `localhost:3000`
