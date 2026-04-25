@@ -129,7 +129,7 @@ const command: Command = {
 
       if (leaderboardMessage) {
         await leaderboardMessage.edit(
-          `${leaderboard.message}\n\n**${leaderboard.title}**\n${leaderboardLines}`
+          `**${leaderboard.message}**\n\n# ${leaderboard.title}\n\n${leaderboardLines}`
         );
       }
 

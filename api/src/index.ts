@@ -27,7 +27,7 @@ process.on('uncaughtException', (error) => {
 });
 
 // Bot startup
-client.once('ready', async () => {
+client.once('clientReady', async () => {
   if (!client.user) {
     throw new Error('Client user is not available');
   }
