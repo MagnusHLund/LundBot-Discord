@@ -54,10 +54,11 @@ model UpvotingLeaderBoard {
   @@map("UpvotingLeaderBoard")
 }
 
-model WebsiteInviteButtonClicksTraffic {
-  WebsiteInviteButtonClicksTrafficId Int      @id @default(autoincrement()) @db.UnsignedInt
-  hashedIp                           Bytes    @db.Binary(32)
-  created_at                         DateTime @default(now())
+model WebsiteTraffic {
+  WebsiteTrafficId      Int      @id @default(autoincrement()) @db.UnsignedInt
+  hashedIp              Bytes    @db.Binary(32)
+  clickedInviteButton   Boolean
+  createdAt             DateTime @default(now())
 
   @@map("websiteInviteButtonClicksTraffic")
 }
