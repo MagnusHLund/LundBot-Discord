@@ -50,7 +50,9 @@ export async function registerCommands(
 ): Promise<void> {
   const token = process.env.DISCORD_TOKEN;
   const clientId = client.user?.id;
-  const guildIds = process.env.DISCORD_GUILD_ID?.split(',').map((id) => id.trim()).filter(Boolean);
+  const guildIds = process.env.DISCORD_GUILD_ID?.split(',')
+    .map((id) => id.trim())
+    .filter(Boolean);
 
   if (!token || !clientId) {
     throw new Error('Missing DISCORD_TOKEN or unable to get client ID');
