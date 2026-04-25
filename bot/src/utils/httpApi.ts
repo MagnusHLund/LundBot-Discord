@@ -11,13 +11,6 @@ type JsonRecord = Record<string, unknown>;
 
 type TrafficEventType = 'visit' | 'invite-click';
 
-function setCorsHeaders(res: ServerResponse): void {
-  res.setHeader('Access-Control-Allow-Origin', 'https://infinitewarfarecommunity.com');
-  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PATCH, OPTIONS');
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
-  res.setHeader('Access-Control-Max-Age', '3600');
-}
-
 function sendJson(res: ServerResponse, statusCode: number, payload: JsonRecord): void {
   res.writeHead(statusCode, {
     'Content-Type': 'application/json; charset=utf-8',
@@ -112,6 +105,18 @@ async function forwardTrafficToBot(hashedIp: Buffer, eventType: TrafficEventType
   };
 }
 
+async function isDatabaseReachable(): Promise<boolean> {
+  const prisma = getPrismaClient();
+
+  try {
+    await prisma.$queryRaw`SELECT 1`;
+    return true;
+  } catch (error) {
+    console.warn('Health check database probe failed:', error);
+    return false;
+  }
+}
+
 async function getTextChannel(client: Client, channelId: string) {
   const channel = await client.channels.fetch(channelId).catch(() => null);
 
@@ -124,19 +129,29 @@ async function getTextChannel(client: Client, channelId: string) {
 
 export function startHttpApi(client: Client): void {
   const server = createServer(async (req, res) => {
-    setCorsHeaders(res);
-
-    // Handle CORS preflight requests
-    if (req.method === 'OPTIONS') {
-      res.writeHead(200);
-      res.end();
-      return;
-    }
-
     const requestUrl = new URL(req.url ?? '/', `http://${req.headers.host ?? 'localhost'}`);
 
     if (requestUrl.pathname === '/health' && req.method === 'GET') {
-      sendJson(res, 200, { ok: true, ready: client.isReady() });
+      sendJson(res, 200, {
+        ok: true,
+        status: 'alive',
+        ready: client.isReady(),
+        uptimeSeconds: Math.floor(process.uptime()),
+      });
+      return;
+    }
+
+    if (requestUrl.pathname === '/ready' && req.method === 'GET') {
+      const databaseReady = await isDatabaseReachable();
+      const ready = client.isReady() && databaseReady;
+
+      sendJson(res, ready ? 200 : 503, {
+        ok: ready,
+        status: ready ? 'ready' : 'degraded',
+        ready: client.isReady(),
+        database: databaseReady,
+        uptimeSeconds: Math.floor(process.uptime()),
+      });
       return;
     }
 

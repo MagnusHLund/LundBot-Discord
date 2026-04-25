@@ -57,6 +57,16 @@ The bot starts a small HTTP API alongside Discord. Protect it with `BOT_API_KEY`
 GET /health
 ```
 
+Returns a lightweight liveness response with the bot runtime state.
+
+**Readiness check**
+
+```bash
+GET /ready
+```
+
+Returns `200` when the Discord client is ready and the database is reachable, otherwise `503`.
+
 **Send a message**
 
 ```bash
@@ -88,6 +98,8 @@ x-api-key: your-secret
 
 - `201` for send
 - `200` for edit
+- `200` for healthy `GET /health`
+- `200` for ready `GET /ready`
 - `401` if the API key is wrong
 - `503` if the bot is not ready yet
 
