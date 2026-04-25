@@ -96,7 +96,7 @@ const command: Command = {
 
     try {
       postedMessage = await channel.send({
-        content: `**${prependMessage}**\n\n# ${title}\n\n${LEADERBOARD_EMPTY_STATE}`,
+        content: `**${prependMessage}**\n# ${title}\n\n${LEADERBOARD_EMPTY_STATE}`,
       });
 
       const leaderboard = await prisma.leaderboards.create({
