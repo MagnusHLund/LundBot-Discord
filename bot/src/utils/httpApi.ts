@@ -73,11 +73,19 @@ async function forwardTrafficToBot(hashedIp: Buffer, eventType: TrafficEventType
   const existingTraffic = await prisma.websiteTraffic.findFirst({
     where: {
       hashedIp,
-      clickedInviteButton,
     },
   });
 
   if (existingTraffic) {
+    await prisma.websiteTraffic.update({
+      where: {
+        WebsiteTrafficId: existingTraffic.WebsiteTrafficId,
+      },
+      data: {
+        clickedInviteButton: existingTraffic.clickedInviteButton || clickedInviteButton,
+      },
+    });
+
     return {
       saved: false,
       eventType,
