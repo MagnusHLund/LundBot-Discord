@@ -1,0 +1,60 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+  relationMode = "foreignKeys"
+}
+
+model Leaderboards {
+  leaderboardsId     Int                    @id @default(autoincrement()) @db.UnsignedInt
+  discordServerId    String                 @db.Char(19)
+  discordChannelId   String                 @db.Char(19)
+  createdAt          DateTime               @default(now())
+  
+  leaderboardScores  LeaderboardScores[]
+  upvotingLeaderboard UpvotingLeaderBoard[]
+
+  @@unique([discordServerId, discordChannelId], name: "leaderboards_index_2")
+  @@map("Leaderboards")
+}
+
+model LeaderboardScores {
+  leaderboardScoresId Int          @id @default(autoincrement()) @db.UnsignedInt
+  leaderboardsId      Int          @db.UnsignedInt
+  discordUserId       String       @db.Char(19)
+  score               Int          @db.UnsignedInt
+  updatedAt           DateTime     @updatedAt
+  createdAt           DateTime     @default(now())
+  
+  leaderboard         Leaderboards @relation(fields: [leaderboardsId], references: [leaderboardsId], onDelete: Cascade, onUpdate: Cascade, map: "fk_leaderboard_scores_leaderboards")
+
+  @@unique([discordUserId, leaderboardsId], name: "LeaderboardScores_index_2")
+  @@index([leaderboardsId])
+  @@map("LeaderboardScores")
+}
+
+model UpvotingLeaderBoard {
+  upvotingLeaderboardId Int          @id @default(autoincrement()) @db.UnsignedInt
+  leaderboards_id       Int          @db.UnsignedInt
+  discordUserIdVoter    String       @db.Char(19)
+  discordUserIdTarget   String       @db.Char(19)
+  updatedAt             DateTime     @updatedAt
+  createdAt             DateTime     @default(now())
+  
+  leaderboard           Leaderboards @relation(fields: [leaderboards_id], references: [leaderboardsId], onDelete: Cascade, onUpdate: Cascade, map: "fk_upvoting_leaderboard_leaderboards")
+
+  @@unique([discordUserIdVoter, discordUserIdTarget], name: "UpvotingLeaderBoard_index_2")
+  @@index([leaderboards_id])
+  @@map("UpvotingLeaderBoard")
+}
+
+model WebsiteInviteButtonClicksTraffic {
+  WebsiteInviteButtonClicksTrafficId Int      @id @default(autoincrement()) @db.UnsignedInt
+  hashedIp                           Bytes    @db.Binary(32)
+  created_at                         DateTime @default(now())
+
+  @@map("websiteInviteButtonClicksTraffic")
+}
