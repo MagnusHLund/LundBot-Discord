@@ -11,6 +11,13 @@ type JsonRecord = Record<string, unknown>;
 
 type TrafficEventType = 'visit' | 'invite-click';
 
+function setCorsHeaders(res: ServerResponse): void {
+  res.setHeader('Access-Control-Allow-Origin', 'https://infinitewarfarecommunity.com');
+  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PATCH, OPTIONS');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+  res.setHeader('Access-Control-Max-Age', '3600');
+}
+
 function sendJson(res: ServerResponse, statusCode: number, payload: JsonRecord): void {
   res.writeHead(statusCode, {
     'Content-Type': 'application/json; charset=utf-8',
@@ -117,6 +124,15 @@ async function getTextChannel(client: Client, channelId: string) {
 
 export function startHttpApi(client: Client): void {
   const server = createServer(async (req, res) => {
+    setCorsHeaders(res);
+
+    // Handle CORS preflight requests
+    if (req.method === 'OPTIONS') {
+      res.writeHead(200);
+      res.end();
+      return;
+    }
+
     const requestUrl = new URL(req.url ?? '/', `http://${req.headers.host ?? 'localhost'}`);
 
     if (requestUrl.pathname === '/health' && req.method === 'GET') {
