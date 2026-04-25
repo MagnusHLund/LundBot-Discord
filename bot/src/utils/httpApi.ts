@@ -18,7 +18,7 @@ function sendJson(res: ServerResponse, statusCode: number, payload: JsonRecord):
   res.end(JSON.stringify(payload));
 }
 
-function setCorsHeaders(req: IncomingMessage, res: ServerResponse): void {
+function setCorsHeaders(res: ServerResponse): void {
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PATCH, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Api-Key');
@@ -136,7 +136,7 @@ async function getTextChannel(client: Client, channelId: string) {
 
 export function startHttpApi(client: Client): void {
   const server = createServer(async (req, res) => {
-    setCorsHeaders(req, res);
+    setCorsHeaders(res);
 
     if (req.method === 'OPTIONS') {
       res.writeHead(204);
