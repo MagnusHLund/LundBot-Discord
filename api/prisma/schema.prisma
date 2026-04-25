@@ -12,6 +12,8 @@ model Leaderboards {
   leaderboardsId     Int                    @id @default(autoincrement()) @db.UnsignedInt
   discordServerId    String                 @db.Char(19)
   discordChannelId   String                 @db.Char(19)
+  discordMessageId   String                 @db.Char(19)
+  message            String                 @db.VarChar(256)
   createdAt          DateTime               @default(now())
   
   leaderboardScores  LeaderboardScores[]
@@ -24,7 +26,6 @@ model Leaderboards {
 model LeaderboardScores {
   leaderboardScoresId Int          @id @default(autoincrement()) @db.UnsignedInt
   leaderboardsId      Int          @db.UnsignedInt
-  discordMessageId    String       @db.Char(19)
   discordUserId       String       @db.Char(19)
   score               Int          @db.UnsignedInt
   updatedAt           DateTime     @updatedAt

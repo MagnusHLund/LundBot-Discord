@@ -1,5 +1,5 @@
 import 'dotenv/config';
-import { ActivityType, Client, Events, GatewayIntentBits } from 'discord.js';
+import { ActivityType, Client, Events, GatewayIntentBits, MessageFlags } from 'discord.js';
 import { loadCommands, registerCommands } from '@/utils/loader.js';
 import { getPrismaClient, disconnectPrisma } from '@/services/database.js';
 import { logWithTimestamp } from '@/utils/helpers.js';
@@ -68,14 +68,14 @@ client.on(Events.InteractionCreate, async (interaction) => {
     if (interaction.replied || interaction.deferred) {
       await interaction.followUp({
         content: 'There was an error while executing this command!',
-        ephemeral: true,
+        flags: MessageFlags.Ephemeral,
       });
       return;
     }
 
     await interaction.reply({
       content: 'There was an error while executing this command!',
-      ephemeral: true,
+      flags: MessageFlags.Ephemeral,
     });
   }
 });

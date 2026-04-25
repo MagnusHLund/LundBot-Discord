@@ -1,4 +1,4 @@
-import { ChatInputCommandInteraction, SlashCommandBuilder } from 'discord.js';
+import { ChatInputCommandInteraction, MessageFlags, SlashCommandBuilder } from 'discord.js';
 import { Command } from '@/types/index.js';
 
 const command: Command = {
@@ -16,14 +16,14 @@ const command: Command = {
     if (targetUserId === voterUserId) {
       await interaction.reply({
         content: 'You cannot upvote yourself.',
-        ephemeral: true,
+        flags: MessageFlags.Ephemeral,
       });
       return;
     }
 
     await interaction.reply({
-      content: `Upvote registered. voterUserId=${voterUserId}, targetUserId=${targetUserId}`,
-      ephemeral: true,
+      content: `Upvote registered!`,
+      flags: MessageFlags.Ephemeral,
     });
   },
 };
