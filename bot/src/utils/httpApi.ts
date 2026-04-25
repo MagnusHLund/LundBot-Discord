@@ -2,7 +2,7 @@ import { createServer, IncomingMessage, ServerResponse } from 'node:http';
 import { URL } from 'node:url';
 import { createHash } from 'node:crypto';
 import type { Client } from 'discord.js';
-import { getPrismaClient } from '@/services/database.js';
+import { getPrismaClient } from '../services/database.js';
 
 const API_PORT = Number(process.env.BOT_API_PORT ?? '3000');
 const MAX_BODY_SIZE = 1024 * 1024;

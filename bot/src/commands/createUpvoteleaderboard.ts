@@ -5,8 +5,8 @@ import {
   PermissionFlagsBits,
   SlashCommandBuilder,
 } from 'discord.js';
-import { getPrismaClient } from '@/services/database.js';
-import { Command } from '@/types/index.js';
+import { getPrismaClient } from '../services/database.js';
+import { Command } from '../types/index.js';
 
 const LEADERBOARD_EMPTY_STATE = '_No upvotes yet._';
 

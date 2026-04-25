@@ -4,7 +4,7 @@ import {
   MessageFlags,
   PermissionFlagsBits,
 } from 'discord.js';
-import { Command } from '@/types/index.js';
+import { Command } from '../types/index.js';
 
 const command: Command = {
   data: new SlashCommandBuilder()

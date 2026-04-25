@@ -113,8 +113,39 @@ npm run dev
 
 ```bash
 npm run build
-npm start
+ You can run the bot and its HTTP API with Docker Compose from the repo root.
 ```
+
+## Docker Compose
+
+You can run the bot, its HTTP API, and a local MariaDB container with Docker Compose from the repo root.
+
+### 1. Create your env file
+
+```bash
+cp .env.example .env
+```
+
+Run that from the repo root so Compose picks up the same `.env` file. Fill in the values in `.env`, especially:
+
+- `DISCORD_TOKEN`
+- `BOT_API_KEY`
+- `DATABASE_URL`
+
+### 2. Start everything
+
+```bash
+ - The bot + HTTP API on `localhost:3000`
+```
+
+The bot container will connect to your existing database, run Prisma migrations on startup, then start the Discord bot and HTTP API.
+
+### 3. What runs
+
+- MariaDB on `localhost:3306`
+- The bot + HTTP API on `localhost:3000`
+
+The bot container will run Prisma migrations on startup, then start the Discord bot and HTTP API.
 
 ## Available Commands
 

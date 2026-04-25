@@ -3,10 +3,11 @@ import { readdir } from 'fs/promises';
 import { join } from 'path';
 import { fileURLToPath } from 'url';
 import { dirname } from 'path';
-import { Command } from '@/types/index.js';
+import { Command } from '../types/index.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
+const isCompiledRuntime = __filename.endsWith('.js');
 
 /**
  * Load all commands from the commands directory
@@ -18,7 +19,10 @@ export async function loadCommands(): Promise<Collection<string, Command>> {
   try {
     const commandFiles = await readdir(commandsPath);
     const typeScriptFiles = commandFiles.filter(
-      (file) => file.endsWith('.ts') && !file.endsWith('.test.ts')
+      (file) =>
+        file.endsWith(isCompiledRuntime ? '.js' : '.ts') &&
+        !file.endsWith('.d.ts') &&
+        !file.endsWith('.test.ts')
     );
 
     for (const file of typeScriptFiles) {

@@ -4,8 +4,8 @@ import {
   MessageFlags,
   SlashCommandBuilder,
 } from 'discord.js';
-import { getPrismaClient } from '@/services/database.js';
-import { Command } from '@/types/index.js';
+import { getPrismaClient } from '../services/database.js';
+import { Command } from '../types/index.js';
 
 const command: Command = {
   data: new SlashCommandBuilder()

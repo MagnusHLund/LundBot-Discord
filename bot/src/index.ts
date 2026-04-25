@@ -1,9 +1,9 @@
 import 'dotenv/config';
 import { ActivityType, Client, Events, GatewayIntentBits, MessageFlags } from 'discord.js';
-import { clearCommands, loadCommands, registerCommands } from '@/utils/loader.js';
-import { getPrismaClient, disconnectPrisma } from '@/services/database.js';
-import { startHttpApi } from '@/utils/httpApi.js';
-import { logWithTimestamp } from '@/utils/helpers.js';
+import { clearCommands, loadCommands, registerCommands } from './utils/loader.js';
+import { getPrismaClient, disconnectPrisma } from './services/database.js';
+import { startHttpApi } from './utils/httpApi.js';
+import { logWithTimestamp } from './utils/helpers.js';
 
 const TOKEN = process.env.DISCORD_TOKEN;
 
