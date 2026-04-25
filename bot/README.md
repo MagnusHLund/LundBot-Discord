@@ -45,6 +45,7 @@ DATABASE_URL=mysql://user:password@localhost:3306/lundbot
 NODE_ENV=development
 BOT_API_KEY=some-long-random-secret
 BOT_API_PORT=3000
+BOT_ALLOWED_ORIGINS=https://infinitewarefarecommunity.com,https://www.infinitewarefarecommunity.com
 ```
 
 ### 2b. HTTP API
@@ -189,6 +190,7 @@ Set these repository secrets in GitHub:
 - `DATABASE_URL` - database connection string
 - `BOT_API_KEY` - API key used by your HTTP API
 - `BOT_API_PORT` - optional, defaults to `3000`
+- `BOT_ALLOWED_ORIGINS` - optional comma-separated CORS allowlist, defaults to `https://infinitewarefarecommunity.com,https://www.infinitewarefarecommunity.com`
 
 ### 4. What runs
 
