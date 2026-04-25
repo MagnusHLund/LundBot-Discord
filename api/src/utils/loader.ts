@@ -81,3 +81,32 @@ export async function registerCommands(
     console.error('Error registering commands:', error);
   }
 }
+
+/**
+ * Clear all slash commands from registered scopes (global + configured guilds).
+ */
+export async function clearCommands(client: Client): Promise<void> {
+  const token = process.env.DISCORD_TOKEN;
+  const clientId = client.user?.id;
+  const guildIds = process.env.DISCORD_GUILD_ID?.split(',')
+    .map((id) => id.trim())
+    .filter(Boolean);
+
+  if (!token || !clientId) {
+    throw new Error('Missing DISCORD_TOKEN or unable to get client ID');
+  }
+
+  const rest = new REST({ version: '10' }).setToken(token);
+
+  console.info('Started clearing slash commands from Discord...');
+
+  await rest.put(Routes.applicationCommands(clientId), { body: [] });
+
+  if (guildIds && guildIds.length > 0) {
+    await Promise.all(
+      guildIds.map((id) => rest.put(Routes.applicationGuildCommands(clientId, id), { body: [] }))
+    );
+  }
+
+  console.info('✓ Cleared stale slash commands from Discord');
+}

@@ -1,6 +1,6 @@
 import 'dotenv/config';
 import { ActivityType, Client, Events, GatewayIntentBits, MessageFlags } from 'discord.js';
-import { loadCommands, registerCommands } from '@/utils/loader.js';
+import { clearCommands, loadCommands, registerCommands } from '@/utils/loader.js';
 import { getPrismaClient, disconnectPrisma } from '@/services/database.js';
 import { logWithTimestamp } from '@/utils/helpers.js';
 
@@ -34,10 +34,11 @@ client.once('ready', async () => {
 
   logWithTimestamp('info', `Bot logged in as ${client.user.tag}`);
 
-  // Load commands and register with Discord
+  // Clear stale commands and register current commands with Discord
   const commands = await loadCommands();
 
   if (commands.size > 0) {
+    await clearCommands(client);
     await registerCommands(client, commands);
   }
 
