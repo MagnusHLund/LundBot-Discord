@@ -125,12 +125,14 @@ npm run dev
 
 ```bash
 npm run build
- You can run the bot and its HTTP API with Docker Compose from the repo root.
+npm run start
 ```
 
 ## Docker Compose
 
-You can run the bot, its HTTP API, and a local MariaDB container with Docker Compose from the repo root.
+The recommended deployment path is to build the bot image in GitHub Actions and pull it from GitHub Container Registry.
+
+You can run the bot and its HTTP API with Docker Compose from the repo root.
 
 ### 1. Create your env file
 
@@ -141,13 +143,20 @@ cp .env.example .env
 Run that from the repo root so Compose picks up the same `.env` file. Fill in the values in `.env`, especially:
 
 - `DISCORD_TOKEN`
-- `BOT_API_KEY`
 - `DATABASE_URL`
+
+If you want to pin a specific image tag, also set `BOT_IMAGE_TAG`. By default, Compose pulls `latest`.
 
 ### 2. Start everything
 
 ```bash
- - The bot + HTTP API on `localhost:3000`
+docker compose up -d
+```
+
+If the image is private, authenticate to GitHub Container Registry first with a token that has `read:packages` access:
+
+```bash
+docker login ghcr.io
 ```
 
 The bot container will connect to your existing database, run Prisma migrations on startup, then start the Discord bot and HTTP API.

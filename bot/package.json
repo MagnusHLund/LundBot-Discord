@@ -1,5 +1,5 @@
 {
-  "name": "lundbot-discord-api",
+  "name": "lundbot-discord",
   "version": "1.0.0",
   "description": "Discord bot API with database integration",
   "main": "dist/index.js",
