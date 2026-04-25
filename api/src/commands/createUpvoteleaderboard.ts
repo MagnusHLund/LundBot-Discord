@@ -77,6 +77,23 @@ const command: Command = {
     const prisma = getPrismaClient();
     let postedMessage: Awaited<ReturnType<typeof channel.send>> | null = null;
 
+    const existingLeaderboard = await prisma.leaderboards.findUnique({
+      where: {
+        leaderboards_index_2: {
+          discordServerId: interaction.guildId,
+          discordChannelId: channel.id,
+        },
+      },
+    });
+
+    if (existingLeaderboard) {
+      await interaction.reply({
+        content: `There can only be one leaderboard per channel. <#${channel.id}> already has a leaderboard.`,
+        flags: MessageFlags.Ephemeral,
+      });
+      return;
+    }
+
     try {
       postedMessage = await channel.send({
         content: `${prependMessage}\n\n**${title}**\n${LEADERBOARD_EMPTY_STATE}`,

@@ -74,7 +74,7 @@ const command: Command = {
 
       if (existingVote) {
         await interaction.reply({
-          content: `You already upvoted <@${targetUserId}> in <#${channel.id}>.`,
+          content: `You can only upvote <@${targetUserId}> once in this leaderboard.`,
           flags: MessageFlags.Ephemeral,
         });
         return;
