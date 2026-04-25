@@ -8,7 +8,6 @@ import {
 import { getPrismaClient } from '@/services/database.js';
 import { Command } from '@/types/index.js';
 
-const LEADERBOARD_TITLE = '**Upvote Leaderboard**';
 const LEADERBOARD_EMPTY_STATE = '_No upvotes yet._';
 
 const command: Command = {
@@ -21,6 +20,13 @@ const command: Command = {
         .setName('channel')
         .setDescription('Channel where the leaderboard message will be posted')
         .addChannelTypes(ChannelType.GuildText)
+        .setRequired(true)
+    )
+    .addStringOption((option) =>
+      option
+        .setName('title')
+        .setDescription('Leaderboard title (max 64 chars)')
+        .setMaxLength(64)
         .setRequired(true)
     )
     .addStringOption((option) =>
@@ -49,7 +55,16 @@ const command: Command = {
     }
 
     const channel = interaction.options.getChannel('channel', true, [ChannelType.GuildText]);
+    const title = interaction.options.getString('title', true).trim();
     const prependMessage = interaction.options.getString('message', true).trim();
+
+    if (title.length > 64) {
+      await interaction.reply({
+        content: 'Title is too long. Maximum length is 64 characters.',
+        flags: MessageFlags.Ephemeral,
+      });
+      return;
+    }
 
     if (prependMessage.length > 256) {
       await interaction.reply({
@@ -64,7 +79,7 @@ const command: Command = {
 
     try {
       postedMessage = await channel.send({
-        content: `${prependMessage}\n\n${LEADERBOARD_TITLE}\n${LEADERBOARD_EMPTY_STATE}`,
+        content: `${prependMessage}\n\n**${title}**\n${LEADERBOARD_EMPTY_STATE}`,
       });
 
       const leaderboard = await prisma.leaderboards.create({
@@ -72,6 +87,7 @@ const command: Command = {
           discordServerId: interaction.guildId,
           discordChannelId: channel.id,
           discordMessageId: postedMessage.id,
+          title,
           message: prependMessage,
         },
       });
