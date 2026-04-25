@@ -43,7 +43,53 @@ Edit `.env` with your Discord bot token and database connection string:
 DISCORD_TOKEN=your_bot_token_here
 DATABASE_URL=mysql://user:password@localhost:3306/lundbot
 NODE_ENV=development
+BOT_API_KEY=some-long-random-secret
+BOT_API_PORT=3000
 ```
+
+### 2b. HTTP API
+
+The bot starts a small HTTP API alongside Discord. Protect it with `BOT_API_KEY`.
+
+**Health check**
+
+```bash
+GET /health
+```
+
+**Send a message**
+
+```bash
+POST /message
+Content-Type: application/json
+x-api-key: your-secret
+
+{
+  "channelId": "123456789012345678",
+  "content": "Hello from my API"
+}
+```
+
+**Edit a message**
+
+```bash
+PATCH /message
+Content-Type: application/json
+x-api-key: your-secret
+
+{
+  "channelId": "123456789012345678",
+  "messageId": "987654321098765432",
+  "content": "Updated message text"
+}
+```
+
+**Responses**
+
+- `201` for send
+- `200` for edit
+- `401` if the API key is wrong
+- `503` if the bot is not ready yet
 
 ### 3. Set Up Database
 

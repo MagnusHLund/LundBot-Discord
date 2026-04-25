@@ -2,6 +2,7 @@ import 'dotenv/config';
 import { ActivityType, Client, Events, GatewayIntentBits, MessageFlags } from 'discord.js';
 import { clearCommands, loadCommands, registerCommands } from '@/utils/loader.js';
 import { getPrismaClient, disconnectPrisma } from '@/services/database.js';
+import { startHttpApi } from '@/utils/httpApi.js';
 import { logWithTimestamp } from '@/utils/helpers.js';
 
 const TOKEN = process.env.DISCORD_TOKEN;
@@ -17,6 +18,9 @@ const client = new Client({
 // Initialize Prisma client
 getPrismaClient();
 
+// Start HTTP API
+startHttpApi(client);
+
 // Handle uncaught errors
 process.on('unhandledRejection', (reason, promise) => {
   console.error('Unhandled Rejection at:', promise, 'reason:', reason);
@@ -27,7 +31,7 @@ process.on('uncaughtException', (error) => {
 });
 
 // Bot startup
-client.once('clientReady', async () => {
+client.once(Events.ClientReady, async () => {
   if (!client.user) {
     throw new Error('Client user is not available');
   }

@@ -60,5 +60,6 @@ model WebsiteTraffic {
   clickedInviteButton   Boolean
   createdAt             DateTime @default(now())
 
-  @@map("websiteInviteButtonClicksTraffic")
+  @@unique([hashedIp], name: "UniqueIp) 
+  @@map("WebsiteTraffic")
 }
