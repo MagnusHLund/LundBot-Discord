@@ -6,10 +6,6 @@ import { getPrismaClient } from '../services/database.js';
 
 const API_PORT = Number(process.env.BOT_API_PORT ?? '3000');
 const MAX_BODY_SIZE = 1024 * 1024;
-const DEFAULT_ALLOWED_ORIGINS = [
-  'https://infinitewarefarecommunity.com',
-  'https://www.infinitewarefarecommunity.com',
-];
 
 type JsonRecord = Record<string, unknown>;
 
@@ -22,31 +18,8 @@ function sendJson(res: ServerResponse, statusCode: number, payload: JsonRecord):
   res.end(JSON.stringify(payload));
 }
 
-function getAllowedOrigins(): string[] {
-  const configuredOrigins = process.env.BOT_ALLOWED_ORIGINS?.split(',')
-    .map((origin) => origin.trim())
-    .filter(Boolean);
-
-  if (configuredOrigins && configuredOrigins.length > 0) {
-    return configuredOrigins;
-  }
-
-  return DEFAULT_ALLOWED_ORIGINS;
-}
-
 function setCorsHeaders(req: IncomingMessage, res: ServerResponse): void {
-  const origin = req.headers.origin;
-  if (typeof origin !== 'string' || !origin.trim()) {
-    return;
-  }
-
-  const allowedOrigins = getAllowedOrigins();
-  if (!allowedOrigins.includes(origin)) {
-    return;
-  }
-
-  res.setHeader('Access-Control-Allow-Origin', origin);
-  res.setHeader('Vary', 'Origin');
+  res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PATCH, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Api-Key');
   res.setHeader('Access-Control-Max-Age', '3600');
