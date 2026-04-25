@@ -50,7 +50,7 @@ export async function registerCommands(
 ): Promise<void> {
   const token = process.env.DISCORD_TOKEN;
   const clientId = client.user?.id;
-  const guildId = process.env.DISCORD_GUILD_ID;
+  const guildIds = process.env.DISCORD_GUILD_ID?.split(',').map((id) => id.trim()).filter(Boolean);
 
   if (!token || !clientId) {
     throw new Error('Missing DISCORD_TOKEN or unable to get client ID');
@@ -62,9 +62,13 @@ export async function registerCommands(
   try {
     console.info(`Started registering ${commandData.length} slash commands...`);
 
-    if (guildId) {
-      await rest.put(Routes.applicationGuildCommands(clientId, guildId), { body: commandData });
-      console.info(`✓ Successfully registered slash commands for guild ${guildId}`);
+    if (guildIds && guildIds.length > 0) {
+      await Promise.all(
+        guildIds.map((id) =>
+          rest.put(Routes.applicationGuildCommands(clientId, id), { body: commandData })
+        )
+      );
+      console.info(`✓ Successfully registered slash commands for guilds: ${guildIds.join(', ')}`);
       return;
     }
 
