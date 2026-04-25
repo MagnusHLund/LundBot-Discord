@@ -1,7 +1,7 @@
 services:
   bot:
-    image: ghcr.io/magnushlund/lundbot-discord:${BOT_IMAGE_TAG:-latest}
-    pull_policy: always
+    build:
+      context: ./bot
     restart: unless-stopped
     env_file:
       - ./.env
