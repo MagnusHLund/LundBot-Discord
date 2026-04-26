@@ -193,7 +193,7 @@ async function syncWebTrafficMessages(client: Client): Promise<void> {
 
   const trafficLines = latestTrafficRows.map(
     (row, index) =>
-      `${index + 1}. ${row.createdAt.toISOString()} | ${row.hashedIp.toString('hex')} | invite=${row.clickedInviteButton ? 'yes' : 'no'}`
+      `${index + 1}. ${row.createdAt.toISOString()} | invite=${row.clickedInviteButton ? 'yes' : 'no'}`
   );
 
   const overflowNote =
