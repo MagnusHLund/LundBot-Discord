@@ -86,7 +86,7 @@ async function forwardTrafficToBot(hashedIp: Buffer, eventType: TrafficEventType
   if (existingTraffic) {
     await prisma.websiteTraffic.update({
       where: {
-        WebsiteTrafficId: existingTraffic.WebsiteTrafficId,
+        websiteTrafficId: existingTraffic.websiteTrafficId,
       },
       data: {
         clickedInviteButton: existingTraffic.clickedInviteButton || clickedInviteButton,

@@ -74,13 +74,25 @@ const command: Command = {
     }
 
     let deletedDiscordMessage = false;
+    const leaderboardMessages = await prisma.leaderboardMessages.findMany({
+      where: {
+        leaderboardsId: leaderboard.leaderboardsId,
+      },
+      select: {
+        discordMessageId: true,
+      },
+    });
 
     try {
-      const message = await channel.messages.fetch(leaderboard.discordMessageId).catch(() => null);
+      for (const leaderboardMessage of leaderboardMessages) {
+        const message = await channel.messages
+          .fetch(leaderboardMessage.discordMessageId)
+          .catch(() => null);
 
-      if (message) {
-        await message.delete();
-        deletedDiscordMessage = true;
+        if (message) {
+          await message.delete();
+          deletedDiscordMessage = true;
+        }
       }
     } catch (error) {
       console.error('Failed to delete leaderboard message:', error);

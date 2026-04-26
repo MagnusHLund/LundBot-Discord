@@ -7,6 +7,51 @@ import {
 import { getPrismaClient } from '../services/database.js';
 import { Command } from '../types/index.js';
 
+const MAX_LEADERBOARD_MESSAGE_LENGTH = 1900;
+
+function splitLeaderboardContent(
+  prependMessage: string,
+  title: string,
+  leaderboardLines: string
+): string[] {
+  const header = `**${prependMessage}**\n# ${title}\n\n`;
+
+  if (!leaderboardLines.trim()) {
+    return [header];
+  }
+
+  const lines = leaderboardLines.split('\n');
+  const chunks: string[] = [];
+  let currentChunk = header;
+
+  for (const line of lines) {
+    const lineWithNewline = `${line}\n`;
+
+    if (
+      currentChunk.length + lineWithNewline.length > MAX_LEADERBOARD_MESSAGE_LENGTH &&
+      currentChunk !== header
+    ) {
+      chunks.push(currentChunk.trimEnd());
+      currentChunk = lineWithNewline;
+      continue;
+    }
+
+    if (currentChunk.length + lineWithNewline.length > MAX_LEADERBOARD_MESSAGE_LENGTH) {
+      chunks.push(currentChunk.trimEnd());
+      currentChunk = lineWithNewline;
+      continue;
+    }
+
+    currentChunk += lineWithNewline;
+  }
+
+  if (currentChunk.trim().length > 0) {
+    chunks.push(currentChunk.trimEnd());
+  }
+
+  return chunks.length > 0 ? chunks : [header.trimEnd()];
+}
+
 const command: Command = {
   data: new SlashCommandBuilder()
     .setName('upvote')
@@ -65,7 +110,7 @@ const command: Command = {
       const existingVote = await prisma.upvotingLeaderBoard.findUnique({
         where: {
           UpvotingLeaderBoard_index_2: {
-            leaderboards_id: leaderboard.leaderboardsId,
+            leaderboardsId: leaderboard.leaderboardsId,
             discordUserIdVoter: voterUserId,
             discordUserIdTarget: targetUserId,
           },
@@ -83,7 +128,7 @@ const command: Command = {
       await prisma.$transaction([
         prisma.upvotingLeaderBoard.create({
           data: {
-            leaderboards_id: leaderboard.leaderboardsId,
+            leaderboardsId: leaderboard.leaderboardsId,
             discordUserIdVoter: voterUserId,
             discordUserIdTarget: targetUserId,
           },
@@ -123,14 +168,82 @@ const command: Command = {
               .join('\n')
           : '_No upvotes yet._';
 
-      const leaderboardMessage = await channel.messages
-        .fetch(leaderboard.discordMessageId)
-        .catch(() => null);
+      const messageChunks = splitLeaderboardContent(
+        leaderboard.message,
+        leaderboard.title,
+        leaderboardLines
+      );
 
-      if (leaderboardMessage) {
-        await leaderboardMessage.edit(
-          `**${leaderboard.message}**\n# ${leaderboard.title}\n\n${leaderboardLines}`
-        );
+      const leaderboardMessages = await prisma.leaderboardMessages.findMany({
+        where: {
+          leaderboardsId: leaderboard.leaderboardsId,
+        },
+        orderBy: {
+          leaderboardMessagesId: 'asc',
+        },
+        select: {
+          leaderboardMessagesId: true,
+          discordMessageId: true,
+        },
+      });
+
+      const sharedLength = Math.min(leaderboardMessages.length, messageChunks.length);
+
+      for (let index = 0; index < sharedLength; index += 1) {
+        const leaderboardMessage = leaderboardMessages[index];
+        const chunk = messageChunks[index];
+        const discordMessage = await channel.messages
+          .fetch(leaderboardMessage.discordMessageId)
+          .catch(() => null);
+
+        if (discordMessage) {
+          await discordMessage.edit(chunk);
+          continue;
+        }
+
+        const replacementMessage = await channel.send({ content: chunk });
+        await prisma.leaderboardMessages.update({
+          where: {
+            leaderboardMessagesId: leaderboardMessage.leaderboardMessagesId,
+          },
+          data: {
+            discordMessageId: replacementMessage.id,
+          },
+        });
+      }
+
+      if (messageChunks.length > leaderboardMessages.length) {
+        for (let index = leaderboardMessages.length; index < messageChunks.length; index += 1) {
+          const newMessage = await channel.send({ content: messageChunks[index] });
+          await prisma.leaderboardMessages.create({
+            data: {
+              leaderboardsId: leaderboard.leaderboardsId,
+              discordMessageId: newMessage.id,
+            },
+          });
+        }
+      }
+
+      if (leaderboardMessages.length > messageChunks.length) {
+        const extraMessages = leaderboardMessages.slice(messageChunks.length);
+
+        for (const extraMessage of extraMessages) {
+          const discordMessage = await channel.messages
+            .fetch(extraMessage.discordMessageId)
+            .catch(() => null);
+
+          if (discordMessage) {
+            await discordMessage.delete().catch(() => undefined);
+          }
+        }
+
+        await prisma.leaderboardMessages.deleteMany({
+          where: {
+            leaderboardMessagesId: {
+              in: extraMessages.map((message) => message.leaderboardMessagesId),
+            },
+          },
+        });
       }
 
       await interaction.reply({

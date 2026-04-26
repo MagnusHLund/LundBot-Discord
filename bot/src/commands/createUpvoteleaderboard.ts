@@ -103,9 +103,15 @@ const command: Command = {
         data: {
           discordServerId: interaction.guildId,
           discordChannelId: channel.id,
-          discordMessageId: postedMessage.id,
           title,
           message: prependMessage,
+        },
+      });
+
+      await prisma.leaderboardMessages.create({
+        data: {
+          leaderboardsId: leaderboard.leaderboardsId,
+          discordMessageId: postedMessage.id,
         },
       });
 
