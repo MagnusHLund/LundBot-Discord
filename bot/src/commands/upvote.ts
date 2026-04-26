@@ -158,7 +158,6 @@ const command: Command = {
           leaderboardsId: leaderboard.leaderboardsId,
         },
         orderBy: [{ score: 'desc' }, { updatedAt: 'asc' }],
-        take: 10,
       });
 
       const leaderboardLines =

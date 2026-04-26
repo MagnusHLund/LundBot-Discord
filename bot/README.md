@@ -43,14 +43,13 @@ Edit `.env` with your Discord bot token and database connection string:
 DISCORD_TOKEN=your_bot_token_here
 DATABASE_URL=mysql://user:password@localhost:3306/lundbot
 NODE_ENV=development
-BOT_API_KEY=some-long-random-secret
 BOT_API_PORT=3000
 WEB_TRAFFIC_CHANNEL_ID=123456789012345678
 ```
 
 ### 2b. HTTP API
 
-The bot starts a small HTTP API alongside Discord. Protect it with `BOT_API_KEY`.
+The bot starts a small HTTP API alongside Discord.
 
 **Health check**
 
@@ -73,7 +72,6 @@ Returns `200` when the Discord client is ready and the database is reachable, ot
 ```bash
 POST /message
 Content-Type: application/json
-x-api-key: your-secret
 
 {
   "channelId": "123456789012345678",
@@ -86,7 +84,6 @@ x-api-key: your-secret
 ```bash
 PATCH /message
 Content-Type: application/json
-x-api-key: your-secret
 
 {
   "channelId": "123456789012345678",
@@ -101,7 +98,6 @@ x-api-key: your-secret
 - `200` for edit
 - `200` for healthy `GET /health`
 - `200` for ready `GET /ready`
-- `401` if the API key is wrong
 - `503` if the bot is not ready yet
 
 ### 3. Set Up Database
@@ -188,7 +184,6 @@ Set these repository secrets in GitHub:
 - `GHCR_TOKEN` - classic PAT with `read:packages`
 - `DISCORD_TOKEN` - Discord bot token
 - `DATABASE_URL` - database connection string
-- `BOT_API_KEY` - API key used by your HTTP API
 - `BOT_API_PORT` - optional, defaults to `3000`
 - `WEB_TRAFFIC_CHANNEL_ID` - Discord text channel where web traffic summary messages are posted/updated
 
