@@ -8,5 +8,6 @@ services:
     environment:
       DATABASE_URL: ${DATABASE_URL}
       BOT_API_PORT: ${BOT_API_PORT:-3000}
+      WEB_TRAFFIC_CHANNEL_ID: ${WEB_TRAFFIC_CHANNEL_ID}
     ports:
       - '${BOT_API_PORT:-3000}:3000'

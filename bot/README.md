@@ -45,6 +45,7 @@ DATABASE_URL=mysql://user:password@localhost:3306/lundbot
 NODE_ENV=development
 BOT_API_KEY=some-long-random-secret
 BOT_API_PORT=3000
+WEB_TRAFFIC_CHANNEL_ID=123456789012345678
 ```
 
 ### 2b. HTTP API
@@ -189,6 +190,7 @@ Set these repository secrets in GitHub:
 - `DATABASE_URL` - database connection string
 - `BOT_API_KEY` - API key used by your HTTP API
 - `BOT_API_PORT` - optional, defaults to `3000`
+- `WEB_TRAFFIC_CHANNEL_ID` - Discord text channel where web traffic summary messages are posted/updated
 
 ### 4. What runs
 

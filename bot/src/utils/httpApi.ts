@@ -5,7 +5,10 @@ import type { Client } from 'discord.js';
 import { getPrismaClient } from '../services/database.js';
 
 const API_PORT = Number(process.env.BOT_API_PORT ?? '3000');
+const WEB_TRAFFIC_CHANNEL_ID = process.env.WEB_TRAFFIC_CHANNEL_ID?.trim() ?? '';
 const MAX_BODY_SIZE = 1024 * 1024;
+const MAX_TRAFFIC_MESSAGE_LENGTH = 1900;
+const MAX_TRAFFIC_ROWS_IN_MESSAGE = 1000;
 
 type JsonRecord = Record<string, unknown>;
 
@@ -71,6 +74,201 @@ function getRequestIp(req: IncomingMessage): string {
 
 function hashIp(ip: string): Buffer {
   return createHash('sha256').update(ip).digest();
+}
+
+function getCurrentUtcWeekBounds(referenceDate: Date): { weekStart: Date; weekEnd: Date } {
+  const current = new Date(referenceDate);
+  const day = current.getUTCDay();
+  const dayFromMonday = (day + 6) % 7;
+
+  current.setUTCHours(0, 0, 0, 0);
+  current.setUTCDate(current.getUTCDate() - dayFromMonday);
+
+  const weekStart = current;
+  const weekEnd = new Date(weekStart);
+  weekEnd.setUTCDate(weekEnd.getUTCDate() + 7);
+
+  return { weekStart, weekEnd };
+}
+
+function splitTrafficContent(content: string): string[] {
+  if (content.length <= MAX_TRAFFIC_MESSAGE_LENGTH) {
+    return [content];
+  }
+
+  const lines = content.split('\n');
+  const chunks: string[] = [];
+  let currentChunk = '';
+
+  for (const line of lines) {
+    const lineWithNewline = `${line}\n`;
+
+    if (
+      currentChunk.length > 0 &&
+      currentChunk.length + lineWithNewline.length > MAX_TRAFFIC_MESSAGE_LENGTH
+    ) {
+      chunks.push(currentChunk.trimEnd());
+      currentChunk = lineWithNewline;
+      continue;
+    }
+
+    if (lineWithNewline.length > MAX_TRAFFIC_MESSAGE_LENGTH) {
+      if (currentChunk.length > 0) {
+        chunks.push(currentChunk.trimEnd());
+        currentChunk = '';
+      }
+
+      let start = 0;
+      while (start < line.length) {
+        const part = line.slice(start, start + MAX_TRAFFIC_MESSAGE_LENGTH);
+        chunks.push(part);
+        start += MAX_TRAFFIC_MESSAGE_LENGTH;
+      }
+      continue;
+    }
+
+    currentChunk += lineWithNewline;
+  }
+
+  if (currentChunk.trim().length > 0) {
+    chunks.push(currentChunk.trimEnd());
+  }
+
+  return chunks.length > 0 ? chunks : [content];
+}
+
+async function syncWebTrafficMessages(client: Client): Promise<void> {
+  if (!WEB_TRAFFIC_CHANNEL_ID) {
+    return;
+  }
+
+  const channel = await getTextChannel(client, WEB_TRAFFIC_CHANNEL_ID);
+  if (!channel) {
+    console.warn(`Web traffic channel not found or not writable: ${WEB_TRAFFIC_CHANNEL_ID}`);
+    return;
+  }
+
+  const prisma = getPrismaClient();
+  const { weekStart, weekEnd } = getCurrentUtcWeekBounds(new Date());
+
+  const [totalVisits, inviteClicks, latestTrafficRows, existingWebTrafficMessages] =
+    await prisma.$transaction([
+      prisma.websiteTraffic.count({
+        where: {
+          createdAt: {
+            gte: weekStart,
+            lt: weekEnd,
+          },
+        },
+      }),
+      prisma.websiteTraffic.count({
+        where: {
+          clickedInviteButton: true,
+          createdAt: {
+            gte: weekStart,
+            lt: weekEnd,
+          },
+        },
+      }),
+      prisma.websiteTraffic.findMany({
+        where: {
+          createdAt: {
+            gte: weekStart,
+            lt: weekEnd,
+          },
+        },
+        orderBy: { createdAt: 'desc' },
+        take: MAX_TRAFFIC_ROWS_IN_MESSAGE,
+      }),
+      prisma.webTrafficMessages.findMany({
+        where: {
+          createdAt: {
+            gte: weekStart,
+            lt: weekEnd,
+          },
+        },
+        orderBy: { webTrafficMessagesId: 'asc' },
+      }),
+    ]);
+
+  const trafficLines = latestTrafficRows.map(
+    (row, index) =>
+      `${index + 1}. ${row.createdAt.toISOString()} | ${row.hashedIp.toString('hex')} | invite=${row.clickedInviteButton ? 'yes' : 'no'}`
+  );
+
+  const overflowNote =
+    totalVisits > latestTrafficRows.length
+      ? `\n\nShowing latest ${latestTrafficRows.length} of ${totalVisits} records.`
+      : '';
+
+  const weekLabel = `${weekStart.toISOString().slice(0, 10)} to ${new Date(weekEnd.getTime() - 1).toISOString().slice(0, 10)}`;
+
+  const content =
+    `# Website Traffic\n` +
+    `Week (UTC): ${weekLabel}\n` +
+    `Total Visits: ${totalVisits}\n` +
+    `Invite Clicks: ${inviteClicks}\n\n` +
+    `## Entries\n` +
+    `${trafficLines.length > 0 ? trafficLines.join('\n') : 'No entries yet.'}` +
+    overflowNote;
+
+  const chunks = splitTrafficContent(content);
+  const sharedLength = Math.min(existingWebTrafficMessages.length, chunks.length);
+
+  for (let index = 0; index < sharedLength; index += 1) {
+    const existingMessage = existingWebTrafficMessages[index];
+    const targetContent = chunks[index];
+    const discordMessage = await channel.messages
+      .fetch(existingMessage.discordMessageId)
+      .catch(() => null);
+
+    if (discordMessage) {
+      await discordMessage.edit({ content: targetContent });
+      continue;
+    }
+
+    const replacementMessage = await channel.send({ content: targetContent });
+    await prisma.webTrafficMessages.update({
+      where: {
+        webTrafficMessagesId: existingMessage.webTrafficMessagesId,
+      },
+      data: {
+        discordMessageId: replacementMessage.id,
+      },
+    });
+  }
+
+  if (chunks.length > existingWebTrafficMessages.length) {
+    for (let index = existingWebTrafficMessages.length; index < chunks.length; index += 1) {
+      const newMessage = await channel.send({ content: chunks[index] });
+      await prisma.webTrafficMessages.create({
+        data: {
+          discordMessageId: newMessage.id,
+        },
+      });
+    }
+  }
+
+  if (existingWebTrafficMessages.length > chunks.length) {
+    const extraMessages = existingWebTrafficMessages.slice(chunks.length);
+
+    for (const extraMessage of extraMessages) {
+      const discordMessage = await channel.messages
+        .fetch(extraMessage.discordMessageId)
+        .catch(() => null);
+      if (discordMessage) {
+        await discordMessage.delete().catch(() => undefined);
+      }
+    }
+
+    await prisma.webTrafficMessages.deleteMany({
+      where: {
+        webTrafficMessagesId: {
+          in: extraMessages.map((message) => message.webTrafficMessagesId),
+        },
+      },
+    });
+  }
 }
 
 async function forwardTrafficToBot(hashedIp: Buffer, eventType: TrafficEventType) {
@@ -183,6 +381,7 @@ export function startHttpApi(client: Client): void {
         const ip = getRequestIp(req);
         const hashedIp = hashIp(ip);
         await forwardTrafficToBot(hashedIp, 'visit');
+        await syncWebTrafficMessages(client);
 
         sendJson(res, 200, {
           ok: true,
@@ -197,6 +396,7 @@ export function startHttpApi(client: Client): void {
         const ip = getRequestIp(req);
         const hashedIp = hashIp(ip);
         await forwardTrafficToBot(hashedIp, 'invite-click');
+        await syncWebTrafficMessages(client);
 
         sendJson(res, 200, {
           ok: true,
