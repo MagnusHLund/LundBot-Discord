@@ -191,10 +191,19 @@ async function syncWebTrafficMessages(client: Client): Promise<void> {
       }),
     ]);
 
-  const trafficLines = latestTrafficRows.map(
+  const trafficTableRows = latestTrafficRows.map(
     (row, index) =>
-      `${index + 1}. ${row.createdAt.toISOString()} | invite=${row.clickedInviteButton ? 'yes' : 'no'}`
+      `| ${index + 1} | ${row.createdAt.toISOString()} | ${row.clickedInviteButton ? 'Yes' : 'No'} |`
   );
+
+  const trafficTable =
+    trafficTableRows.length > 0
+      ? [
+          '| # | Timestamp (UTC) | Invite Clicked |',
+          '| --- | --- | --- |',
+          ...trafficTableRows,
+        ].join('\n')
+      : 'No entries yet.';
 
   const overflowNote =
     totalVisits > latestTrafficRows.length
@@ -209,7 +218,7 @@ async function syncWebTrafficMessages(client: Client): Promise<void> {
     `Total Visits: ${totalVisits}\n` +
     `Invite Clicks: ${inviteClicks}\n\n` +
     `## Entries\n` +
-    `${trafficLines.length > 0 ? trafficLines.join('\n') : 'No entries yet.'}` +
+    `${trafficTable}` +
     overflowNote;
 
   const chunks = splitTrafficContent(content);
