@@ -17,9 +17,7 @@ namespace LundBot.Services
         {
             await SetBotStatusAsync(discordClient);
 
-            bool shouldClearGlobalCommands = true; // TODO: Make this configurable
-
-            await _commandsService.ClearCommandsAsync(discordClient, shouldClearGlobalCommands);
+            await _commandsService.ClearCommandsAsync(discordClient);
             await _commandsService.RegisterCommandsAsync(discordClient);
         }
 
