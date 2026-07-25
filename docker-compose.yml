@@ -8,14 +8,8 @@ services:
       - ./bot:/app
       - /app/src/bin
       - /app/src/obj
-    env_file:
-      - ./.env
-    environment:
-      DATABASE_URL: ${DATABASE_URL}
-      BOT_API_PORT: ${BOT_API_PORT:-3000}
-      WEB_TRAFFIC_CHANNEL_ID: ${WEB_TRAFFIC_CHANNEL_ID}
     ports:
-      - '${BOT_API_PORT:-3000}:65535' # Web port
+      - '3000:65535' # Web port
       - 5679:5678 # Debug port
     networks:
       - LundBotDiscordNetwork

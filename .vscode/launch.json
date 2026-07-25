@@ -1,0 +1,23 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Docker: Attach to .NET Core",
+      "type": "coreclr",
+      "request": "attach",
+      "processId": "23",
+      "sourceFileMap": {
+        "/app": "${workspaceFolder}/bot/src"
+      },
+      "pipeTransport": {
+        "pipeProgram": "docker",
+        "pipeArgs": ["exec", "-i", "lundbot-discord"],
+        "debuggerPath": "/vsdbg/vsdbg",
+        "pipeCwd": "${workspaceFolder}",
+        "quoteArgs": false
+      },
+      "args": ["--interpreter=vscode"],
+      "requireExactSource": false
+    }
+  ]
+}
