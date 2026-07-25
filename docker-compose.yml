@@ -2,7 +2,12 @@ services:
   bot:
     build:
       context: ./bot
+    container_name: lundbot-discord
     restart: unless-stopped
+    volumes:
+      - ./bot:/app
+      - /app/src/bin
+      - /app/src/obj
     env_file:
       - ./.env
     environment:
@@ -10,4 +15,11 @@ services:
       BOT_API_PORT: ${BOT_API_PORT:-3000}
       WEB_TRAFFIC_CHANNEL_ID: ${WEB_TRAFFIC_CHANNEL_ID}
     ports:
-      - '${BOT_API_PORT:-3000}:3000'
+      - '${BOT_API_PORT:-3000}:65535' # Web port
+      - 5679:5678 # Debug port
+    networks:
+      - LundBotDiscordNetwork
+
+networks:
+  LundBotDiscordNetwork:
+    driver: bridge
