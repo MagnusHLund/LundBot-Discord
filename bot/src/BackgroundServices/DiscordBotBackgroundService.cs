@@ -40,7 +40,7 @@ namespace LundBot.BackgroundServices
 
             try
             {
-                _logger.Information("Registering slash commands...");
+                _logger.Information("Enabling slash commands dependency...");
                 var slash = _discordClient.UseSlashCommands();
 
                 _logger.Information("Connecting to Discord...");
