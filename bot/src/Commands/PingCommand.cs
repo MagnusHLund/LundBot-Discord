@@ -11,10 +11,7 @@ namespace LundBot.Commands
         [SlashCommand("ping", "Pings the bot.")]
         public async Task PingAsync(InteractionContext context)
         {
-            await context.CreateResponseAsync(
-                InteractionResponseType.ChannelMessageWithSource,
-                new DiscordInteractionResponseBuilder().WithContent("Pong!")
-            );
+            await SendResponseAsync(context, "Pong!");
         }
     }
 }

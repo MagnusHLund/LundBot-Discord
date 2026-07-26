@@ -22,13 +22,9 @@ namespace LundBot.Commands
 
             if (!confirm)
             {
-                await context.CreateResponseAsync(
-                    InteractionResponseType.ChannelMessageWithSource,
-                    new DiscordInteractionResponseBuilder()
-                        .WithContent(
-                            "You must confirm the removal of the leaderboard by setting the 'Confirm' option to true."
-                        )
-                        .AsEphemeral(true)
+                await SendResponseAsync(
+                    context,
+                    "You must confirm the removal of the leaderboard by setting the 'Confirm' option to true."
                 );
                 return;
             }

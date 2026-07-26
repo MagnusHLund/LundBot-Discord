@@ -49,9 +49,10 @@ namespace LundBot
         {
             services.AddSingleton<IBotService, BotService>();
             services.AddSingleton<ICommandsService, CommandsService>();
-            services.AddSingleton<IMessageService, MessageService>();
-            services.AddSingleton<IWebsiteTrafficService, WebsiteTrafficService>();
             services.AddSingleton<ILeaderboardService, LeaderboardService>();
+            services.AddSingleton<IMessageService, MessageService>();
+
+            services.AddScoped<IWebsiteTrafficService, WebsiteTrafficService>();
         }
 
         private static void RegisterRepositories(IServiceCollection services)

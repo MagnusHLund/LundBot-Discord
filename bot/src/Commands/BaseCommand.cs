@@ -12,15 +12,24 @@ namespace LundBot.Commands
         {
             if (context.Guild is null)
             {
-                await context.CreateResponseAsync(
-                    InteractionResponseType.ChannelMessageWithSource,
-                    new DiscordInteractionResponseBuilder()
-                        .WithContent("This command can only be used inside a server.")
-                        .AsEphemeral(true)
-                );
+                await SendResponseAsync(context, "This command can only be used inside a server.");
                 return false;
             }
             return true;
+        }
+
+        private protected static async Task SendResponseAsync(
+            InteractionContext context,
+            string content,
+            bool showOnlyToUser = true
+        )
+        {
+            await context.CreateResponseAsync(
+                InteractionResponseType.ChannelMessageWithSource,
+                new DiscordInteractionResponseBuilder()
+                    .WithContent(content)
+                    .AsEphemeral(showOnlyToUser)
+            );
         }
     }
 }

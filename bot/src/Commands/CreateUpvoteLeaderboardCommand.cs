@@ -38,11 +38,9 @@ namespace LundBot.Commands
             title = title.Trim();
             if (!ValidationUtils.IsValidLengthString(title, 64, 1))
             {
-                await context.CreateResponseAsync(
-                    InteractionResponseType.ChannelMessageWithSource,
-                    new DiscordInteractionResponseBuilder()
-                        .WithContent("The title must be between 1 and 64 characters long.")
-                        .AsEphemeral(true)
+                await SendResponseAsync(
+                    context,
+                    "The title must be between 1 and 64 characters long."
                 );
                 return;
             }
@@ -50,11 +48,9 @@ namespace LundBot.Commands
             message = message != null ? message.Trim() : "";
             if (!ValidationUtils.IsValidLengthString(message, 256, 0))
             {
-                await context.CreateResponseAsync(
-                    InteractionResponseType.ChannelMessageWithSource,
-                    new DiscordInteractionResponseBuilder()
-                        .WithContent("The message must be between 0 and 256 characters long.")
-                        .AsEphemeral(true)
+                await SendResponseAsync(
+                    context,
+                    "The message must be between 0 and 256 characters long."
                 );
                 return;
             }
