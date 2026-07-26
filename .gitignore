@@ -239,5 +239,6 @@ _Pvt_Extensions
 # Environment files 
 **/.env
 
-# Production appsettings
+# Production & development appsettings
 **/appsettings.Production.json
+**/appsettings.Development.json

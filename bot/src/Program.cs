@@ -1,10 +1,12 @@
 using DSharpPlus;
 using LundBot.Config;
+using LundBot.Data;
 using LundBot.Interfaces.Repositories;
 using LundBot.Interfaces.Services;
 using LundBot.Middleware;
 using LundBot.Repositories;
 using LundBot.Services;
+using Microsoft.EntityFrameworkCore;
 using Serilog;
 
 namespace LundBot
@@ -16,6 +18,7 @@ namespace LundBot
             RegisterLogger();
             var builder = WebApplication.CreateBuilder(args);
 
+            SetupDatabase(builder);
             RegisterConfiguration(builder);
             RegisterServices(builder.Services);
             RegisterRepositories(builder.Services);
@@ -115,6 +118,16 @@ namespace LundBot
         private static void RegisterConfiguration(WebApplicationBuilder builder)
         {
             builder.Services.Configure<DiscordConfig>(builder.Configuration.GetSection("Discord"));
+        }
+
+        private static void SetupDatabase(WebApplicationBuilder builder)
+        {
+            var connectionString = builder.Configuration.GetSection("Database")["ConnectionString"];
+
+            builder.Services.AddDbContext<LundBotDiscordDbContext>(options =>
+            {
+                options.UseMySql(connectionString, ServerVersion.AutoDetect(connectionString));
+            });
         }
     }
 }
