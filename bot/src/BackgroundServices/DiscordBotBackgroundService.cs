@@ -1,5 +1,8 @@
 using DSharpPlus;
+using DSharpPlus.Entities;
+using DSharpPlus.EventArgs;
 using DSharpPlus.SlashCommands;
+using DSharpPlus.SlashCommands.EventArgs;
 using LundBot.Interfaces.Services;
 using Serilog;
 using ILogger = Serilog.ILogger;
@@ -11,51 +14,94 @@ namespace LundBot.BackgroundServices
         private readonly DiscordClient _discordClient;
         private readonly IBotService _botService;
         private readonly ICommandsService _commandsService;
-        private readonly IServiceScopeFactory _scopeFactory;
         private readonly ILogger _logger = Log.ForContext<DiscordBotBackgroundService>();
 
         public DiscordBotBackgroundService(
             DiscordClient discordClient,
             IBotService botService,
-            ICommandsService commandsService,
-            IServiceScopeFactory scopeFactory
+            ICommandsService commandsService
         )
         {
             _discordClient = discordClient;
             _botService = botService;
             _commandsService = commandsService;
-            _scopeFactory = scopeFactory;
         }
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
-            _discordClient.Ready += async (sender, e) =>
-            {
-                _logger.Information("Discord client is ready. Starting bot initialization...");
+            _discordClient.Ready += OnClientReady;
 
-                await _botService.InitializeAsync(_discordClient);
+            _logger.Information("Creating SlashCommandsExtension and registering commands...");
 
-                _logger.Information("Bot initialization completed.");
-            };
+            var slash = _discordClient.UseSlashCommands();
 
+            slash.SlashCommandExecuted += OnSlashCommandExecuted;
+            slash.SlashCommandErrored += OnSlashCommandErrored;
+
+            await _commandsService.RegisterCommandsAsync(_discordClient);
+
+            _logger.Information("Connecting to Discord...");
+            await _discordClient.ConnectAsync();
+
+            await _commandsService.LogRegisteredCommandsForGuildsAsync(_discordClient);
+
+            _logger.Information("Bot initialization is complete!");
+            await Task.Delay(Timeout.Infinite, stoppingToken);
+        }
+
+        private async Task OnClientReady(DiscordClient sender, ReadyEventArgs e)
+        {
+            _logger.Information("Ready fired, running BotService initialization...");
             try
             {
-                _logger.Information("Enabling slash commands dependency...");
-                var slash = _discordClient.UseSlashCommands();
-
-                _logger.Information("Connecting to Discord...");
-                await _discordClient.ConnectAsync();
+                await _botService.InitializeAsync(_discordClient);
+                _logger.Information("BotService initialization completed.");
             }
             catch (Exception ex)
             {
-                _logger.Error(
-                    ex,
-                    "Error initializing Discord client. Exception: {ExceptionMessage}",
-                    ex.Message
-                );
+                _logger.Warning(ex, "BotService.InitializeAsync threw.");
             }
+        }
 
-            await Task.Delay(Timeout.Infinite, stoppingToken);
+        private async Task OnSlashCommandExecuted(
+            SlashCommandsExtension sender,
+            SlashCommandExecutedEventArgs e
+        )
+        {
+            _logger.Information(
+                "Slash executed: {Cmd} by {User} in Guild={Guild}",
+                e.Context.CommandName,
+                e.Context.User?.Username,
+                e.Context.Guild?.Id ?? 0
+            );
+        }
+
+        private async Task OnSlashCommandErrored(
+            SlashCommandsExtension sender,
+            SlashCommandErrorEventArgs e
+        )
+        {
+            _logger.Error(
+                e.Exception,
+                "Slash errored: {Cmd} by {User} in Guild={Guild}",
+                e.Context?.CommandName ?? "<unknown>",
+                e.Context?.User?.Username ?? "<unknown>",
+                e.Context?.Guild?.Id ?? 0
+            );
+
+            try
+            {
+                if (e.Context != null)
+                {
+                    await e.Context.CreateResponseAsync(
+                        InteractionResponseType.ChannelMessageWithSource,
+                        new DiscordInteractionResponseBuilder()
+                            .WithContent("Internal error")
+                            .AsEphemeral(true)
+                    );
+                }
+            }
+            catch { }
         }
     }
 }

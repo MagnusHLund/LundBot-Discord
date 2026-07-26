@@ -19,25 +19,6 @@ namespace LundBot.Services
             _discordConfig = options.Value;
         }
 
-        public async Task ClearCommandsAsync(DiscordClient discordClient)
-        {
-            var tasks = new List<Task>();
-
-            if (_discordConfig.ShouldClearGlobalCommands)
-            {
-                _logger.Information("Clearing GLOBAL application commands…");
-                tasks.Add(discordClient.BulkOverwriteGlobalApplicationCommandsAsync([]));
-            }
-
-            foreach (ulong guildId in GetFastUpdateGuildIds())
-            {
-                _logger.Information("Clearing commands for guild {GuildId}…", guildId);
-                // tasks.Add(discordClient.BulkOverwriteGuildApplicationCommandsAsync(guildId, []));
-            }
-
-            await Task.WhenAll(tasks);
-        }
-
         public async Task RegisterCommandsAsync(DiscordClient discordClient)
         {
             SlashCommandsExtension slash = discordClient.GetSlashCommands();
@@ -60,6 +41,36 @@ namespace LundBot.Services
                 slash.RegisterCommands<PingCommand>(guildId);
                 slash.RegisterCommands<RemoveLeaderboardCommand>(guildId);
                 slash.RegisterCommands<UpvoteUserOnLeaderboardCommand>(guildId);
+            }
+        }
+
+        public async Task LogRegisteredCommandsForGuildsAsync(DiscordClient discordClient)
+        {
+            foreach (ulong guildId in GetFastUpdateGuildIds())
+            {
+                if (!discordClient.Guilds.ContainsKey(guildId))
+                {
+                    continue;
+                }
+
+                var registeredCommands = await discordClient.GetGuildApplicationCommandsAsync(
+                    guildId
+                );
+
+                _logger.Information(
+                    "Registered commands for guild {GuildId}: {Count}",
+                    guildId.ToString(),
+                    registeredCommands.Count
+                );
+
+                foreach (var command in registeredCommands)
+                {
+                    _logger.Information(
+                        "Command: {Name} - {Description}",
+                        command.Name,
+                        command.Description
+                    );
+                }
             }
         }
 

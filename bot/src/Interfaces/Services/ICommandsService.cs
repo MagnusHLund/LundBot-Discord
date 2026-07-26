@@ -8,7 +8,7 @@ namespace LundBot.Interfaces.Services
 {
     public interface ICommandsService
     {
-        Task ClearCommandsAsync(DiscordClient discordClient);
         Task RegisterCommandsAsync(DiscordClient discordClient);
+        Task LogRegisteredCommandsForGuildsAsync(DiscordClient discordClient);
     }
 }

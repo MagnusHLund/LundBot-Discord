@@ -6,19 +6,9 @@ namespace LundBot.Services
 {
     public sealed class BotService : IBotService
     {
-        private readonly ICommandsService _commandsService;
-
-        public BotService(ICommandsService commandsService)
-        {
-            _commandsService = commandsService;
-        }
-
         public async Task InitializeAsync(DiscordClient discordClient)
         {
             await SetBotStatusAsync(discordClient);
-
-            await _commandsService.ClearCommandsAsync(discordClient);
-            await _commandsService.RegisterCommandsAsync(discordClient);
         }
 
         private async Task SetBotStatusAsync(DiscordClient discordClient)
