@@ -43,7 +43,11 @@ namespace LundBot.Services
             SlashCommandsExtension slash = discordClient.GetSlashCommands();
 
             List<ulong?> guildIds = GetFastUpdateGuildIds().Select(id => (ulong?)id).ToList();
-            guildIds.Add(null); // Add null to register global commands
+
+            if (_discordConfig.ShouldRegisterGlobalCommands)
+            {
+                guildIds.Add(null); // Add null to register global commands
+            }
 
             foreach (ulong? guildId in guildIds)
             {
