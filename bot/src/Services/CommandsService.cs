@@ -74,6 +74,12 @@ namespace LundBot.Services
             }
         }
 
+        public async Task RefreshCommands(DiscordClient discordClient)
+        {
+            SlashCommandsExtension slash = discordClient.GetSlashCommands();
+            await slash.RefreshCommands();
+        }
+
         private List<ulong> GetFastUpdateGuildIds()
         {
             return _discordConfig.FastUpdateGuildIds;

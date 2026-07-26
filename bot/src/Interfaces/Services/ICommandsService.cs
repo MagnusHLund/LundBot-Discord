@@ -1,7 +1,3 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using DSharpPlus;
 
 namespace LundBot.Interfaces.Services
@@ -10,5 +6,6 @@ namespace LundBot.Interfaces.Services
     {
         Task RegisterCommandsAsync(DiscordClient discordClient);
         Task LogRegisteredCommandsForGuildsAsync(DiscordClient discordClient);
+        Task RefreshCommands(DiscordClient discordClient);
     }
 }

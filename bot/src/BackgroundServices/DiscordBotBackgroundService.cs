@@ -29,6 +29,7 @@ namespace LundBot.BackgroundServices
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
+            _discordClient.GuildCreated += OnGuildCreated;
             _discordClient.Ready += OnClientReady;
 
             _logger.Information("Creating SlashCommandsExtension and registering commands...");
@@ -102,6 +103,21 @@ namespace LundBot.BackgroundServices
                 }
             }
             catch { }
+        }
+
+        private async Task OnGuildCreated(DiscordClient sender, GuildCreateEventArgs e)
+        {
+            _logger.Information("Guild created: {GuildName} ({GuildId})", e.Guild.Name, e.Guild.Id);
+
+            try
+            {
+                await _commandsService.RefreshCommands(_discordClient);
+                _logger.Information("Registered commands for guild {GuildId}", e.Guild.Id);
+            }
+            catch (Exception ex)
+            {
+                _logger.Error(ex, "Error registering commands for guild {GuildId}", e.Guild.Id);
+            }
         }
     }
 }
