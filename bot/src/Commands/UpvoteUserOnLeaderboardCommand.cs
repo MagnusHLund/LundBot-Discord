@@ -11,8 +11,8 @@ namespace LundBot.Commands
         [SlashCommand("upvote", "Upvotes a user on the specified leaderboard.")]
         public async Task UpvoteUserAsync(
             InteractionContext context,
-            [Option("Channel", "The Channel that the leaderboard is in")] DiscordChannel channel,
-            [Option("User", "The user to upvote")] DiscordUser user
+            [Option("channel", "The Channel that the leaderboard is in")] DiscordChannel channel,
+            [Option("user", "The user to upvote")] DiscordUser user
         )
         {
             if (!await IsCommandSentFromServer(context))

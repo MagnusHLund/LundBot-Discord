@@ -16,14 +16,14 @@ namespace LundBot.Commands
             [ChannelTypes(ChannelType.Text)]
                 DiscordChannel Channel,
             [Option(
-                "Leaderboard title",
-                "The title of the leaderboard. What is the leaderboard used for? eg 'Top Upvoted Users'. Max 64 characters."
+                "title",
+                "The title of the leaderboard. eg 'Top Upvoted Users'. Max 64 characters."
             )]
             [MinimumLength(1)]
             [MaximumLength(64)]
                 string title,
             [Option(
-                "Message",
+                "message",
                 "Message to prepend above the leaderboard data. Max 256 characters."
             )]
             [MaximumLength(256)]

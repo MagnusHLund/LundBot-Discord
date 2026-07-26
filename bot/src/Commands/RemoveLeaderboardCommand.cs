@@ -11,8 +11,8 @@ namespace LundBot.Commands
         [SlashCommand("remove-leaderboard", "Removes an existing leaderboard.")]
         public async Task RemoveLeaderboardAsync(
             InteractionContext context,
-            [Option("Channel", "The Channel that the leaderboard is in")] DiscordChannel channel,
-            [Option("Confirm", "Confirm the removal of the leaderboard")] bool confirm
+            [Option("channel", "The Channel that the leaderboard is in")] DiscordChannel channel,
+            [Option("confirm", "Confirm the removal of the leaderboard")] bool confirm
         )
         {
             if (!await IsCommandSentFromServer(context))
