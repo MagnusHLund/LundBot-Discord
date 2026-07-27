@@ -5,13 +5,12 @@ using LundBot.Config;
 using LundBot.Interfaces.Services;
 using Microsoft.Extensions.Options;
 using Serilog;
-using ILogger = Serilog.ILogger;
 
 namespace LundBot.Services
 {
     public sealed class CommandsService : ICommandsService
     {
-        private readonly ILogger _logger = Log.ForContext<CommandsService>();
+        private readonly Serilog.ILogger _logger = Log.ForContext<CommandsService>();
         private readonly DiscordConfig _discordConfig;
 
         public CommandsService(IOptions<DiscordConfig> options)
@@ -19,9 +18,9 @@ namespace LundBot.Services
             _discordConfig = options.Value;
         }
 
-        public async Task RegisterCommandsAsync(DiscordClient discordClient)
+        public async Task RegisterCommandsAsync()
         {
-            SlashCommandsExtension slash = discordClient.GetSlashCommands();
+            SlashCommandsExtension slash = BotService.DiscordClient.GetSlashCommands();
 
             List<ulong?> guildIds = GetFastUpdateGuildIds().Select(id => (ulong?)id).ToList();
 
@@ -44,18 +43,17 @@ namespace LundBot.Services
             }
         }
 
-        public async Task LogRegisteredCommandsForGuildsAsync(DiscordClient discordClient)
+        public async Task LogRegisteredCommandsForGuildsAsync()
         {
             foreach (ulong guildId in GetFastUpdateGuildIds())
             {
-                if (!discordClient.Guilds.ContainsKey(guildId))
+                if (!BotService.DiscordClient.Guilds.ContainsKey(guildId))
                 {
                     continue;
                 }
 
-                var registeredCommands = await discordClient.GetGuildApplicationCommandsAsync(
-                    guildId
-                );
+                var registeredCommands =
+                    await BotService.DiscordClient.GetGuildApplicationCommandsAsync(guildId);
 
                 _logger.Information(
                     "Registered commands for guild {GuildId}: {Count}",
@@ -74,9 +72,9 @@ namespace LundBot.Services
             }
         }
 
-        public async Task RefreshCommands(DiscordClient discordClient)
+        public async Task RefreshCommands()
         {
-            SlashCommandsExtension slash = discordClient.GetSlashCommands();
+            SlashCommandsExtension slash = BotService.DiscordClient.GetSlashCommands();
             await slash.RefreshCommands();
         }
 

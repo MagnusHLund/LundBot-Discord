@@ -13,7 +13,7 @@ ENV DOTNET_USE_POLLING_FILE_WATCHER=1 \
     DOTNET_RUNNING_IN_CONTAINER=true \
     ASPNETCORE_URLS=http://0.0.0.0:65535 \
     DOTNET_WATCH_RESTART_ON_RUDE_EDIT=1 \
-    ASPNETCORE_ENVIRONMENT=Production
+    ASPNETCORE_ENVIRONMENT=Development
 
 RUN apt-get update && apt-get install -y unzip curl && rm -rf /var/lib/apt/lists/* && \
     mkdir -p /vsdbg && \

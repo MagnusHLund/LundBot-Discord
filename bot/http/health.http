@@ -1,0 +1,4 @@
+@LundBot_HostAddress = http://localhost:3000
+
+GET {{LundBot_HostAddress}}/api/health
+Accept: application/json

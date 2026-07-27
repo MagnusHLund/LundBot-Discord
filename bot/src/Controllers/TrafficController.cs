@@ -1,4 +1,7 @@
+using LundBot.Config;
+using LundBot.Interfaces.Services;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Options;
 
 namespace LundBot.Controllers
 {
@@ -6,22 +9,43 @@ namespace LundBot.Controllers
     [Route("api/[controller]")]
     public sealed class TrafficController : BaseController
     {
-        [HttpPost("visit")]
-        public IActionResult VisitedWebsite()
-        {
-            // TODO: Hash ip, store in database, ensure bot updates message in discord channel
-            string ipAddress = getRequestorIpAddress(Request);
+        private readonly IWebsiteTrafficService _websiteTrafficService;
 
-            return Ok();
+        public TrafficController(
+            IWebsiteTrafficService websiteTrafficService,
+            IOptions<DeveloperEnvironmentConfig> devConfig
+        )
+            : base(devConfig)
+        {
+            _websiteTrafficService = websiteTrafficService;
+        }
+
+        [HttpPost("visit")]
+        public async Task<IActionResult> VisitedWebsite()
+        {
+            string ipAddress = GetRequestorIpAddress(Request);
+            bool success = await _websiteTrafficService.RegisterWebsiteVisitAsync(ipAddress);
+
+            if (success)
+            {
+                return Ok();
+            }
+
+            return StatusCode(StatusCodes.Status500InternalServerError);
         }
 
         [HttpPost("invite-click")]
-        public IActionResult ClickedInviteLink()
+        public async Task<IActionResult> ClickedInviteLink()
         {
-            // TODO: Hash ip, store in database, ensure bot updates message in discord channel to show the click
-            string ipAddress = getRequestorIpAddress(Request);
+            string ipAddress = GetRequestorIpAddress(Request);
+            bool success = await _websiteTrafficService.RegisterInviteLinkClickAsync(ipAddress);
 
-            return Ok();
+            if (success)
+            {
+                return Ok();
+            }
+
+            return StatusCode(StatusCodes.Status500InternalServerError);
         }
     }
 }

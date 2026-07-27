@@ -52,9 +52,9 @@ namespace LundBot
         {
             services.AddSingleton<IBotService, BotService>();
             services.AddSingleton<ICommandsService, CommandsService>();
-            services.AddSingleton<ILeaderboardService, LeaderboardService>();
-            services.AddSingleton<IMessageService, MessageService>();
 
+            services.AddScoped<ILeaderboardService, LeaderboardService>();
+            services.AddScoped<IMessageService, MessageService>();
             services.AddScoped<IWebsiteTrafficService, WebsiteTrafficService>();
         }
 
@@ -118,6 +118,9 @@ namespace LundBot
         private static void RegisterConfiguration(WebApplicationBuilder builder)
         {
             builder.Services.Configure<DiscordConfig>(builder.Configuration.GetSection("Discord"));
+            builder.Services.Configure<DeveloperEnvironmentConfig>(
+                builder.Configuration.GetSection("DeveloperEnvironment")
+            );
         }
 
         private static void SetupDatabase(WebApplicationBuilder builder)

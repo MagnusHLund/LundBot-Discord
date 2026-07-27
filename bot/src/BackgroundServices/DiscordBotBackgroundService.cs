@@ -4,8 +4,8 @@ using DSharpPlus.EventArgs;
 using DSharpPlus.SlashCommands;
 using DSharpPlus.SlashCommands.EventArgs;
 using LundBot.Interfaces.Services;
+using LundBot.Services;
 using Serilog;
-using ILogger = Serilog.ILogger;
 
 namespace LundBot.BackgroundServices
 {
@@ -14,7 +14,7 @@ namespace LundBot.BackgroundServices
         private readonly DiscordClient _discordClient;
         private readonly IBotService _botService;
         private readonly ICommandsService _commandsService;
-        private readonly ILogger _logger = Log.ForContext<DiscordBotBackgroundService>();
+        private readonly Serilog.ILogger _logger = Log.ForContext<DiscordBotBackgroundService>();
 
         public DiscordBotBackgroundService(
             DiscordClient discordClient,
@@ -29,6 +29,8 @@ namespace LundBot.BackgroundServices
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
+            BotService.DiscordClient = _discordClient;
+
             _discordClient.GuildCreated += OnGuildCreated;
             _discordClient.Ready += OnClientReady;
 
@@ -39,12 +41,12 @@ namespace LundBot.BackgroundServices
             slash.SlashCommandExecuted += OnSlashCommandExecuted;
             slash.SlashCommandErrored += OnSlashCommandErrored;
 
-            await _commandsService.RegisterCommandsAsync(_discordClient);
+            await _commandsService.RegisterCommandsAsync();
 
             _logger.Information("Connecting to Discord...");
             await _discordClient.ConnectAsync();
 
-            await _commandsService.LogRegisteredCommandsForGuildsAsync(_discordClient);
+            await _commandsService.LogRegisteredCommandsForGuildsAsync();
 
             _logger.Information("Bot initialization is complete!");
             await Task.Delay(Timeout.Infinite, stoppingToken);
@@ -111,7 +113,7 @@ namespace LundBot.BackgroundServices
 
             try
             {
-                await _commandsService.RefreshCommands(_discordClient);
+                await _commandsService.RefreshCommands();
                 _logger.Information("Registered commands for guild {GuildId}", e.Guild.Id);
             }
             catch (Exception ex)

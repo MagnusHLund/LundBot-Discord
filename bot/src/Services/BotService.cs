@@ -6,15 +6,17 @@ namespace LundBot.Services
 {
     public sealed class BotService : IBotService
     {
+        public static DiscordClient DiscordClient { get; set; } = null!;
+
         public async Task InitializeAsync(DiscordClient discordClient)
         {
-            await SetBotStatusAsync(discordClient);
+            await SetBotStatusAsync();
         }
 
-        private async Task SetBotStatusAsync(DiscordClient discordClient)
+        private async Task SetBotStatusAsync()
         {
             var activity = new DiscordActivity("Stuck in a movie theater", ActivityType.Playing);
-            await discordClient.UpdateStatusAsync(activity, UserStatus.Online);
+            await DiscordClient.UpdateStatusAsync(activity, UserStatus.Online);
         }
     }
 }
