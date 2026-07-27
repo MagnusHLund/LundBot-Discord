@@ -5,7 +5,6 @@ namespace LundBot.Middleware
     public sealed class CorsMiddleware
     {
         private readonly RequestDelegate _next;
-        private readonly ILogger<CorsMiddleware> _logger;
 
         private static readonly HashSet<string> AllowedOrigins = new()
         {
@@ -13,10 +12,9 @@ namespace LundBot.Middleware
             "https://infinitewarfarecommunity.com",
         };
 
-        public CorsMiddleware(RequestDelegate next, ILogger<CorsMiddleware> logger)
+        public CorsMiddleware(RequestDelegate next)
         {
             _next = next;
-            _logger = logger;
         }
 
         public async Task InvokeAsync(HttpContext context)

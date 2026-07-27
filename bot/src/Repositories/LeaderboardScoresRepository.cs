@@ -1,8 +1,5 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using LundBot.Interfaces.Repositories;
+using Microsoft.EntityFrameworkCore;
 
 namespace LundBot.Repositories
 {

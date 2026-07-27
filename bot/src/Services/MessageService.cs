@@ -1,44 +1,39 @@
 using System.Text;
-using DSharpPlus;
 using DSharpPlus.Entities;
-using LundBot.Config;
 using LundBot.Entities;
-using LundBot.Interfaces.Repositories;
+using LundBot.Factories.MessageEntityFactories;
 using LundBot.Interfaces.Services;
-using Microsoft.Extensions.Options;
+using LundBot.Repositories;
 
 namespace LundBot.Services
 {
-    public sealed class MessageService : IMessageService
+    public sealed class MessageService<TEntity, TRepository, TFactory>
+        : IMessageService<TEntity, TRepository, TFactory>
+        where TRepository : AbstractMessageRepository<TEntity>
+        where TEntity : AbstractMessageEntity, new()
+        where TFactory : IMessageEntityFactory<TEntity>
     {
-        private readonly DiscordConfig _discordConfig;
-        private readonly IWebsiteTrafficMessagesRepository _websiteTrafficMessagesRepository;
+        public TFactory MessageFactory { get; }
+        private readonly TRepository _messageRepository;
+        private readonly TFactory _messageFactory;
 
-        public MessageService(
-            IOptions<DiscordConfig> options,
-            IWebsiteTrafficMessagesRepository websiteTrafficMessagesRepository
-        )
+        public MessageService(TRepository messageRepository, TFactory messageFactory)
         {
-            _discordConfig = options.Value;
-            _websiteTrafficMessagesRepository = websiteTrafficMessagesRepository;
+            _messageRepository = messageRepository;
+            _messageFactory = messageFactory;
+            MessageFactory = messageFactory;
         }
 
-        public async Task SynchronizeWebsiteTrafficMessagesAsync(
+        public async Task SynchronizeDiscordMessagesAsync(
             string message,
-            IEnumerable<WebsiteTrafficMessagesEntity> existingMessages,
-            DiscordClient _discordClient
+            IEnumerable<TEntity> existingMessages,
+            ulong channelId
         )
         {
-            string channelIdString = _discordConfig.WebTrafficChannelId;
-            if (ulong.TryParse(channelIdString, out ulong channelId) == false)
-            {
-                throw new Exception("Invalid WebTrafficChannelId in configuration.");
-            }
-
             List<string> chunks = SplitMessageIntoChunks(message);
-            List<WebsiteTrafficMessagesEntity> existing = existingMessages.ToList();
+            List<TEntity> existing = existingMessages.ToList();
 
-            DiscordChannel channel = await _discordClient.GetChannelAsync(channelId);
+            DiscordChannel channel = await BotService.DiscordClient.GetChannelAsync(channelId);
 
             int sharedLength = Math.Min(existing.Count, chunks.Count);
 
@@ -49,14 +44,14 @@ namespace LundBot.Services
 
         private async Task UpdateMessagesAsync(
             int sharedLength,
-            List<WebsiteTrafficMessagesEntity> existing,
+            List<TEntity> existing,
             List<string> chunks,
             DiscordChannel channel
         )
         {
             for (int i = 0; i < sharedLength; i++)
             {
-                WebsiteTrafficMessagesEntity existingMessage = existing[i];
+                TEntity existingMessage = existing[i];
                 string newContent = chunks[i];
 
                 try
@@ -74,14 +69,14 @@ namespace LundBot.Services
 
                     existingMessage.DiscordMessageId = replacement.Id.ToString();
 
-                    await _websiteTrafficMessagesRepository.UpdateAsync(existingMessage);
+                    await _messageRepository.UpdateAsync(existingMessage);
                 }
             }
         }
 
         private async Task CreateNewMessagesAsync(
             List<string> chunks,
-            List<WebsiteTrafficMessagesEntity> existing,
+            List<TEntity> existing,
             DiscordChannel channel
         )
         {
@@ -91,27 +86,24 @@ namespace LundBot.Services
                 {
                     DiscordMessage newMessage = await channel.SendMessageAsync(chunks[i]);
 
-                    await _websiteTrafficMessagesRepository.CreateAsync(
-                        new WebsiteTrafficMessagesEntity
-                        {
-                            DiscordMessageId = newMessage.Id.ToString(),
-                        }
+                    await _messageRepository.CreateAsync(
+                        _messageFactory.Create(newMessage.Id.ToString())
                     );
                 }
             }
         }
 
         private async Task DeleteExtraMessagesAsync(
-            List<WebsiteTrafficMessagesEntity> existing,
+            List<TEntity> existing,
             List<string> chunks,
             DiscordChannel channel
         )
         {
             if (existing.Count > chunks.Count)
             {
-                IEnumerable<WebsiteTrafficMessagesEntity> extras = existing.Skip(chunks.Count);
+                IEnumerable<TEntity> extras = existing.Skip(chunks.Count);
 
-                foreach (WebsiteTrafficMessagesEntity extra in extras)
+                foreach (TEntity extra in extras)
                 {
                     try
                     {
@@ -127,9 +119,7 @@ namespace LundBot.Services
                     }
                 }
 
-                await _websiteTrafficMessagesRepository.DeleteManyAsync(
-                    extras.Select(x => x.WebsiteTrafficMessagesId)
-                );
+                await _messageRepository.DeleteManyAsync(extras.Select(x => x.Id));
             }
         }
 

@@ -1,14 +1,20 @@
-using DSharpPlus;
 using LundBot.Entities;
+using LundBot.Factories.MessageEntityFactories;
+using LundBot.Repositories;
 
 namespace LundBot.Interfaces.Services
 {
-    public interface IMessageService
+    public interface IMessageService<TEntity, TRepository, TFactory>
+        where TRepository : AbstractMessageRepository<TEntity>
+        where TEntity : AbstractMessageEntity, new()
+        where TFactory : IMessageEntityFactory<TEntity>
     {
-        Task SynchronizeWebsiteTrafficMessagesAsync(
+        TFactory MessageFactory { get; }
+
+        Task SynchronizeDiscordMessagesAsync(
             string message,
-            IEnumerable<WebsiteTrafficMessagesEntity> existingMessages,
-            DiscordClient _discordClient
+            IEnumerable<TEntity> existingMessages,
+            ulong channelId
         );
     }
 }

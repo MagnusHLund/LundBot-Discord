@@ -1,6 +1,8 @@
 using DSharpPlus;
 using LundBot.Config;
 using LundBot.Data;
+using LundBot.Entities;
+using LundBot.Factories.MessageEntityFactories;
 using LundBot.Interfaces.Repositories;
 using LundBot.Interfaces.Services;
 using LundBot.Middleware;
@@ -21,6 +23,7 @@ namespace LundBot
             SetupDatabase(builder);
             RegisterConfiguration(builder);
             RegisterServices(builder.Services);
+            RegisterFactories(builder.Services);
             RegisterRepositories(builder.Services);
             RegisterBackgroundServices(builder.Services);
 
@@ -54,12 +57,39 @@ namespace LundBot
             services.AddSingleton<ICommandsService, CommandsService>();
 
             services.AddScoped<ILeaderboardService, LeaderboardService>();
-            services.AddScoped<IMessageService, MessageService>();
             services.AddScoped<IWebsiteTrafficService, WebsiteTrafficService>();
+
+            services.AddScoped<
+                IMessageService<
+                    LeaderboardMessagesEntity,
+                    LeaderboardMessagesRepository,
+                    LeaderboardMessageFactory
+                >,
+                MessageService<
+                    LeaderboardMessagesEntity,
+                    LeaderboardMessagesRepository,
+                    LeaderboardMessageFactory
+                >
+            >();
+            services.AddScoped<
+                IMessageService<
+                    WebsiteTrafficMessagesEntity,
+                    WebsiteTrafficMessagesRepository,
+                    WebsiteTrafficMessageFactory
+                >,
+                MessageService<
+                    WebsiteTrafficMessagesEntity,
+                    WebsiteTrafficMessagesRepository,
+                    WebsiteTrafficMessageFactory
+                >
+            >();
         }
 
         private static void RegisterRepositories(IServiceCollection services)
         {
+            services.AddScoped<LeaderboardMessagesRepository>();
+            services.AddScoped<WebsiteTrafficMessagesRepository>();
+
             services.AddScoped<IWebsiteTrafficRepository, WebsiteTrafficRepository>();
             services.AddScoped<ILeaderboardsRepository, LeaderboardsRepository>();
             services.AddScoped<IUpvotingLeaderboardRepository, UpvotingLeaderboardRepository>();
@@ -68,6 +98,21 @@ namespace LundBot
             services.AddScoped<
                 IWebsiteTrafficMessagesRepository,
                 WebsiteTrafficMessagesRepository
+            >();
+        }
+
+        private static void RegisterFactories(IServiceCollection services)
+        {
+            services.AddScoped<LeaderboardMessageFactory>();
+            services.AddScoped<WebsiteTrafficMessageFactory>();
+
+            services.AddScoped<
+                IMessageEntityFactory<LeaderboardMessagesEntity>,
+                LeaderboardMessageFactory
+            >();
+            services.AddScoped<
+                IMessageEntityFactory<WebsiteTrafficMessagesEntity>,
+                WebsiteTrafficMessageFactory
             >();
         }
 

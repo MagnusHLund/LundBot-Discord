@@ -6,7 +6,7 @@ using Microsoft.Extensions.Primitives;
 
 namespace LundBot.Controllers
 {
-    public class BaseController : ControllerBase
+    public abstract class BaseController : ControllerBase
     {
         private readonly DeveloperEnvironmentConfig _devConfig;
 

@@ -6,7 +6,9 @@ using Serilog;
 
 namespace LundBot.Repositories
 {
-    public class WebsiteTrafficMessagesRepository : IWebsiteTrafficMessagesRepository
+    public class WebsiteTrafficMessagesRepository
+        : AbstractMessageRepository<WebsiteTrafficMessagesEntity>,
+            IWebsiteTrafficMessagesRepository
     {
         private readonly LundBotDiscordDbContext _context;
         private readonly Serilog.ILogger _logger =
@@ -28,7 +30,7 @@ namespace LundBot.Repositories
                 .ToListAsync();
         }
 
-        public async Task CreateAsync(WebsiteTrafficMessagesEntity entity)
+        public override async Task CreateAsync(WebsiteTrafficMessagesEntity entity)
         {
             try
             {
@@ -42,7 +44,7 @@ namespace LundBot.Repositories
             }
         }
 
-        public async Task UpdateAsync(WebsiteTrafficMessagesEntity entity)
+        public override async Task UpdateAsync(WebsiteTrafficMessagesEntity entity)
         {
             try
             {
@@ -56,12 +58,12 @@ namespace LundBot.Repositories
             }
         }
 
-        public async Task DeleteManyAsync(IEnumerable<int> ids)
+        public override async Task DeleteManyAsync(IEnumerable<int> ids)
         {
             try
             {
                 var entitiesToDelete = await _context
-                    .WebsiteTrafficMessages.Where(w => ids.Contains(w.WebsiteTrafficMessagesId))
+                    .WebsiteTrafficMessages.Where(w => ids.Contains(w.Id))
                     .ToListAsync();
 
                 _context.WebsiteTrafficMessages.RemoveRange(entitiesToDelete);

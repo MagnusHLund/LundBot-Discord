@@ -1,11 +1,15 @@
 using DSharpPlus;
 using DSharpPlus.Entities;
 using DSharpPlus.SlashCommands;
+using LundBot.Exceptions;
 
 namespace LundBot.Commands
 {
-    public class BaseCommand : ApplicationCommandModule
+    public abstract class BaseCommand : ApplicationCommandModule
     {
+        public const string GENERIC_ERROR_MESSAGE =
+            "An error occurred while processing your command. Please try again later.";
+
         private protected static async Task<bool> IsCommandSentFromServer(
             InteractionContext context
         )
@@ -30,6 +34,28 @@ namespace LundBot.Commands
                     .WithContent(content)
                     .AsEphemeral(showOnlyToUser)
             );
+        }
+
+        private protected static async Task TaskWithErrorHandlingAsync(
+            InteractionContext context,
+            Func<Task> action
+        )
+        {
+            try
+            {
+                // TODO: Add custom success message
+
+                await action();
+                await SendResponseAsync(context, "Command executed successfully.");
+            }
+            catch (CommandException ex)
+            {
+                await SendResponseAsync(context, ex.GetMessage());
+            }
+            catch (Exception)
+            {
+                await SendResponseAsync(context, GENERIC_ERROR_MESSAGE);
+            }
         }
     }
 }

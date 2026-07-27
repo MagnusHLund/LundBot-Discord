@@ -2,12 +2,20 @@ using DSharpPlus;
 using DSharpPlus.Entities;
 using DSharpPlus.SlashCommands;
 using DSharpPlus.SlashCommands.Attributes;
+using LundBot.Interfaces.Services;
 using LundBot.Utils;
 
 namespace LundBot.Commands
 {
     public sealed class CreateUpvoteLeaderboardCommand : BaseCommand
     {
+        private readonly ILeaderboardService _leaderboardService;
+
+        public CreateUpvoteLeaderboardCommand(ILeaderboardService leaderboardService)
+        {
+            _leaderboardService = leaderboardService;
+        }
+
         [SlashRequirePermissions(Permissions.Administrator)]
         [SlashCommand("create-upvote-leaderboard", "Creates a new upvote leaderboard.")]
         public async Task CreateUpvoteLeaderboardAsync(
@@ -55,7 +63,10 @@ namespace LundBot.Commands
                 return;
             }
 
-            // TODO: Implement
+            await TaskWithErrorHandlingAsync(
+                context,
+                () => _leaderboardService.CreateUpvoteLeaderboardAsync(Channel, title, message)
+            );
         }
     }
 }

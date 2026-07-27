@@ -1,23 +1,38 @@
 using System.Text;
+using LundBot.Config;
 using LundBot.Entities;
+using LundBot.Factories.MessageEntityFactories;
 using LundBot.Interfaces.Repositories;
 using LundBot.Interfaces.Services;
+using LundBot.Repositories;
 using LundBot.Utils;
+using Microsoft.Extensions.Options;
 
 namespace LundBot.Services
 {
     public sealed class WebsiteTrafficService : IWebsiteTrafficService
     {
-        private readonly IMessageService _messageService;
+        private readonly DiscordConfig _discordConfig;
+        private readonly IMessageService<
+            WebsiteTrafficMessagesEntity,
+            WebsiteTrafficMessagesRepository,
+            WebsiteTrafficMessageFactory
+        > _messageService;
         private readonly IWebsiteTrafficRepository _websiteTrafficRepository;
-        private readonly IWebsiteTrafficMessagesRepository _websiteTrafficMessagesRepository;
+        private readonly WebsiteTrafficMessagesRepository _websiteTrafficMessagesRepository;
 
         public WebsiteTrafficService(
-            IMessageService messageService,
+            IOptions<DiscordConfig> options,
+            IMessageService<
+                WebsiteTrafficMessagesEntity,
+                WebsiteTrafficMessagesRepository,
+                WebsiteTrafficMessageFactory
+            > messageService,
             IWebsiteTrafficRepository websiteTrafficRepository,
-            IWebsiteTrafficMessagesRepository websiteTrafficMessagesRepository
+            WebsiteTrafficMessagesRepository websiteTrafficMessagesRepository
         )
         {
+            _discordConfig = options.Value;
             _messageService = messageService;
             _websiteTrafficRepository = websiteTrafficRepository;
             _websiteTrafficMessagesRepository = websiteTrafficMessagesRepository;
@@ -69,10 +84,16 @@ namespace LundBot.Services
                     endOfWeek
                 );
 
-            await _messageService.SynchronizeWebsiteTrafficMessagesAsync(
+            string channelIdString = _discordConfig.WebTrafficChannelId;
+            if (ulong.TryParse(channelIdString, out ulong channelId) == false)
+            {
+                throw new Exception("Invalid WebTrafficChannelId in configuration.");
+            }
+
+            await _messageService.SynchronizeDiscordMessagesAsync(
                 message,
                 existingMessages,
-                BotService.DiscordClient
+                channelId
             );
         }
 

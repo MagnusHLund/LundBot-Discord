@@ -30,9 +30,10 @@ namespace LundBot.Data
         {
             entity.ToTable("Leaderboards");
 
-            entity.HasKey(e => e.LeaderboardsId);
+            entity.HasKey(e => e.Id);
             entity
-                .Property(e => e.LeaderboardsId)
+                .Property(e => e.Id)
+                .HasColumnName("LeaderboardsId")
                 .HasColumnType("int unsigned")
                 .ValueGeneratedOnAdd();
 
@@ -45,6 +46,12 @@ namespace LundBot.Data
             entity.Property(e => e.Message).HasColumnType("varchar(256)").IsRequired();
 
             entity
+                .Property(e => e.LeaderboardType)
+                .HasConversion<string>()
+                .HasColumnType("varchar(32)")
+                .IsRequired();
+
+            entity
                 .Property(e => e.CreatedAt)
                 .HasColumnType("datetime(3)")
                 .HasDefaultValueSql("UTC_TIMESTAMP(3)");
@@ -53,6 +60,8 @@ namespace LundBot.Data
                 .HasIndex(e => new { e.DiscordServerId, e.DiscordChannelId })
                 .IsUnique()
                 .HasDatabaseName("leaderboards_index_2");
+
+            entity.HasIndex(e => e.LeaderboardType);
         }
 
         private static void ConfigureLeaderboardScores(
@@ -61,9 +70,10 @@ namespace LundBot.Data
         {
             entity.ToTable("LeaderboardScores");
 
-            entity.HasKey(e => e.LeaderboardScoresId);
+            entity.HasKey(e => e.Id);
             entity
-                .Property(e => e.LeaderboardScoresId)
+                .Property(e => e.Id)
+                .HasColumnName("LeaderboardScoresId")
                 .HasColumnType("int unsigned")
                 .ValueGeneratedOnAdd();
 
@@ -106,9 +116,10 @@ namespace LundBot.Data
         {
             entity.ToTable("UpvotingLeaderBoard");
 
-            entity.HasKey(e => e.UpvotingLeaderboardId);
+            entity.HasKey(e => e.Id);
             entity
-                .Property(e => e.UpvotingLeaderboardId)
+                .Property(e => e.Id)
+                .HasColumnName("UpvotingLeaderboardId")
                 .HasColumnType("int unsigned")
                 .ValueGeneratedOnAdd();
 
@@ -156,9 +167,10 @@ namespace LundBot.Data
         {
             entity.ToTable("LeaderboardMessages");
 
-            entity.HasKey(e => e.LeaderboardMessagesId);
+            entity.HasKey(e => e.Id);
             entity
-                .Property(e => e.LeaderboardMessagesId)
+                .Property(e => e.Id)
+                .HasColumnName("LeaderboardMessagesId")
                 .HasColumnType("int unsigned")
                 .ValueGeneratedOnAdd();
 
@@ -192,9 +204,10 @@ namespace LundBot.Data
         {
             entity.ToTable("WebsiteTraffic");
 
-            entity.HasKey(e => e.WebsiteTrafficId);
+            entity.HasKey(e => e.Id);
             entity
-                .Property(e => e.WebsiteTrafficId)
+                .Property(e => e.Id)
+                .HasColumnName("WebsiteTrafficId")
                 .HasColumnType("int unsigned")
                 .ValueGeneratedOnAdd();
 
@@ -219,9 +232,10 @@ namespace LundBot.Data
         {
             entity.ToTable("WebsiteTrafficMessages");
 
-            entity.HasKey(e => e.WebsiteTrafficMessagesId);
+            entity.HasKey(e => e.Id);
             entity
-                .Property(e => e.WebsiteTrafficMessagesId)
+                .Property(e => e.Id)
+                .HasColumnName("WebsiteTrafficMessagesId")
                 .HasColumnType("int unsigned")
                 .ValueGeneratedOnAdd();
 

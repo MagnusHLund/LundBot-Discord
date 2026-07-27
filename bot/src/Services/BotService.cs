@@ -13,10 +13,12 @@ namespace LundBot.Services
         public static DiscordClient DiscordClient { get; set; } = null!;
         private readonly Serilog.ILogger _logger = Log.ForContext<BotService>();
 
+        private readonly IServiceProvider _serviceProvider;
         private readonly ICommandsService _commandsService;
 
-        public BotService(ICommandsService commandsService)
+        public BotService(IServiceProvider serviceProvider, ICommandsService commandsService)
         {
+            _serviceProvider = serviceProvider;
             _commandsService = commandsService;
         }
 
@@ -29,7 +31,12 @@ namespace LundBot.Services
 
             _logger.Information("Creating SlashCommandsExtension and registering commands...");
 
-            var slash = discordClient.UseSlashCommands();
+            var slash = discordClient.UseSlashCommands(
+                new SlashCommandsConfiguration
+                {
+                    Services = _serviceProvider.CreateScope().ServiceProvider,
+                }
+            );
 
             slash.SlashCommandExecuted += OnSlashCommandExecuted;
             slash.SlashCommandErrored += OnSlashCommandErrored;
