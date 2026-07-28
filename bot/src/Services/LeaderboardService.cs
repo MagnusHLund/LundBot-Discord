@@ -245,7 +245,7 @@ namespace LundBot.Services
                 );
             }
 
-            return leaderboard;
+            return leaderboard!;
         }
     }
 }
