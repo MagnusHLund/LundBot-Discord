@@ -55,6 +55,7 @@ namespace LundBot
         {
             services.AddSingleton<IBotService, BotService>();
             services.AddSingleton<ICommandsService, CommandsService>();
+            services.AddSingleton<IModerationActionsService, ModerationActionsService>();
 
             services.AddScoped<ILeaderboardService, LeaderboardService>();
             services.AddScoped<IWebsiteTrafficService, WebsiteTrafficService>();
