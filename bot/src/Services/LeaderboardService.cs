@@ -7,11 +7,13 @@ using LundBot.Factories.MessageEntityFactories;
 using LundBot.Interfaces.Repositories;
 using LundBot.Interfaces.Services;
 using LundBot.Repositories;
+using LundBot.Utils;
 
 namespace LundBot.Services
 {
     public sealed class LeaderboardService : ILeaderboardService
     {
+        private readonly IUserService _userService;
         private readonly ILeaderboardMessagesRepository _leaderboardsMessageRepository;
         private readonly ILeaderboardScoreSourceRepository _leaderboardScoreSourceRepository;
         private readonly ILeaderboardScoresRepository _leaderboardScoreRepository;
@@ -24,6 +26,7 @@ namespace LundBot.Services
         private readonly Serilog.ILogger _logger = Serilog.Log.ForContext<LeaderboardService>();
 
         public LeaderboardService(
+            IUserService userService,
             ILeaderboardsRepository leaderboardsRepository,
             ILeaderboardMessagesRepository leaderboardsMessageRepository,
             ILeaderboardScoreSourceRepository leaderboardScoreSourceRepository,
@@ -35,6 +38,7 @@ namespace LundBot.Services
             > messageService
         )
         {
+            _userService = userService;
             _leaderboardsRepository = leaderboardsRepository;
             _leaderboardsMessageRepository = leaderboardsMessageRepository;
             _leaderboardScoreSourceRepository = leaderboardScoreSourceRepository;
@@ -182,6 +186,20 @@ namespace LundBot.Services
             DiscordUser userInvitedBy
         )
         {
+            if (
+                EnvironmentUtils.IsProduction()
+                && await _userService.IsUserOwnerAsync(userInvitedBy.Id, guild.Id)
+            )
+            {
+                _logger.Information(
+                    "User {UserInvitedById} is the owner of guild {GuildId}, skipping registration of user {UserJoinedId}",
+                    userInvitedBy.Id,
+                    guild.Id,
+                    userJoined.Id
+                );
+                return;
+            }
+
             (bool leaderboardExists, LeaderboardsEntity? leaderboard) =
                 await _leaderboardsRepository.DoesInviteLeaderboardExistOnServerAsync(
                     guild.Id.ToString()
