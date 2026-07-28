@@ -3,7 +3,9 @@ using DSharpPlus.Entities;
 using DSharpPlus.EventArgs;
 using DSharpPlus.SlashCommands;
 using DSharpPlus.SlashCommands.EventArgs;
+using LundBot.Config;
 using LundBot.Interfaces.Services;
+using Microsoft.Extensions.Options;
 using Serilog;
 
 namespace LundBot.Services
@@ -15,17 +17,27 @@ namespace LundBot.Services
 
         private readonly IServiceProvider _serviceProvider;
         private readonly ICommandsService _commandsService;
+        private readonly IModerationActionsService _moderationActionsService;
+        private readonly DiscordConfig _discordConfig;
 
-        public BotService(IServiceProvider serviceProvider, ICommandsService commandsService)
+        public BotService(
+            IOptions<DiscordConfig> options,
+            IServiceProvider serviceProvider,
+            ICommandsService commandsService,
+            IModerationActionsService moderationActionsService
+        )
         {
+            _discordConfig = options.Value;
             _serviceProvider = serviceProvider;
             _commandsService = commandsService;
+            _moderationActionsService = moderationActionsService;
         }
 
         public async Task InitializeAsync(DiscordClient discordClient)
         {
             DiscordClient = discordClient;
 
+            discordClient.GuildMemberUpdated += OnGuildMemberUpdated;
             discordClient.GuildCreated += OnGuildCreated;
             discordClient.Ready += OnClientReady;
 
@@ -125,6 +137,31 @@ namespace LundBot.Services
             catch (Exception ex)
             {
                 _logger.Error(ex, "Error registering commands for guild {GuildId}", e.Guild.Id);
+            }
+        }
+
+        private async Task OnGuildMemberUpdated(DiscordClient sender, GuildMemberUpdateEventArgs e)
+        {
+            DiscordGuild guild = e.Guild;
+            DiscordMember member = e.Member;
+
+            string roleIdToAutoKick = _discordConfig.RoleIdToAutoKick;
+
+            if (!string.IsNullOrEmpty(roleIdToAutoKick))
+            {
+                DiscordRole? roleToKick = guild.Roles.Values.FirstOrDefault(r =>
+                    r.Id.ToString() == roleIdToAutoKick
+                );
+
+                string kickReason =
+                    $"You have been automatically kicked due to picking the \"{roleToKick?.Name ?? "Unknown"}\" role. This community is PC only. Feel free to join back, if you own IW on PC or plan to purchase it on PC";
+
+                await _moderationActionsService.KickUserDueToRoleAssignmentAsync(
+                    guild,
+                    member,
+                    roleToKick,
+                    kickReason
+                );
             }
         }
     }
