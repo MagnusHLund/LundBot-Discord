@@ -1,3 +1,4 @@
+using DSharpPlus.Entities;
 using LundBot.Entities;
 using LundBot.Factories.MessageEntityFactories;
 using LundBot.Repositories;
@@ -15,6 +16,11 @@ namespace LundBot.Interfaces.Services
             string message,
             IEnumerable<TEntity> existingMessages,
             ulong channelId
+        );
+
+        Task DeleteMessagesForChannelAsync(
+            IEnumerable<TEntity> existingMessages,
+            DiscordChannel channel
         );
     }
 }

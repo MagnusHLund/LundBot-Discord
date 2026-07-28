@@ -5,5 +5,7 @@ namespace LundBot.Interfaces.Services
     public interface ILeaderboardService
     {
         Task CreateUpvoteLeaderboardAsync(DiscordChannel channel, string title, string message);
+        Task CreateInviteLeaderboardAsync(DiscordChannel channel, string title, string message);
+        Task RemoveLeaderboardAsync(DiscordChannel channel);
     }
 }

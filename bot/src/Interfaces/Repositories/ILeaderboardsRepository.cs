@@ -5,7 +5,10 @@ namespace LundBot.Interfaces.Repositories
 {
     public interface ILeaderboardsRepository
     {
-        Task<bool> DoesLeaderboardExistAsync(string channelId, string guildId);
+        Task<(bool, LeaderboardsEntity?)> DoesLeaderboardExistAsync(
+            string channelId,
+            string guildId
+        );
         Task<LeaderboardsEntity> CreateLeaderboardAsync(
             string channelId,
             string guildId,
@@ -13,5 +16,6 @@ namespace LundBot.Interfaces.Repositories
             string message,
             LeaderboardType leaderboardType
         );
+        Task RemoveLeaderboardAsync(string channelId, string guildId);
     }
 }

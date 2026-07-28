@@ -12,15 +12,18 @@ namespace LundBot.Services
 {
     public sealed class LeaderboardService : ILeaderboardService
     {
+        private readonly ILeaderboardMessagesRepository _leaderboardsMessageRepository;
         private readonly ILeaderboardsRepository _leaderboardsRepository;
         private readonly IMessageService<
             LeaderboardMessagesEntity,
             LeaderboardMessagesRepository,
             LeaderboardMessageFactory
         > _messageService;
+        private readonly Serilog.ILogger _logger = Serilog.Log.ForContext<LeaderboardService>();
 
         public LeaderboardService(
             ILeaderboardsRepository leaderboardsRepository,
+            ILeaderboardMessagesRepository leaderboardsMessageRepository,
             IMessageService<
                 LeaderboardMessagesEntity,
                 LeaderboardMessagesRepository,
@@ -29,6 +32,7 @@ namespace LundBot.Services
         )
         {
             _leaderboardsRepository = leaderboardsRepository;
+            _leaderboardsMessageRepository = leaderboardsMessageRepository;
             _messageService = messageService;
         }
 
@@ -41,16 +45,46 @@ namespace LundBot.Services
             await CreateLeaderboardAsync(channel, title, message, LeaderboardType.Upvote);
         }
 
-        public async Task CreateInviteLeaderboardAsync()
+        public async Task CreateInviteLeaderboardAsync(
+            DiscordChannel channel,
+            string title,
+            string message
+        )
         {
-            // TODO: Implement
-            throw new NotImplementedException();
+            await CreateLeaderboardAsync(channel, title, message, LeaderboardType.Invite);
         }
 
-        public async Task RemoveLeaderboardAsync()
+        public async Task RemoveLeaderboardAsync(DiscordChannel channel)
         {
-            // TODO: Implement
-            throw new NotImplementedException();
+            _logger.Information(
+                "Removing leaderboard in channel {ChannelId} for server {GuildId}",
+                channel.Id,
+                channel.Guild.Id
+            );
+
+            (bool doesLeaderboardExist, LeaderboardsEntity? leaderboard) =
+                await _leaderboardsRepository.DoesLeaderboardExistAsync(
+                    channel.Id.ToString(),
+                    channel.Guild.Id.ToString()
+                );
+
+            if (!doesLeaderboardExist)
+            {
+                throw new CommandException(
+                    $"There is no leaderboard in <#{channel.Id}> to remove.",
+                    showMessageToUser: true
+                );
+            }
+
+            var existingMessages =
+                await _leaderboardsMessageRepository.GetMessagesForLeaderboardAsync(leaderboard.Id);
+
+            await _leaderboardsRepository.RemoveLeaderboardAsync(
+                channel.Id.ToString(),
+                channel.Guild.Id.ToString()
+            );
+
+            await _messageService.DeleteMessagesForChannelAsync(existingMessages, channel);
         }
 
         private async Task CreateLeaderboardAsync(
@@ -60,7 +94,15 @@ namespace LundBot.Services
             LeaderboardType leaderboardType
         )
         {
-            bool doesLeaderboardExist = await _leaderboardsRepository.DoesLeaderboardExistAsync(
+            _logger.Information(
+                "Creating {LeaderboardType} leaderboard in channel {ChannelId} with title '{Title}' and message '{Message}'",
+                leaderboardType,
+                channel.Id,
+                title,
+                message
+            );
+
+            var (doesLeaderboardExist, _) = await _leaderboardsRepository.DoesLeaderboardExistAsync(
                 channel.Id.ToString(),
                 channel.Guild.Id.ToString()
             );
@@ -90,6 +132,7 @@ namespace LundBot.Services
             sb.AppendLine("Empty leaderboard. Be the first to reach the top!");
 
             string leaderboardMessage = sb.ToString();
+
             await _messageService.SynchronizeDiscordMessagesAsync(
                 leaderboardMessage,
                 Enumerable.Empty<LeaderboardMessagesEntity>(),

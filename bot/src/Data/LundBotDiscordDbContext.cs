@@ -57,7 +57,10 @@ namespace LundBot.Data
                 .HasDefaultValueSql("UTC_TIMESTAMP(3)");
 
             entity
-                .HasIndex(e => new { e.DiscordServerId, e.DiscordChannelId })
+                .HasIndex(
+                    nameof(LeaderboardsEntity.DiscordServerId),
+                    nameof(LeaderboardsEntity.DiscordChannelId)
+                )
                 .IsUnique()
                 .HasDatabaseName("leaderboards_index_2");
 

@@ -38,15 +38,14 @@ namespace LundBot.Commands
 
         private protected static async Task TaskWithErrorHandlingAsync(
             InteractionContext context,
-            Func<Task> action
+            Func<Task> action,
+            string successMessage = "Command executed successfully."
         )
         {
             try
             {
-                // TODO: Add custom success message
-
                 await action();
-                await SendResponseAsync(context, "Command executed successfully.");
+                await SendResponseAsync(context, successMessage);
             }
             catch (CommandException ex)
             {

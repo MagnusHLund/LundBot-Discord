@@ -17,13 +17,18 @@ namespace LundBot.Repositories
             _context = context;
         }
 
-        public async Task<bool> DoesLeaderboardExistAsync(string channelId, string guildId)
+        public async Task<(bool, LeaderboardsEntity?)> DoesLeaderboardExistAsync(
+            string channelId,
+            string guildId
+        )
         {
             try
             {
-                return await _context.Leaderboards.AnyAsync(l =>
+                var leaderboard = await _context.Leaderboards.FirstOrDefaultAsync(l =>
                     l.DiscordChannelId == channelId && l.DiscordServerId == guildId
                 );
+
+                return (leaderboard != null, leaderboard);
             }
             catch (Exception ex)
             {
@@ -33,7 +38,8 @@ namespace LundBot.Repositories
                     channelId,
                     guildId
                 );
-                return false;
+
+                return (false, null);
             }
         }
 
@@ -69,6 +75,32 @@ namespace LundBot.Repositories
                     guildId
                 );
                 throw new Exception("An error occurred while creating the leaderboard.", ex);
+            }
+        }
+
+        public async Task RemoveLeaderboardAsync(string channelId, string guildId)
+        {
+            try
+            {
+                var leaderboard = await _context.Leaderboards.FirstOrDefaultAsync(l =>
+                    l.DiscordChannelId == channelId && l.DiscordServerId == guildId
+                );
+
+                if (leaderboard != null)
+                {
+                    _context.Leaderboards.Remove(leaderboard);
+                    await _context.SaveChangesAsync();
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.Error(
+                    ex,
+                    "Error removing leaderboard for channel ID: {ChannelId} and guild ID: {GuildId}",
+                    channelId,
+                    guildId
+                );
+                throw new Exception("An error occurred while removing the leaderboard.", ex);
             }
         }
     }

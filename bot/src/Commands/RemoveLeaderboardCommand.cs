@@ -2,11 +2,19 @@ using DSharpPlus;
 using DSharpPlus.Entities;
 using DSharpPlus.SlashCommands;
 using DSharpPlus.SlashCommands.Attributes;
+using LundBot.Interfaces.Services;
 
 namespace LundBot.Commands
 {
     public sealed class RemoveLeaderboardCommand : BaseCommand
     {
+        private readonly ILeaderboardService _leaderboardService;
+
+        public RemoveLeaderboardCommand(ILeaderboardService leaderboardService)
+        {
+            _leaderboardService = leaderboardService;
+        }
+
         [SlashRequirePermissions(Permissions.Administrator)]
         [SlashCommand("remove-leaderboard", "Removes an existing leaderboard.")]
         public async Task RemoveLeaderboardAsync(
@@ -29,7 +37,11 @@ namespace LundBot.Commands
                 return;
             }
 
-            // TODO: Implement
+            await TaskWithErrorHandlingAsync(
+                context,
+                () => _leaderboardService.RemoveLeaderboardAsync(channel),
+                $"Leaderboard removed successfully from {channel.Mention}."
+            );
         }
     }
 }

@@ -1,4 +1,9 @@
+using LundBot.Entities;
+
 namespace LundBot.Interfaces.Repositories
 {
-    public interface ILeaderboardMessagesRepository { }
+    public interface ILeaderboardMessagesRepository
+    {
+        Task<List<LeaderboardMessagesEntity>> GetMessagesForLeaderboardAsync(int leaderboardId);
+    }
 }

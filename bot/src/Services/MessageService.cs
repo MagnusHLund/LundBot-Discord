@@ -16,6 +16,9 @@ namespace LundBot.Services
         public TFactory MessageFactory { get; }
         private readonly TRepository _messageRepository;
         private readonly TFactory _messageFactory;
+        private readonly Serilog.ILogger _logger = Serilog.Log.ForContext<
+            MessageService<TEntity, TRepository, TFactory>
+        >();
 
         public MessageService(TRepository messageRepository, TFactory messageFactory)
         {
@@ -42,6 +45,37 @@ namespace LundBot.Services
             await DeleteExtraMessagesAsync(existing, chunks, channel);
         }
 
+        public async Task DeleteMessagesForChannelAsync(
+            IEnumerable<TEntity> existingMessages,
+            DiscordChannel channel
+        )
+        {
+            List<TEntity> existing = existingMessages.ToList();
+
+            var deleteTasks = existing.Select(async message =>
+            {
+                try
+                {
+                    var discordMessage = await channel.GetMessageAsync(
+                        ulong.Parse(message.DiscordMessageId)
+                    );
+
+                    await discordMessage.DeleteAsync();
+                }
+                catch
+                {
+                    _logger.Warning(
+                        "Failed to delete Discord message with ID {MessageId} in channel {ChannelId}. It may have already been deleted or is inaccessible.",
+                        message.DiscordMessageId,
+                        channel.Id
+                    );
+                }
+            });
+
+            await Task.WhenAll(deleteTasks);
+            await _messageRepository.DeleteManyAsync(existing.Select(x => x.Id));
+        }
+
         private async Task UpdateMessagesAsync(
             int sharedLength,
             List<TEntity> existing,
@@ -64,7 +98,12 @@ namespace LundBot.Services
                 }
                 catch
                 {
-                    // Message no longer exists. Create a replacement.
+                    _logger.Warning(
+                        "Failed to update Discord message with ID {MessageId} in channel {ChannelId}. It may have been deleted or is inaccessible. Attempting to create a new message.",
+                        existingMessage.DiscordMessageId,
+                        channel.Id
+                    );
+
                     DiscordMessage replacement = await channel.SendMessageAsync(newContent);
 
                     existingMessage.DiscordMessageId = replacement.Id.ToString();
@@ -103,23 +142,7 @@ namespace LundBot.Services
             {
                 IEnumerable<TEntity> extras = existing.Skip(chunks.Count);
 
-                foreach (TEntity extra in extras)
-                {
-                    try
-                    {
-                        DiscordMessage discordMessage = await channel.GetMessageAsync(
-                            ulong.Parse(extra.DiscordMessageId)
-                        );
-
-                        await discordMessage.DeleteAsync();
-                    }
-                    catch
-                    {
-                        // Ignore if it was already deleted.
-                    }
-                }
-
-                await _messageRepository.DeleteManyAsync(extras.Select(x => x.Id));
+                await DeleteMessagesForChannelAsync(extras, channel);
             }
         }
 

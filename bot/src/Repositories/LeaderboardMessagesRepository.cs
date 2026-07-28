@@ -70,5 +70,26 @@ namespace LundBot.Repositories
                 throw new Exception("An error occurred while deleting the entities.", ex);
             }
         }
+
+        public Task<List<LeaderboardMessagesEntity>> GetMessagesForLeaderboardAsync(
+            int leaderboardId
+        )
+        {
+            try
+            {
+                return _context
+                    .LeaderboardMessages.Where(l => l.LeaderboardsId == leaderboardId)
+                    .ToListAsync();
+            }
+            catch (Exception ex)
+            {
+                _logger.Error(
+                    ex,
+                    "Error retrieving LeaderboardMessagesEntities for leaderboard ID: {LeaderboardId}",
+                    leaderboardId
+                );
+                throw new Exception("An error occurred while retrieving the entities.", ex);
+            }
+        }
     }
 }
