@@ -13,6 +13,8 @@ namespace LundBot.Services
     public sealed class BotService : IBotService
     {
         public static DiscordClient DiscordClient { get; set; } = null!;
+        private readonly Dictionary<ulong, List<DiscordInvite>> _inviteCache =
+            new Dictionary<ulong, List<DiscordInvite>>();
         private readonly Serilog.ILogger _logger = Log.ForContext<BotService>();
 
         private readonly IServiceProvider _serviceProvider;
@@ -37,7 +39,9 @@ namespace LundBot.Services
         {
             DiscordClient = discordClient;
 
+            discordClient.GuildDownloadCompleted += OnGuildDownloadCompleted;
             discordClient.GuildMemberUpdated += OnGuildMemberUpdated;
+            discordClient.GuildMemberAdded += OnGuildMemberAdded;
             discordClient.GuildCreated += OnGuildCreated;
             discordClient.Ready += OnClientReady;
 
@@ -145,6 +149,11 @@ namespace LundBot.Services
             DiscordGuild guild = e.Guild;
             DiscordMember member = e.Member;
 
+            await AutoKickUserIfRoleAssigned(guild, member);
+        }
+
+        private async Task AutoKickUserIfRoleAssigned(DiscordGuild guild, DiscordMember member)
+        {
             string roleIdToAutoKick = _discordConfig.RoleIdToAutoKick;
 
             if (!string.IsNullOrEmpty(roleIdToAutoKick))
@@ -163,6 +172,77 @@ namespace LundBot.Services
                     kickReason
                 );
             }
+        }
+
+        private async Task OnGuildDownloadCompleted(
+            DiscordClient sender,
+            GuildDownloadCompletedEventArgs e
+        )
+        {
+            foreach (var guild in sender.Guilds.Values)
+            {
+                var invites = await guild.GetInvitesAsync();
+                _inviteCache[guild.Id] = invites.ToList();
+                _logger.Information(
+                    "Cached {InviteCount} invites for guild {GuildName} ({GuildId})",
+                    invites.Count,
+                    guild.Name,
+                    guild.Id
+                );
+            }
+        }
+
+        private async Task OnGuildMemberAdded(DiscordClient sender, GuildMemberAddEventArgs e)
+        {
+            await RegisterWhoInvitedJoinedUser(e.Guild, e.Member);
+        }
+
+        private async Task RegisterWhoInvitedJoinedUser(DiscordGuild guild, DiscordUser joinedUser)
+        {
+            // Discord does not provide a direct way to know who invited a user, so we have to compare the invite uses before and after the user joined.
+            var newInvites = await guild.GetInvitesAsync();
+            var oldInvites = _inviteCache[guild.Id];
+
+            var usedInvite = newInvites.FirstOrDefault(newInvite =>
+            {
+                var oldInvite = oldInvites.FirstOrDefault(i => i.Code == newInvite.Code);
+                return oldInvite != null && newInvite.Uses > oldInvite.Uses;
+            });
+
+            if (usedInvite != null && usedInvite.Inviter is not null)
+            {
+                _logger.Information(
+                    "User {UserName} ({UserId}) joined guild {GuildName} ({GuildId}) using invite code {InviteCode} created by {InviterName} ({InviterId})",
+                    joinedUser.Username,
+                    joinedUser.Id,
+                    guild.Name,
+                    guild.Id,
+                    usedInvite.Code,
+                    usedInvite.Inviter.Username,
+                    usedInvite.Inviter.Id
+                );
+
+                DiscordUser inviter = usedInvite.Inviter;
+
+                using var scope = _serviceProvider.CreateScope();
+                var leaderboardService =
+                    scope.ServiceProvider.GetRequiredService<ILeaderboardService>();
+
+                await leaderboardService.RegisterUserJoinedWithInvite(guild, joinedUser, inviter);
+            }
+            else
+            {
+                _logger.Information(
+                    "User {UserName} ({UserId}) joined guild {GuildName} ({GuildId}) but no invite was used or the inviter is unknown.",
+                    joinedUser.Username,
+                    joinedUser.Id,
+                    guild.Name,
+                    guild.Id
+                );
+            }
+
+            // Update cache
+            _inviteCache[guild.Id] = newInvites.ToList();
         }
     }
 }

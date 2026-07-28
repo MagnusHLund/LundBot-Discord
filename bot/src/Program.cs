@@ -93,7 +93,10 @@ namespace LundBot
 
             services.AddScoped<IWebsiteTrafficRepository, WebsiteTrafficRepository>();
             services.AddScoped<ILeaderboardsRepository, LeaderboardsRepository>();
-            services.AddScoped<IUpvotingLeaderboardRepository, UpvotingLeaderboardRepository>();
+            services.AddScoped<
+                ILeaderboardScoreSourceRepository,
+                LeaderboardScoreSourceRepository
+            >();
             services.AddScoped<ILeaderboardScoresRepository, LeaderboardScoresRepository>();
             services.AddScoped<ILeaderboardMessagesRepository, LeaderboardMessagesRepository>();
             services.AddScoped<

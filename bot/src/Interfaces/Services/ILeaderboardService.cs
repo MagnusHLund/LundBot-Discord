@@ -1,16 +1,26 @@
 using DSharpPlus.Entities;
+using LundBot.Enums;
 
 namespace LundBot.Interfaces.Services
 {
     public interface ILeaderboardService
     {
-        Task CreateUpvoteLeaderboardAsync(DiscordChannel channel, string title, string message);
-        Task CreateInviteLeaderboardAsync(DiscordChannel channel, string title, string message);
+        Task CreateLeaderboardAsync(
+            DiscordChannel channel,
+            string title,
+            string message,
+            LeaderboardType leaderboardType
+        );
         Task RemoveLeaderboardAsync(DiscordChannel channel);
         Task UpvoteUserOnLeaderboard(
             DiscordChannel channel,
             DiscordUser userUpvoting,
             DiscordUser userTarget
+        );
+        Task RegisterUserJoinedWithInvite(
+            DiscordGuild guild,
+            DiscordUser userJoined,
+            DiscordUser userInvitedBy
         );
     }
 }

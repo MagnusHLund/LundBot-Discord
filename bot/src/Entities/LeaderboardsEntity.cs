@@ -17,7 +17,7 @@ namespace LundBot.Entities
             new List<LeaderboardScoresEntity>();
         public ICollection<LeaderboardMessagesEntity> LeaderboardMessages { get; set; } =
             new List<LeaderboardMessagesEntity>();
-        public ICollection<UpvotingLeaderBoardEntity> UpvotingLeaderboard { get; set; } =
-            new List<UpvotingLeaderBoardEntity>();
+        public ICollection<LeaderboardScoreSourceEntity> LeaderboardScoreSources { get; set; } =
+            new List<LeaderboardScoreSourceEntity>();
     }
 }

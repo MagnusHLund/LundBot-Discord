@@ -17,5 +17,6 @@ namespace LundBot.Interfaces.Repositories
             LeaderboardType leaderboardType
         );
         Task RemoveLeaderboardAsync(string channelId, string guildId);
+        Task<(bool, LeaderboardsEntity?)> DoesInviteLeaderboardExistOnServerAsync(string guildId);
     }
 }

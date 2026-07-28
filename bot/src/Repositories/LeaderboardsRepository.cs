@@ -103,5 +103,30 @@ namespace LundBot.Repositories
                 throw new Exception("An error occurred while removing the leaderboard.", ex);
             }
         }
+
+        public async Task<(bool, LeaderboardsEntity?)> DoesInviteLeaderboardExistOnServerAsync(
+            string guildId
+        )
+        {
+            try
+            {
+                var leaderboard = await _context.Leaderboards.FirstOrDefaultAsync(l =>
+                    l.DiscordServerId == guildId && l.LeaderboardType == LeaderboardType.Invite
+                );
+                return (leaderboard != null, leaderboard);
+            }
+            catch (Exception ex)
+            {
+                _logger.Error(
+                    ex,
+                    "Error checking if invite leaderboard exists for guild ID: {GuildId}",
+                    guildId
+                );
+                throw new Exception(
+                    "An error occurred while checking for the invite leaderboard.",
+                    ex
+                );
+            }
+        }
     }
 }
