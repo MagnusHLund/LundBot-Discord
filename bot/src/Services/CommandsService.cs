@@ -38,6 +38,7 @@ namespace LundBot.Services
 
                 slash.RegisterCommands<CreateLeaderboardCommand>(guildId);
                 slash.RegisterCommands<PingCommand>(guildId);
+                slash.RegisterCommands<RandomMapCommand>(guildId);
                 slash.RegisterCommands<RemoveLeaderboardCommand>(guildId);
                 slash.RegisterCommands<UpvoteUserOnLeaderboardCommand>(guildId);
             }
