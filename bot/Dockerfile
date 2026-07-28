@@ -1,21 +1,23 @@
-FROM node:20-bookworm-slim
+FROM mcr.microsoft.com/dotnet/sdk:10.0
 
+# The compose volume mounts the bot source tree to /app, so run from the project folder.
 WORKDIR /app
 
-RUN apt-get update \
-  && apt-get install -y --no-install-recommends openssl ca-certificates \
-  && rm -rf /var/lib/apt/lists/*
+# Ensure appsettings.json exists
+RUN mkdir -p /app/src && \
+    if [ ! -f /app/src/appsettings.json ]; then \
+      echo '{}' > /app/src/appsettings.json; \
+    fi
 
-COPY package*.json ./
-RUN npm ci
+ENV DOTNET_USE_POLLING_FILE_WATCHER=1 \
+    DOTNET_RUNNING_IN_CONTAINER=true \
+    ASPNETCORE_URLS=http://0.0.0.0:65535 \
+    DOTNET_WATCH_RESTART_ON_RUDE_EDIT=1 \
+    ASPNETCORE_ENVIRONMENT=Development
 
-COPY tsconfig.json ./
-COPY prisma ./prisma
-COPY src ./src
+RUN apt-get update && apt-get install -y unzip curl && rm -rf /var/lib/apt/lists/* && \
+    mkdir -p /vsdbg && \
+    curl -sSL https://aka.ms/getvsdbgsh | bash /dev/stdin -v latest -l /vsdbg
 
-RUN npm run prisma:generate
-RUN npm run build
-
-EXPOSE 3000
-
-CMD ["sh", "-c", "npx prisma migrate deploy && node dist/index.js"]
+# Use dotnet watch on the API project in /app/src.
+CMD ["dotnet", "watch", "run", "--no-launch-profile", "--project", "src/LundBot.csproj", "--configuration", "Debug"]

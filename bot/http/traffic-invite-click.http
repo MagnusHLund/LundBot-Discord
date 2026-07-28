@@ -1,0 +1,4 @@
+@LundBot_HostAddress = http://localhost:3000
+
+POST {{LundBot_HostAddress}}/api/traffic/invite-click
+Accept: application/json
