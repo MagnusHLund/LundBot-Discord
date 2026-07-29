@@ -5,6 +5,9 @@ on:
     tags:
       - '*'
 
+permissions:
+  contents: write
+
 jobs:
   update-version:
     runs-on: ubuntu-latest
@@ -30,4 +33,4 @@ jobs:
           git config user.email "github-actions@github.com"
           git add bot/src/appsettings.json
           git commit -m "Update server.version to ${{ steps.tag.outputs.TAG }} for tag ${{ steps.tag.outputs.TAG }}"
-          git push origin HEAD:${GITHUB_REF#refs/}
+          git push origin HEAD:${GITHUB_REF#refs/tags/}
