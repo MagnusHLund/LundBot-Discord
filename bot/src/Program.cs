@@ -171,6 +171,7 @@ namespace LundBot
         private static void RegisterConfiguration(WebApplicationBuilder builder)
         {
             builder.Services.Configure<DiscordConfig>(builder.Configuration.GetSection("Discord"));
+            builder.Services.Configure<ServerConfig>(builder.Configuration.GetSection("Server"));
             builder.Services.Configure<DeveloperEnvironmentConfig>(
                 builder.Configuration.GetSection("DeveloperEnvironment")
             );

@@ -8,13 +8,23 @@ namespace LundBot.Controllers
     [Route("api/[controller]")]
     public sealed class HealthController : BaseController
     {
-        public HealthController(IOptions<DeveloperEnvironmentConfig> devConfig)
-            : base(devConfig) { }
+        private readonly ServerConfig _serverConfig;
+
+        public HealthController(
+            IOptions<DeveloperEnvironmentConfig> devConfig,
+            IOptions<ServerConfig> serverConfig
+        )
+            : base(devConfig)
+        {
+            _serverConfig = serverConfig.Value;
+        }
 
         [HttpGet]
         public IActionResult Get()
         {
-            return Ok("Running");
+            string version = _serverConfig.Version;
+
+            return Ok(new { status = "Healthy", version });
         }
     }
 }
