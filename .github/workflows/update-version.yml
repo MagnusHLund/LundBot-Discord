@@ -1,0 +1,33 @@
+name: Update server version on tag
+
+on:
+  push:
+    tags:
+      - '*'
+
+jobs:
+  update-version:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout the repo
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Extract tag name
+        id: tag
+        run: echo "TAG=${GITHUB_REF#refs/tags/}" >> $GITHUB_OUTPUT
+
+      - name: Update version in appsettings.json
+        run: |
+          jq ".server.version = \"${{ steps.tag.outputs.TAG }}\"" bot/src/appsettings.json > bot/src/appsettings.tmp
+          mv bot/src/appsettings.tmp bot/src/appsettings.json
+
+      - name: Commit and push updated file
+        run: |
+          git config user.name "github-actions"
+          git config user.email "github-actions@github.com"
+          git add bot/src/appsettings.json
+          git commit -m "Update server.version to ${{ steps.tag.outputs.TAG }} for tag ${{ steps.tag.outputs.TAG }}"
+          git push origin HEAD:${GITHUB_REF#refs/}
