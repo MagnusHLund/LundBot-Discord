@@ -7,5 +7,7 @@ namespace LundBot.Interfaces.Services
         Task RegisterCommandsAsync();
         Task LogRegisteredCommandsForGuildsAsync();
         Task RefreshCommands();
+        Task UnregisterCommand(string commandId, bool global = false);
+        Task UnregisterAllCommands(bool global = false);
     }
 }

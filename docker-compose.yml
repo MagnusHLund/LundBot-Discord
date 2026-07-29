@@ -4,15 +4,34 @@ services:
       context: ./bot
     container_name: lundbot-discord
     restart: unless-stopped
+    ports:
+      - 3000:65535
+    networks:
+      - LundBotDiscordNetwork
+    env_file:
+      - .env
+
+    profiles: ['Production']
+
+  bot-dev:
+    build:
+      context: ./bot
+    container_name: lundbot-discord-dev
+    restart: unless-stopped
     volumes:
       - ./bot:/app
       - /app/src/bin
       - /app/src/obj
+      - /app/src/logs
     ports:
-      - '3000:65535' # Web port
-      - 5679:5678 # Debug port
+      - 3000:65535
+      - 5679:5678
     networks:
       - LundBotDiscordNetwork
+    env_file:
+      - .env
+
+    profiles: ['Development']
 
 networks:
   LundBotDiscordNetwork:

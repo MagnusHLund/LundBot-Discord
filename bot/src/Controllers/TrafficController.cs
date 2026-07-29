@@ -28,7 +28,7 @@ namespace LundBot.Controllers
 
             if (success)
             {
-                return Ok();
+                return Ok(new { message = "Website visit registered successfully." });
             }
 
             return StatusCode(StatusCodes.Status500InternalServerError);
@@ -42,7 +42,7 @@ namespace LundBot.Controllers
 
             if (success)
             {
-                return Ok();
+                return Ok(new { message = "Invite link click registered successfully." });
             }
 
             return StatusCode(StatusCodes.Status500InternalServerError);

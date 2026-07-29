@@ -1,0 +1,15 @@
+@LundBot_HostAddress = http://localhost:3000
+@command_id = 1234567890
+
+POST {{LundBot_HostAddress}}/api/command/unregister/{{command_id}}
+Accept: application/json
+
+###
+
+POST {{LundBot_HostAddress}}/api/command/unregister/{{command_id}}?global=true
+Accept: application/json
+
+### 
+
+POST {{LundBot_HostAddress}}/api/command/unregister/{{command_id}}?global=false
+Accept: application/json
