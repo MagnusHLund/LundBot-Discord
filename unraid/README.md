@@ -5,40 +5,42 @@
 1. Within `/mnt/user/appdata` create a directory called `LundBot-Discord`.
 2. Copy the whole project into the newly created directory.
 
-## Add app icon
-
-1. Run the command below in the terminal within Unraid.
-
 ```bash
-mkdir -p /boot/config/plugins/dockerMan/images
-cp /mnt/user/appdata/LundBot-Discord/unraid/LundBot.png /boot/config/plugins/dockerMan/images/
+cd /mnt/user/appdata/LundBot-Discord
+git clone https://github.com/MagnusHLund/LundBot-Discord.git
+mv LundBot-Discord/* .
+mv LundBot-Discord/.* . 2>/dev/null
+rm -rf LundBot-Discord
 ```
 
-## App template
-
-1. Navigate into `/boot/config/plugins/dockerMan/templates-user/`
-2. create an xml file named `lundbotdiscord.xml` with the same contents as [lundbotdiscord.xml](unraid/lundbotdiscord.xml) has within this directory.
-
-## Create the app in Unraid
-
-1. In the web GUI, navigate to docker
-2. From there click `add container`
-3. Choose the template called `LundBot Discord`
-4. Scroll down and click `Apply`
+3. After the files are present, follow the [setup guide](/README.md)
 
 ## Build container script
 
-1. Ensure you have the `User Scripts` plugin installed
-2. Create a script within `User Scripts` with the following contents
+1. Ensure you have the `User Scripts` plugin installed, by `Andrew Zawadzki`
+2. Navigate to `plugins` in the navbar
+3. Click on the icon for `User Scripts`
+4. Create a script, with a memorable name, with the following contents:
 
 ```bash
 #!/bin/bash
 cd /mnt/user/appdata/LundBot-Discord
-docker compose down --remove-orphans
-docker compose up -d --build
+docker compose --profile Production -f docker-compose.yml down --remove-orphans
+docker compose --profile Development -f docker-compose.yml down --remove-orphans
+
+git fetch --tags
+LATEST_TAG=$(git describe --tags `git rev-list --tags --max-count=1`)
+echo "Latest tag: $LATEST_TAG"
+
+git checkout $LATEST_TAG
+
+docker compose -f docker-compose.yml up -d --build
 ```
 
+5. Run the newly created script. Wait until the pop up window closes itself.
+
 Use this script whenever you change:
-* Dockerfile
-* Docker-compose
-* Entrypoint
+
+- Dockerfile
+- Docker-compose
+- Entrypoint

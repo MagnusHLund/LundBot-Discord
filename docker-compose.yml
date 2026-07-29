@@ -4,6 +4,9 @@ services:
       context: ./bot
     container_name: lundbot-discord
     restart: unless-stopped
+    volumes:
+      - ./bot/src/appsettings.json:/app/appsettings.json:ro
+      - ./bot/src/appsettings.Production.json:/app/appsettings.Production.json:ro
     ports:
       - 3000:65535
     networks:

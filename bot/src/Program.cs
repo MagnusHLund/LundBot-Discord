@@ -17,8 +17,8 @@ namespace LundBot
     {
         public static void Main(string[] args)
         {
-            RegisterLogger();
             var builder = WebApplication.CreateBuilder(args);
+            RegisterLogger(builder);
 
             SetupDatabase(builder);
             RegisterConfiguration(builder);
@@ -151,13 +151,16 @@ namespace LundBot
             });
         }
 
-        private static void RegisterLogger()
+        private static void RegisterLogger(WebApplicationBuilder builder)
         {
             Log.Logger = new LoggerConfiguration()
                 .ReadFrom.Configuration(
                     new ConfigurationBuilder()
                         .AddJsonFile("appsettings.json")
-                        .AddJsonFile("appsettings.Production.json", optional: true)
+                        .AddJsonFile(
+                            $"appsettings.{builder.Environment.EnvironmentName}.json",
+                            optional: true
+                        )
                         .AddEnvironmentVariables()
                         .Build()
                 )
