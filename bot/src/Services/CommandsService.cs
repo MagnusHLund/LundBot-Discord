@@ -78,7 +78,7 @@ namespace LundBot.Services
             await slash.RefreshCommands();
         }
 
-        public async Task UnregisterCommand(string commandId, bool global = false)
+        public async Task<bool> UnregisterCommand(string commandId, bool global = false)
         {
             if (global)
             {
@@ -99,11 +99,13 @@ namespace LundBot.Services
                         "Failed to unregister global command with ID {CommandId}",
                         commandId
                     );
+
+                    return false;
                 }
             }
             else
             {
-                foreach (ulong guildId in BotService.DiscordClient.Guilds.Values.Select(g => g.Id))
+                foreach (ulong guildId in GetFastUpdateGuildIds())
                 {
                     try
                     {
@@ -125,12 +127,16 @@ namespace LundBot.Services
                             commandId,
                             guildId.ToString()
                         );
+
+                        return false;
                     }
                 }
             }
+
+            return true;
         }
 
-        public async Task UnregisterAllCommands(bool global = false)
+        public async Task<bool> UnregisterAllCommands(bool global = false)
         {
             if (global)
             {
@@ -153,11 +159,12 @@ namespace LundBot.Services
                 catch (Exception ex)
                 {
                     _logger.Error(ex, "Failed to unregister global commands");
+                    return false;
                 }
             }
             else
             {
-                foreach (ulong guildId in BotService.DiscordClient.Guilds.Values.Select(g => g.Id))
+                foreach (ulong guildId in GetFastUpdateGuildIds())
                 {
                     try
                     {
@@ -186,9 +193,12 @@ namespace LundBot.Services
                             "Failed to unregister commands for guild {GuildId}",
                             guildId.ToString()
                         );
+                        return false;
                     }
                 }
             }
+
+            return true;
         }
 
         private List<ulong> GetFastUpdateGuildIds()
