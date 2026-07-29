@@ -33,4 +33,9 @@ jobs:
           git config user.email "github-actions@github.com"
           git add bot/src/appsettings.json
           git commit -m "Update server.version to ${{ steps.tag.outputs.TAG }} for tag ${{ steps.tag.outputs.TAG }}"
+
+          # Update the tag
           git push --force origin HEAD:refs/tags/${{ steps.tag.outputs.TAG }}
+
+          # update main branch
+          git push origin HEAD:main
