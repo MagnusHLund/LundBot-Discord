@@ -5,18 +5,18 @@ using Microsoft.EntityFrameworkCore;
 
 namespace LundBot.Repositories
 {
-    public class UpvotingLeaderboardRepository : IUpvotingLeaderboardRepository
+    public class LeaderboardScoreSourceRepository : ILeaderboardScoreSourceRepository
     {
         private readonly LundBotDiscordDbContext _dbContext;
         private readonly Serilog.ILogger _logger =
-            Serilog.Log.ForContext<UpvotingLeaderboardRepository>();
+            Serilog.Log.ForContext<LeaderboardScoreSourceRepository>();
 
-        public UpvotingLeaderboardRepository(LundBotDiscordDbContext dbContext)
+        public LeaderboardScoreSourceRepository(LundBotDiscordDbContext dbContext)
         {
             _dbContext = dbContext;
         }
 
-        public async Task<bool> HasUserUpvotedTargetAsync(
+        public async Task<bool> HasUserGivenScoreToTargetAsync(
             string userId,
             string targetUserId,
             int leaderboardId
@@ -24,8 +24,8 @@ namespace LundBot.Repositories
         {
             try
             {
-                return await _dbContext.UpvotingLeaderBoards.AnyAsync(u =>
-                    u.DiscordUserIdVoter == userId
+                return await _dbContext.LeaderboardScoreSources.AnyAsync(u =>
+                    u.DiscordUserIdActor == userId
                     && u.DiscordUserIdTarget == targetUserId
                     && u.LeaderboardsId == leaderboardId
                 );
@@ -43,18 +43,18 @@ namespace LundBot.Repositories
             }
         }
 
-        public async Task AddUpvoteAsync(string userId, string targetUserId, int leaderboardId)
+        public async Task AddScoreAsync(string userId, string targetUserId, int leaderboardId)
         {
             try
             {
-                var upvote = new UpvotingLeaderBoardEntity
+                var upvote = new LeaderboardScoreSourceEntity
                 {
-                    DiscordUserIdVoter = userId,
+                    DiscordUserIdActor = userId,
                     DiscordUserIdTarget = targetUserId,
                     LeaderboardsId = leaderboardId,
                 };
 
-                _dbContext.UpvotingLeaderBoards.Add(upvote);
+                _dbContext.LeaderboardScoreSources.Add(upvote);
                 await _dbContext.SaveChangesAsync();
             }
             catch (Exception ex)

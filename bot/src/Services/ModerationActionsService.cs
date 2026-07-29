@@ -33,7 +33,7 @@ namespace LundBot.Services
 
         public async Task KickUserAsync(DiscordGuild guild, DiscordMember user, string reason)
         {
-            if (user?.IsPending == true)
+            if (user.IsPending == true)
             {
                 _logger.Information(
                     "User {UserId} is doing onboarding in guild {GuildId}. Skipping kick. If the role is still assigned after the onboarding, the user will be kicked after the onboarding is complete.",

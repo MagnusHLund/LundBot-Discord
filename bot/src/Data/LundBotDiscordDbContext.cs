@@ -8,7 +8,7 @@ namespace LundBot.Data
     {
         public DbSet<LeaderboardsEntity> Leaderboards { get; set; } = null!;
         public DbSet<LeaderboardScoresEntity> LeaderboardScores { get; set; } = null!;
-        public DbSet<UpvotingLeaderBoardEntity> UpvotingLeaderBoards { get; set; } = null!;
+        public DbSet<LeaderboardScoreSourceEntity> LeaderboardScoreSources { get; set; } = null!;
         public DbSet<LeaderboardMessagesEntity> LeaderboardMessages { get; set; } = null!;
         public DbSet<WebsiteTrafficEntity> WebsiteTraffic { get; set; } = null!;
         public DbSet<WebsiteTrafficMessagesEntity> WebsiteTrafficMessages { get; set; } = null!;
@@ -20,7 +20,7 @@ namespace LundBot.Data
         {
             ConfigureLeaderboards(modelBuilder.Entity<LeaderboardsEntity>());
             ConfigureLeaderboardScores(modelBuilder.Entity<LeaderboardScoresEntity>());
-            ConfigureUpvotingLeaderBoard(modelBuilder.Entity<UpvotingLeaderBoardEntity>());
+            ConfigureLeaderBoardScoreSource(modelBuilder.Entity<LeaderboardScoreSourceEntity>());
             ConfigureLeaderboardMessages(modelBuilder.Entity<LeaderboardMessagesEntity>());
             ConfigureWebsiteTraffic(modelBuilder.Entity<WebsiteTrafficEntity>());
             ConfigureWebsiteTrafficMessages(modelBuilder.Entity<WebsiteTrafficMessagesEntity>());
@@ -63,6 +63,13 @@ namespace LundBot.Data
                 )
                 .IsUnique()
                 .HasDatabaseName("leaderboards_index_2");
+
+            entity
+                .HasIndex(
+                    nameof(LeaderboardsEntity.DiscordServerId),
+                    nameof(LeaderboardsEntity.LeaderboardType)
+                )
+                .HasDatabaseName("leaderboards_index_3");
 
             entity.HasIndex(e => e.LeaderboardType);
         }
@@ -113,29 +120,24 @@ namespace LundBot.Data
                 .HasConstraintName("fk_leaderboard_scores_leaderboards");
         }
 
-        private static void ConfigureUpvotingLeaderBoard(
-            EntityTypeBuilder<UpvotingLeaderBoardEntity> entity
+        private static void ConfigureLeaderBoardScoreSource(
+            EntityTypeBuilder<LeaderboardScoreSourceEntity> entity
         )
         {
-            entity.ToTable("UpvotingLeaderBoard");
+            entity.ToTable("LeaderboardScoreSources");
 
             entity.HasKey(e => e.Id);
             entity
                 .Property(e => e.Id)
-                .HasColumnName("UpvotingLeaderboardId")
+                .HasColumnName("LeaderboardScoreSourceId")
                 .HasColumnType("int unsigned")
                 .ValueGeneratedOnAdd();
 
             entity.Property(e => e.LeaderboardsId).HasColumnType("int unsigned").IsRequired();
 
-            entity.Property(e => e.DiscordUserIdVoter).HasColumnType("char(19)").IsRequired();
+            entity.Property(e => e.DiscordUserIdActor).HasColumnType("char(19)").IsRequired();
 
             entity.Property(e => e.DiscordUserIdTarget).HasColumnType("char(19)").IsRequired();
-
-            entity
-                .Property(e => e.UpdatedAt)
-                .HasColumnType("datetime(3)")
-                .ValueGeneratedOnAddOrUpdate();
 
             entity
                 .Property(e => e.CreatedAt)
@@ -144,24 +146,24 @@ namespace LundBot.Data
 
             entity
                 .HasIndex(e => e.LeaderboardsId)
-                .HasDatabaseName("IX_UpvotingLeaderBoard_LeaderboardsId");
+                .HasDatabaseName("IX_LeaderboardScoreSources_LeaderboardsId");
 
             entity
                 .HasIndex(e => new
                 {
                     e.LeaderboardsId,
-                    e.DiscordUserIdVoter,
+                    e.DiscordUserIdActor,
                     e.DiscordUserIdTarget,
                 })
                 .IsUnique()
-                .HasDatabaseName("UpvotingLeaderBoard_index_2");
+                .HasDatabaseName("LeaderboardScoreSources_index_2");
 
             entity
                 .HasOne(e => e.Leaderboard)
-                .WithMany(l => l.UpvotingLeaderboard)
+                .WithMany(l => l.LeaderboardScoreSources)
                 .HasForeignKey(e => e.LeaderboardsId)
                 .OnDelete(DeleteBehavior.Cascade)
-                .HasConstraintName("fk_upvoting_leaderboard_leaderboards");
+                .HasConstraintName("fk_leaderboard_score_sources_leaderboards");
         }
 
         private static void ConfigureLeaderboardMessages(

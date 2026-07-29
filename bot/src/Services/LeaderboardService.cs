@@ -7,13 +7,15 @@ using LundBot.Factories.MessageEntityFactories;
 using LundBot.Interfaces.Repositories;
 using LundBot.Interfaces.Services;
 using LundBot.Repositories;
+using LundBot.Utils;
 
 namespace LundBot.Services
 {
     public sealed class LeaderboardService : ILeaderboardService
     {
+        private readonly IUserService _userService;
         private readonly ILeaderboardMessagesRepository _leaderboardsMessageRepository;
-        private readonly IUpvotingLeaderboardRepository _upvotingLeaderboardRepository;
+        private readonly ILeaderboardScoreSourceRepository _leaderboardScoreSourceRepository;
         private readonly ILeaderboardScoresRepository _leaderboardScoreRepository;
         private readonly ILeaderboardsRepository _leaderboardsRepository;
         private readonly IMessageService<
@@ -24,9 +26,10 @@ namespace LundBot.Services
         private readonly Serilog.ILogger _logger = Serilog.Log.ForContext<LeaderboardService>();
 
         public LeaderboardService(
+            IUserService userService,
             ILeaderboardsRepository leaderboardsRepository,
             ILeaderboardMessagesRepository leaderboardsMessageRepository,
-            IUpvotingLeaderboardRepository upvotingLeaderboardRepository,
+            ILeaderboardScoreSourceRepository leaderboardScoreSourceRepository,
             ILeaderboardScoresRepository leaderboardScoreRepository,
             IMessageService<
                 LeaderboardMessagesEntity,
@@ -35,29 +38,79 @@ namespace LundBot.Services
             > messageService
         )
         {
+            _userService = userService;
             _leaderboardsRepository = leaderboardsRepository;
             _leaderboardsMessageRepository = leaderboardsMessageRepository;
-            _upvotingLeaderboardRepository = upvotingLeaderboardRepository;
+            _leaderboardScoreSourceRepository = leaderboardScoreSourceRepository;
             _leaderboardScoreRepository = leaderboardScoreRepository;
             _messageService = messageService;
         }
 
-        public async Task CreateUpvoteLeaderboardAsync(
+        public async Task CreateLeaderboardAsync(
             DiscordChannel channel,
             string title,
-            string message
+            string message,
+            LeaderboardType leaderboardType
         )
         {
-            await CreateLeaderboardAsync(channel, title, message, LeaderboardType.Upvote);
-        }
+            _logger.Information(
+                "Creating {LeaderboardType} leaderboard in channel {ChannelId} with title '{Title}' and message '{Message}'",
+                leaderboardType,
+                channel.Id,
+                title,
+                message
+            );
 
-        public async Task CreateInviteLeaderboardAsync(
-            DiscordChannel channel,
-            string title,
-            string message
-        )
-        {
-            await CreateLeaderboardAsync(channel, title, message, LeaderboardType.Invite);
+            var (doesLeaderboardExist, _) = await _leaderboardsRepository.DoesLeaderboardExistAsync(
+                channel.Id.ToString(),
+                channel.Guild.Id.ToString()
+            );
+
+            if (doesLeaderboardExist)
+            {
+                throw new CommandException(
+                    $"There can only be one leaderboard per channel. <#{channel.Id}> already has a leaderboard.",
+                    showMessageToUser: true
+                );
+            }
+
+            if (leaderboardType == LeaderboardType.Invite)
+            {
+                var (inviteLeaderboardExists, _) =
+                    await _leaderboardsRepository.DoesInviteLeaderboardExistOnServerAsync(
+                        channel.Guild.Id.ToString()
+                    );
+
+                if (inviteLeaderboardExists)
+                {
+                    throw new CommandException(
+                        $"There can only be one invite leaderboard per server. <#{channel.Guild.Id}> already has an invite leaderboard.",
+                        showMessageToUser: true
+                    );
+                }
+            }
+
+            LeaderboardsEntity leaderboard = await _leaderboardsRepository.CreateLeaderboardAsync(
+                channel.Id.ToString(),
+                channel.Guild.Id.ToString(),
+                title,
+                message,
+                leaderboardType
+            );
+
+            _messageService.MessageFactory.SetLeaderboardId(leaderboard.Id);
+
+            string leaderboardMessage = GenerateLeaderboardMessage(
+                Enumerable.Empty<LeaderboardScoresEntity>(),
+                title,
+                message
+            );
+
+            await _messageService.SynchronizeDiscordMessagesAsync(
+                leaderboardMessage,
+                Enumerable.Empty<LeaderboardMessagesEntity>(),
+                channel.Id
+            );
         }
 
         public async Task RemoveLeaderboardAsync(DiscordChannel channel)
@@ -104,11 +157,12 @@ namespace LundBot.Services
                 );
             }
 
-            bool hasAlreadyUpvoted = await _upvotingLeaderboardRepository.HasUserUpvotedTargetAsync(
-                userUpvoting.Id.ToString(),
-                userTarget.Id.ToString(),
-                leaderboard.Id
-            );
+            bool hasAlreadyUpvoted =
+                await _leaderboardScoreSourceRepository.HasUserGivenScoreToTargetAsync(
+                    userUpvoting.Id.ToString(),
+                    userTarget.Id.ToString(),
+                    leaderboard.Id
+                );
 
             if (hasAlreadyUpvoted)
             {
@@ -118,87 +172,71 @@ namespace LundBot.Services
                 );
             }
 
-            await _upvotingLeaderboardRepository.AddUpvoteAsync(
+            await AddScoreToLeaderboardAsync(
                 userUpvoting.Id.ToString(),
                 userTarget.Id.ToString(),
-                leaderboard.Id
-            );
-
-            await _leaderboardScoreRepository.IncrementScoreAsync(
-                userTarget.Id.ToString(),
-                leaderboard.Id
-            );
-
-            const int topUpvoteScoresLimit = 100;
-            var topUpvoteScores = await _leaderboardScoreRepository.GetTopScoresAsync(
-                leaderboard.Id,
-                topUpvoteScoresLimit
-            );
-
-            string leaderboardMessage = GenerateLeaderboardMessage(
-                topUpvoteScores,
-                leaderboard.Title,
-                leaderboard.Message
-            );
-
-            var existingMessages =
-                await _leaderboardsMessageRepository.GetMessagesForLeaderboardAsync(leaderboard.Id);
-
-            await _messageService.SynchronizeDiscordMessagesAsync(
-                leaderboardMessage,
-                existingMessages,
-                channel.Id
+                leaderboard,
+                channel
             );
         }
 
-        private async Task CreateLeaderboardAsync(
-            DiscordChannel channel,
-            string title,
-            string message,
-            LeaderboardType leaderboardType
+        public async Task RegisterUserJoinedWithInvite(
+            DiscordGuild guild,
+            DiscordUser userJoined,
+            DiscordUser userInvitedBy
         )
         {
-            _logger.Information(
-                "Creating {LeaderboardType} leaderboard in channel {ChannelId} with title '{Title}' and message '{Message}'",
-                leaderboardType,
-                channel.Id,
-                title,
-                message
-            );
-
-            var (doesLeaderboardExist, _) = await _leaderboardsRepository.DoesLeaderboardExistAsync(
-                channel.Id.ToString(),
-                channel.Guild.Id.ToString()
-            );
-
-            if (doesLeaderboardExist)
+            if (
+                EnvironmentUtils.IsProduction()
+                && await _userService.IsUserOwnerAsync(userInvitedBy.Id, guild.Id)
+            )
             {
-                throw new CommandException(
-                    $"There can only be one leaderboard per channel. <#{channel.Id}> already has a leaderboard.",
-                    showMessageToUser: true
+                _logger.Information(
+                    "User {UserInvitedById} is the owner of guild {GuildId}, skipping registration of user {UserJoinedId}",
+                    userInvitedBy.Id,
+                    guild.Id,
+                    userJoined.Id
                 );
+                return;
             }
 
-            LeaderboardsEntity leaderboard = await _leaderboardsRepository.CreateLeaderboardAsync(
-                channel.Id.ToString(),
-                channel.Guild.Id.ToString(),
-                title,
-                message,
-                leaderboardType
-            );
+            (bool leaderboardExists, LeaderboardsEntity? leaderboard) =
+                await _leaderboardsRepository.DoesInviteLeaderboardExistOnServerAsync(
+                    guild.Id.ToString()
+                );
 
-            _messageService.MessageFactory.SetLeaderboardId(leaderboard.Id);
+            if (!leaderboardExists)
+            {
+                _logger.Information(
+                    "No invite leaderboard exists in guild {GuildId}, skipping registration of user {UserJoinedId}",
+                    guild.Id,
+                    userJoined.Id
+                );
+                return;
+            }
 
-            string leaderboardMessage = GenerateLeaderboardMessage(
-                Enumerable.Empty<LeaderboardScoresEntity>(),
-                title,
-                message
-            );
+            bool hasAlreadyBeenInvited =
+                await _leaderboardScoreSourceRepository.HasUserGivenScoreToTargetAsync(
+                    userInvitedBy.Id.ToString(),
+                    userJoined.Id.ToString(),
+                    leaderboard!.Id
+                );
 
-            await _messageService.SynchronizeDiscordMessagesAsync(
-                leaderboardMessage,
-                Enumerable.Empty<LeaderboardMessagesEntity>(),
-                channel.Id
+            if (hasAlreadyBeenInvited)
+            {
+                _logger.Information(
+                    "User {UserJoinedId} has already been invited by {UserInvitedById} on the invite leaderboard in guild {GuildId}, skipping registration",
+                    userJoined.Id,
+                    userInvitedBy.Id,
+                    guild.Id
+                );
+                return;
+            }
+
+            await AddScoreToLeaderboardAsync(
+                userJoined.Id.ToString(),
+                userInvitedBy.Id.ToString(),
+                leaderboard
             );
         }
 
@@ -245,7 +283,51 @@ namespace LundBot.Services
                 );
             }
 
-            return leaderboard;
+            return leaderboard!;
+        }
+
+        private async Task AddScoreToLeaderboardAsync(
+            string userId,
+            string targetUserId,
+            LeaderboardsEntity leaderboard,
+            DiscordChannel? channel = null
+        )
+        {
+            if (channel is null)
+            {
+                channel = await BotService.DiscordClient.GetChannelAsync(
+                    ulong.Parse(leaderboard.DiscordChannelId)
+                );
+            }
+
+            await _leaderboardScoreSourceRepository.AddScoreAsync(
+                userId,
+                targetUserId,
+                leaderboard.Id
+            );
+
+            await _leaderboardScoreRepository.IncrementScoreAsync(targetUserId, leaderboard.Id);
+
+            const int topUpvoteScoresLimit = 100;
+            var topUpvoteScores = await _leaderboardScoreRepository.GetTopScoresAsync(
+                leaderboard.Id,
+                topUpvoteScoresLimit
+            );
+
+            string leaderboardMessage = GenerateLeaderboardMessage(
+                topUpvoteScores,
+                leaderboard.Title,
+                leaderboard.Message
+            );
+
+            var existingMessages =
+                await _leaderboardsMessageRepository.GetMessagesForLeaderboardAsync(leaderboard.Id);
+
+            await _messageService.SynchronizeDiscordMessagesAsync(
+                leaderboardMessage,
+                existingMessages,
+                channel.Id
+            );
         }
     }
 }

@@ -54,6 +54,7 @@ namespace LundBot
         private static void RegisterServices(IServiceCollection services)
         {
             services.AddSingleton<IBotService, BotService>();
+            services.AddSingleton<IUserService, UserService>();
             services.AddSingleton<ICommandsService, CommandsService>();
             services.AddSingleton<IModerationActionsService, ModerationActionsService>();
 
@@ -93,7 +94,10 @@ namespace LundBot
 
             services.AddScoped<IWebsiteTrafficRepository, WebsiteTrafficRepository>();
             services.AddScoped<ILeaderboardsRepository, LeaderboardsRepository>();
-            services.AddScoped<IUpvotingLeaderboardRepository, UpvotingLeaderboardRepository>();
+            services.AddScoped<
+                ILeaderboardScoreSourceRepository,
+                LeaderboardScoreSourceRepository
+            >();
             services.AddScoped<ILeaderboardScoresRepository, LeaderboardScoresRepository>();
             services.AddScoped<ILeaderboardMessagesRepository, LeaderboardMessagesRepository>();
             services.AddScoped<
@@ -137,7 +141,7 @@ namespace LundBot
                 {
                     Token = discordToken,
                     TokenType = TokenType.Bot,
-                    Intents = DiscordIntents.AllUnprivileged,
+                    Intents = DiscordIntents.AllUnprivileged | DiscordIntents.GuildMembers,
                     LoggerFactory = new LoggerFactory().AddSerilog(),
                     AutoReconnect = true,
                     ReconnectIndefinitely = true,

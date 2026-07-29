@@ -2,27 +2,29 @@ using DSharpPlus;
 using DSharpPlus.Entities;
 using DSharpPlus.SlashCommands;
 using DSharpPlus.SlashCommands.Attributes;
+using LundBot.Enums;
 using LundBot.Interfaces.Services;
 using LundBot.Utils;
 
 namespace LundBot.Commands
 {
-    public sealed class CreateUpvoteLeaderboardCommand : BaseCommand
+    public sealed class CreateLeaderboardCommand : BaseCommand
     {
         private readonly ILeaderboardService _leaderboardService;
 
-        public CreateUpvoteLeaderboardCommand(ILeaderboardService leaderboardService)
+        public CreateLeaderboardCommand(ILeaderboardService leaderboardService)
         {
             _leaderboardService = leaderboardService;
         }
 
         [SlashRequirePermissions(Permissions.Administrator)]
-        [SlashCommand("create-upvote-leaderboard", "Creates a new upvote leaderboard.")]
-        public async Task CreateUpvoteLeaderboardAsync(
+        [SlashCommand("create-leaderboard", "Creates a new leaderboard.")]
+        public async Task CreateLeaderboardAsync(
             InteractionContext context,
             [Option("Channel", "The Channel that the leaderboard will use")]
             [ChannelTypes(ChannelType.Text)]
                 DiscordChannel Channel,
+            [Option("type", "The type of the leaderboard.")] LeaderboardType type,
             [Option(
                 "title",
                 "The title of the leaderboard. eg 'Top Upvoted Users'. Max 64 characters."
@@ -32,7 +34,7 @@ namespace LundBot.Commands
                 string title,
             [Option(
                 "message",
-                "Message to prepend above the leaderboard data. Max 256 characters."
+                "Message to prepend above the leaderboard data and title. Max 256 characters."
             )]
             [MaximumLength(256)]
                 string? message
@@ -65,8 +67,8 @@ namespace LundBot.Commands
 
             await TaskWithErrorHandlingAsync(
                 context,
-                () => _leaderboardService.CreateUpvoteLeaderboardAsync(Channel, title, message),
-                $"Upvote leaderboard created successfully, in {Channel.Mention}."
+                () => _leaderboardService.CreateLeaderboardAsync(Channel, title, message, type),
+                $"{type} Leaderboard created successfully, in {Channel.Mention}."
             );
         }
     }
