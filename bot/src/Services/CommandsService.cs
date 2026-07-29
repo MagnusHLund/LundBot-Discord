@@ -1,4 +1,3 @@
-using DSharpPlus;
 using DSharpPlus.SlashCommands;
 using LundBot.Commands;
 using LundBot.Config;
@@ -77,6 +76,119 @@ namespace LundBot.Services
         {
             SlashCommandsExtension slash = BotService.DiscordClient.GetSlashCommands();
             await slash.RefreshCommands();
+        }
+
+        public async Task UnregisterCommand(string commandId, bool global = false)
+        {
+            if (global)
+            {
+                try
+                {
+                    await BotService.DiscordClient.DeleteGlobalApplicationCommandAsync(
+                        ulong.Parse(commandId)
+                    );
+                    _logger.Information(
+                        "Unregistered global command with ID {CommandId}",
+                        commandId
+                    );
+                }
+                catch (Exception ex)
+                {
+                    _logger.Error(
+                        ex,
+                        "Failed to unregister global command with ID {CommandId}",
+                        commandId
+                    );
+                }
+            }
+            else
+            {
+                foreach (ulong guildId in BotService.DiscordClient.Guilds.Values.Select(g => g.Id))
+                {
+                    try
+                    {
+                        await BotService.DiscordClient.DeleteGuildApplicationCommandAsync(
+                            guildId,
+                            ulong.Parse(commandId)
+                        );
+                        _logger.Information(
+                            "Unregistered command with ID {CommandId} for guild {GuildId}",
+                            commandId,
+                            guildId.ToString()
+                        );
+                    }
+                    catch (Exception ex)
+                    {
+                        _logger.Error(
+                            ex,
+                            "Failed to unregister command with ID {CommandId} for guild {GuildId}",
+                            commandId,
+                            guildId.ToString()
+                        );
+                    }
+                }
+            }
+        }
+
+        public async Task UnregisterAllCommands(bool global = false)
+        {
+            if (global)
+            {
+                try
+                {
+                    var globalCommands =
+                        await BotService.DiscordClient.GetGlobalApplicationCommandsAsync();
+
+                    foreach (var command in globalCommands)
+                    {
+                        await BotService.DiscordClient.DeleteGlobalApplicationCommandAsync(
+                            command.Id
+                        );
+                        _logger.Information(
+                            "Unregistered global command with ID {CommandId}",
+                            command.Id.ToString()
+                        );
+                    }
+                }
+                catch (Exception ex)
+                {
+                    _logger.Error(ex, "Failed to unregister global commands");
+                }
+            }
+            else
+            {
+                foreach (ulong guildId in BotService.DiscordClient.Guilds.Values.Select(g => g.Id))
+                {
+                    try
+                    {
+                        var guildCommands =
+                            await BotService.DiscordClient.GetGuildApplicationCommandsAsync(
+                                guildId
+                            );
+
+                        foreach (var command in guildCommands)
+                        {
+                            await BotService.DiscordClient.DeleteGuildApplicationCommandAsync(
+                                guildId,
+                                command.Id
+                            );
+                            _logger.Information(
+                                "Unregistered command with ID {CommandId} for guild {GuildId}",
+                                command.Id.ToString(),
+                                guildId.ToString()
+                            );
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        _logger.Error(
+                            ex,
+                            "Failed to unregister commands for guild {GuildId}",
+                            guildId.ToString()
+                        );
+                    }
+                }
+            }
         }
 
         private List<ulong> GetFastUpdateGuildIds()
