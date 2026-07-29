@@ -233,17 +233,6 @@ namespace LundBot.Services
                 return;
             }
 
-            await _leaderboardScoreSourceRepository.AddScoreAsync(
-                userInvitedBy.Id.ToString(),
-                userJoined.Id.ToString(),
-                leaderboard.Id
-            );
-
-            await _leaderboardScoreRepository.IncrementScoreAsync(
-                userInvitedBy.Id.ToString(),
-                leaderboard.Id
-            );
-
             await AddScoreToLeaderboardAsync(
                 userJoined.Id.ToString(),
                 userInvitedBy.Id.ToString(),
