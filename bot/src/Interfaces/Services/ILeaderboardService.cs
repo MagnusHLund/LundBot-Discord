@@ -22,5 +22,6 @@ namespace LundBot.Interfaces.Services
             DiscordUser userJoined,
             DiscordUser userInvitedBy
         );
+        Task RefreshLeaderboardAsync(ulong channelId, ulong guildId);
     }
 }

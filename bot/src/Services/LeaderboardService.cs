@@ -13,6 +13,8 @@ namespace LundBot.Services
 {
     public sealed class LeaderboardService : ILeaderboardService
     {
+        public const int TOP_UPVOTE_SCORES_LIMIT = 100;
+
         private readonly IUserService _userService;
         private readonly ILeaderboardMessagesRepository _leaderboardsMessageRepository;
         private readonly ILeaderboardScoreSourceRepository _leaderboardScoreSourceRepository;
@@ -235,6 +237,33 @@ namespace LundBot.Services
             );
         }
 
+        public async Task RefreshLeaderboardAsync(ulong channelId, ulong guildId)
+        {
+            LeaderboardsEntity leaderboard = await GetLeaderboardAsync(
+                await BotService.DiscordClient.GetChannelAsync(channelId)
+            );
+
+            var topUpvoteScores = await _leaderboardScoreRepository.GetTopScoresAsync(
+                leaderboard.Id,
+                TOP_UPVOTE_SCORES_LIMIT
+            );
+
+            string leaderboardMessage = GenerateLeaderboardMessage(
+                topUpvoteScores,
+                leaderboard.Title,
+                leaderboard.Message
+            );
+
+            List<LeaderboardMessagesEntity> existingMessages =
+                await _leaderboardsMessageRepository.GetMessagesForLeaderboardAsync(leaderboard.Id);
+
+            await _messageService.SynchronizeDiscordMessagesAsync(
+                leaderboardMessage,
+                existingMessages,
+                guildId
+            );
+        }
+
         private string GenerateLeaderboardMessage(
             IEnumerable<LeaderboardScoresEntity> topScores,
             string title,
@@ -303,10 +332,9 @@ namespace LundBot.Services
 
             await _leaderboardScoreRepository.IncrementScoreAsync(targetUserId, leaderboard.Id);
 
-            const int topUpvoteScoresLimit = 100;
             var topUpvoteScores = await _leaderboardScoreRepository.GetTopScoresAsync(
                 leaderboard.Id,
-                topUpvoteScoresLimit
+                TOP_UPVOTE_SCORES_LIMIT
             );
 
             string leaderboardMessage = GenerateLeaderboardMessage(
