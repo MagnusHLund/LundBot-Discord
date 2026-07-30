@@ -1,8 +1,8 @@
 using DSharpPlus;
 using DSharpPlus.Entities;
-using LundBot.Interfaces.Services;
-using LundBot.Enums;
 using LundBot.Config;
+using LundBot.Enums;
+using LundBot.Interfaces.Services;
 using Microsoft.Extensions.Options;
 
 namespace LundBot.Services
@@ -40,6 +40,20 @@ namespace LundBot.Services
             var member = await guild.GetMemberAsync(userId);
 
             return member.Roles.Any(r => r.Id == _discordConfig.Roles[DiscordRoles.Owner.Key]);
+        }
+
+        public async Task<bool> IsUserABot(ulong userId, ulong guildId)
+        {
+            DiscordGuild guild = await BotService.DiscordClient.GetGuildAsync(guildId);
+
+            var member = await guild.GetMemberAsync(userId);
+
+            if (member.IsBot)
+            {
+                return true;
+            }
+
+            return member.Roles.Any(r => r.Id == _discordConfig.Roles[DiscordRoles.Bot.Key]);
         }
     }
 }

@@ -188,15 +188,10 @@ namespace LundBot.Services
         {
             if (
                 EnvironmentUtils.IsProduction()
-                && await _userService.IsUserOwnerAsync(userInvitedBy.Id, guild.Id)
+                    && await _userService.IsUserOwnerAsync(userInvitedBy.Id, guild.Id)
+                || await _userService.IsUserABot(userInvitedBy.Id, guild.Id)
             )
             {
-                _logger.Information(
-                    "User {UserInvitedById} is the owner of guild {GuildId}, skipping registration of user {UserJoinedId}",
-                    userInvitedBy.Id,
-                    guild.Id,
-                    userJoined.Id
-                );
                 return;
             }
 
