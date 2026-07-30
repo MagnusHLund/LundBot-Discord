@@ -239,9 +239,19 @@ namespace LundBot.Services
 
         public async Task RefreshLeaderboardAsync(ulong channelId, ulong guildId)
         {
-            LeaderboardsEntity leaderboard = await GetLeaderboardAsync(
-                await BotService.DiscordClient.GetChannelAsync(channelId)
-            );
+            DiscordChannel channel;
+
+            try
+            {
+                channel = await BotService.DiscordClient.GetChannelAsync(channelId);
+            }
+            catch (Exception ex)
+            {
+                _logger.Error(ex, "Error occurred while fetching channel {ChannelId}", channelId);
+                throw;
+            }
+
+            LeaderboardsEntity leaderboard = await GetLeaderboardAsync(channel);
 
             var topUpvoteScores = await _leaderboardScoreRepository.GetTopScoresAsync(
                 leaderboard.Id,
@@ -260,7 +270,7 @@ namespace LundBot.Services
             await _messageService.SynchronizeDiscordMessagesAsync(
                 leaderboardMessage,
                 existingMessages,
-                guildId
+                channelId
             );
         }
 

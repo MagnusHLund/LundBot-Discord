@@ -1,0 +1,6 @@
+@LundBot_HostAddress = http://localhost:3000
+@Discord_ChannelId = 123456789012345678
+@Discord_GuildId = 123456789012345678
+
+POST {{LundBot_HostAddress}}/api/leaderboard/refresh?channelid={{Discord_ChannelId}}&guildid={{Discord_GuildId}}
+Accept: application/json
