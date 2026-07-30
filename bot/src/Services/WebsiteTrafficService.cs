@@ -126,7 +126,7 @@ namespace LundBot.Services
             for (int i = 0; i < websiteTrafficEntities.Count; i++)
             {
                 var traffic = websiteTrafficEntities[i];
-                string clickedInvite = traffic.ClickedInviteButton ? "Yes" : "No";
+                string clickedInvite = traffic.ClickedInviteButton ? "✔️" : "❌";
 
                 messageBuilder.AppendLine(
                     $"{i + 1}. {traffic.CreatedAt:dd-MM-yyyy HH:mm:ss} UTC | invite={clickedInvite}"
