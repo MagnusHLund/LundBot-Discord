@@ -30,9 +30,9 @@ docker compose --profile Production -f docker-compose.yml down --remove-orphans
 docker compose --profile Development -f docker-compose.yml down --remove-orphans
 
 git checkout main
-git fetch --tags
+git fetch --tags --force
 
-LATEST_TAG=$(git describe --tags `git rev-list --tags --max-count=1`)
+LATEST_TAG=$(git tag --sort=-v:refname | head -n 1)
 echo "Latest tag: $LATEST_TAG"
 
 git checkout $LATEST_TAG

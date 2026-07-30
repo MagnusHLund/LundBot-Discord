@@ -7,7 +7,7 @@ services:
     volumes:
       - ./bot/src/appsettings.json:/app/appsettings.json:ro
       - ./bot/src/appsettings.Production.json:/app/appsettings.Production.json:ro
-      - ./bot/src/logs:/app/logs
+      - ./bot/src/Logs:/app/src/Logs
     ports:
       - 3000:65535
     networks:
@@ -24,9 +24,9 @@ services:
     restart: unless-stopped
     volumes:
       - ./bot:/app
-      - /app/src/bin
-      - /app/src/obj
-      - /app/src/logs
+      - ./bot/src/bin:/app/src/bin
+      - ./bot/src/obj:/app/src/obj
+      - ./bot/src/Logs:/app/src/Logs
     ports:
       - 3000:65535
       - 5679:5678

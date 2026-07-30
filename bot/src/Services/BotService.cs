@@ -21,15 +21,18 @@ namespace LundBot.Services
         private readonly ICommandsService _commandsService;
         private readonly IModerationActionsService _moderationActionsService;
         private readonly DiscordConfig _discordConfig;
+        private readonly ServerConfig _serverConfig;
 
         public BotService(
-            IOptions<DiscordConfig> options,
+            IOptions<DiscordConfig> discordConfig,
+            IOptions<ServerConfig> serverConfig,
             IServiceProvider serviceProvider,
             ICommandsService commandsService,
             IModerationActionsService moderationActionsService
         )
         {
-            _discordConfig = options.Value;
+            _discordConfig = discordConfig.Value;
+            _serverConfig = serverConfig.Value;
             _serviceProvider = serviceProvider;
             _commandsService = commandsService;
             _moderationActionsService = moderationActionsService;
@@ -37,6 +40,8 @@ namespace LundBot.Services
 
         public async Task InitializeAsync(DiscordClient discordClient)
         {
+            _logger.Information("Initializing Bot version {Version}...", _serverConfig.Version);
+
             DiscordClient = discordClient;
 
             discordClient.GuildDownloadCompleted += OnGuildDownloadCompleted;
