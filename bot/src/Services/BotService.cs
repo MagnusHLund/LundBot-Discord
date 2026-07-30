@@ -121,7 +121,7 @@ namespace LundBot.Services
                     await e.Context.CreateResponseAsync(
                         InteractionResponseType.ChannelMessageWithSource,
                         new DiscordInteractionResponseBuilder()
-                            .WithContent("Internal error")
+                            .WithContent("Internal server error. Please try again later.")
                             .AsEphemeral(true)
                     );
                 }
@@ -154,12 +154,12 @@ namespace LundBot.Services
 
         private async Task AutoKickUserIfRoleAssigned(DiscordGuild guild, DiscordMember member)
         {
-            string roleIdToAutoKick = _discordConfig.RoleIdToAutoKick;
+            ulong roleIdToAutoKick = _discordConfig.RoleIdToAutoKick;
 
-            if (!string.IsNullOrEmpty(roleIdToAutoKick))
+            if (roleIdToAutoKick != 0)
             {
                 DiscordRole? roleToKick = guild.Roles.Values.FirstOrDefault(r =>
-                    r.Id.ToString() == roleIdToAutoKick
+                    r.Id == roleIdToAutoKick
                 );
 
                 string kickReason =

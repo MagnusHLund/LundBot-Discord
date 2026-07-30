@@ -84,11 +84,7 @@ namespace LundBot.Services
                     endOfWeek
                 );
 
-            string channelIdString = _discordConfig.WebTrafficChannelId;
-            if (ulong.TryParse(channelIdString, out ulong channelId) == false)
-            {
-                throw new Exception("Invalid WebTrafficChannelId in configuration.");
-            }
+            ulong channelId = _discordConfig.WebTrafficChannelId;
 
             await _messageService.SynchronizeDiscordMessagesAsync(
                 message,

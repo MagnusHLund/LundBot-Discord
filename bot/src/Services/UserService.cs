@@ -1,11 +1,21 @@
 using DSharpPlus;
 using DSharpPlus.Entities;
 using LundBot.Interfaces.Services;
+using LundBot.Enums;
+using LundBot.Config;
+using Microsoft.Extensions.Options;
 
 namespace LundBot.Services
 {
     public sealed class UserService : IUserService
     {
+        private readonly DiscordConfig _discordConfig;
+
+        public UserService(IOptions<DiscordConfig> discordConfig)
+        {
+            _discordConfig = discordConfig.Value;
+        }
+
         public async Task<bool> IsUserAdminAsync(ulong userId, ulong guildId)
         {
             DiscordGuild guild = await BotService.DiscordClient.GetGuildAsync(guildId);
@@ -29,9 +39,7 @@ namespace LundBot.Services
 
             var member = await guild.GetMemberAsync(userId);
 
-            return member.Roles.Any(r =>
-                string.Equals(r.Name, "Owner", StringComparison.OrdinalIgnoreCase)
-            );
+            return member.Roles.Any(r => r.Id == _discordConfig.Roles[DiscordRoles.Owner.Key]);
         }
     }
 }

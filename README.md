@@ -18,10 +18,24 @@
 {
   "Discord": {
     "Token": "",
-    "FastUpdateGuildIds": [""],
-    "WebTrafficChannelId": "",
+    "FastUpdateGuildIds": [0],
+    "WebTrafficChannelId": 0,
     "ShouldRegisterGlobalCommands": false,
-    "RoleIdToAutoKick": ""
+    "RoleIdToAutoKick": 0,
+    "Roles": {
+      "NotPcPlayer": 0,
+      "Microsoft": 0,
+      "Steam": 0,
+      "Bot": 0,
+      "Unlocker": 0,
+      "NeedsHelp": 0,
+      "OfferingHelp": 0,
+      "SpeedRunner": 0,
+      "ContentCreator": 0,
+      "ServerBooster": 0,
+      "Moderator": 0,
+      "Owner": 0
+    }
   },
   "Database": {
     "ConnectionString": "Server=x;Port=x;Database=x;User=x;Password=x;"
