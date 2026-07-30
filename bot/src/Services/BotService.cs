@@ -5,6 +5,7 @@ using DSharpPlus.SlashCommands;
 using DSharpPlus.SlashCommands.EventArgs;
 using LundBot.Config;
 using LundBot.Interfaces.Services;
+using LundBot.Utils;
 using Microsoft.Extensions.Options;
 using Serilog;
 
@@ -40,7 +41,11 @@ namespace LundBot.Services
 
         public async Task InitializeAsync(DiscordClient discordClient)
         {
-            _logger.Information("Initializing Bot version {Version}...", _serverConfig.Version);
+            _logger.Information(
+                "Initializing Bot version {Version} in {Environment} mode...",
+                _serverConfig.Version,
+                EnvironmentUtils.GetEnvironment()
+            );
 
             DiscordClient = discordClient;
 

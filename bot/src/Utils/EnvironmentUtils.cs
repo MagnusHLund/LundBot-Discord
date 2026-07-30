@@ -6,8 +6,13 @@ namespace LundBot.Utils
 
         public static string GetEnvironment()
         {
-            return _environment ??=
-                Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") ?? "Production";
+            if (string.IsNullOrEmpty(_environment))
+            {
+                _environment =
+                    Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") ?? "Production";
+            }
+
+            return _environment;
         }
 
         public static bool IsProduction()
