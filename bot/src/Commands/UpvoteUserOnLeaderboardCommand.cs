@@ -2,6 +2,7 @@ using DSharpPlus;
 using DSharpPlus.Entities;
 using DSharpPlus.SlashCommands;
 using DSharpPlus.SlashCommands.Attributes;
+using LundBot.AutocompleteProviders;
 using LundBot.Interfaces.Services;
 
 namespace LundBot.Commands
@@ -19,7 +20,9 @@ namespace LundBot.Commands
         [SlashCommand("upvote", "Upvotes a user on the specified leaderboard.")]
         public async Task UpvoteUserAsync(
             InteractionContext context,
-            [Option("channel", "The Channel that the leaderboard is in")] DiscordChannel channel,
+            [Autocomplete(typeof(UpvoteLeaderboardChannelsAutocomplete))]
+            [Option("channel", "The Channel that the leaderboard is in")]
+                DiscordChannel channel,
             [Option("user", "The user to upvote")] DiscordUser userTarget
         )
         {
