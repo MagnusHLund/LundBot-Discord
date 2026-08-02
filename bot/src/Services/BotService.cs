@@ -4,6 +4,7 @@ using DSharpPlus.EventArgs;
 using DSharpPlus.SlashCommands;
 using DSharpPlus.SlashCommands.EventArgs;
 using LundBot.Config;
+using LundBot.Helpers;
 using LundBot.Interfaces.Services;
 using LundBot.Utils;
 using Microsoft.Extensions.Options;
@@ -13,13 +14,14 @@ namespace LundBot.Services
 {
     public sealed class BotService : IBotService
     {
+        private const string SERVER_INVITES_CACHE_KEY = "server_invites";
+
         public static DiscordClient DiscordClient { get; set; } = null!;
-        private readonly Dictionary<ulong, List<DiscordInvite>> _inviteCache =
-            new Dictionary<ulong, List<DiscordInvite>>();
         private readonly Serilog.ILogger _logger = Log.ForContext<BotService>();
 
         private readonly IServiceProvider _serviceProvider;
         private readonly ICommandsService _commandsService;
+        private readonly ICacheService _cacheService;
         private readonly IModerationActionsService _moderationActionsService;
         private readonly DiscordConfig _discordConfig;
         private readonly ServerConfig _serverConfig;
@@ -29,6 +31,7 @@ namespace LundBot.Services
             IOptions<ServerConfig> serverConfig,
             IServiceProvider serviceProvider,
             ICommandsService commandsService,
+            ICacheService cacheService,
             IModerationActionsService moderationActionsService
         )
         {
@@ -36,6 +39,7 @@ namespace LundBot.Services
             _serverConfig = serverConfig.Value;
             _serviceProvider = serviceProvider;
             _commandsService = commandsService;
+            _cacheService = cacheService;
             _moderationActionsService = moderationActionsService;
         }
 
@@ -192,7 +196,10 @@ namespace LundBot.Services
             foreach (var guild in sender.Guilds.Values)
             {
                 var invites = await guild.GetInvitesAsync();
-                _inviteCache[guild.Id] = invites.ToList();
+                _cacheService.Set(
+                    CacheKeyHelper.GuildInvites(guild.Id.ToString()),
+                    invites.ToList()
+                );
                 _logger.Information(
                     "Cached {InviteCount} invites for guild {GuildName} ({GuildId})",
                     invites.Count,
@@ -211,7 +218,10 @@ namespace LundBot.Services
         {
             // Discord does not provide a direct way to know who invited a user, so we have to compare the invite uses before and after the user joined.
             var newInvites = await guild.GetInvitesAsync();
-            var oldInvites = _inviteCache[guild.Id];
+            var oldInvites =
+                _cacheService.Get<List<DiscordInvite>>(
+                    CacheKeyHelper.GuildInvites(guild.Id.ToString())
+                ) ?? new List<DiscordInvite>();
 
             var usedInvite = newInvites.FirstOrDefault(newInvite =>
             {
@@ -252,7 +262,10 @@ namespace LundBot.Services
             }
 
             // Update cache
-            _inviteCache[guild.Id] = newInvites.ToList();
+            _cacheService.Set(
+                CacheKeyHelper.GuildInvites(guild.Id.ToString()),
+                newInvites.ToList()
+            );
         }
     }
 }

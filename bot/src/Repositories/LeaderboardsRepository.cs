@@ -128,5 +128,23 @@ namespace LundBot.Repositories
                 );
             }
         }
+
+        public async Task<List<LeaderboardsEntity>> GetLeaderboardsForGuildAsync(string guildId)
+        {
+            try
+            {
+                return await _context
+                    .Leaderboards.Where(l => l.DiscordServerId == guildId)
+                    .ToListAsync();
+            }
+            catch (Exception ex)
+            {
+                _logger.Error(ex, "Error retrieving leaderboards for guild ID: {GuildId}", guildId);
+                throw new Exception(
+                    "An error occurred while retrieving the leaderboards for the guild.",
+                    ex
+                );
+            }
+        }
     }
 }

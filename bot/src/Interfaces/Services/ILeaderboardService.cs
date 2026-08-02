@@ -1,4 +1,5 @@
 using DSharpPlus.Entities;
+using LundBot.Entities;
 using LundBot.Enums;
 
 namespace LundBot.Interfaces.Services
@@ -23,5 +24,6 @@ namespace LundBot.Interfaces.Services
             DiscordUser userInvitedBy
         );
         Task RefreshLeaderboardAsync(ulong channelId, ulong guildId);
+        ValueTask<List<LeaderboardsEntity>> GetLeaderboardsForGuildAsync(string guildId);
     }
 }

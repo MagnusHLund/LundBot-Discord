@@ -4,6 +4,7 @@ using LundBot.Entities;
 using LundBot.Enums;
 using LundBot.Exceptions;
 using LundBot.Factories.MessageEntityFactories;
+using LundBot.Helpers;
 using LundBot.Interfaces.Repositories;
 using LundBot.Interfaces.Services;
 using LundBot.Repositories;
@@ -13,12 +14,13 @@ namespace LundBot.Services
 {
     public sealed class LeaderboardService : ILeaderboardService
     {
-        public const int TOP_UPVOTE_SCORES_LIMIT = 100;
+        private const int TOP_UPVOTE_SCORES_LIMIT = 100;
 
         private readonly IUserService _userService;
         private readonly ILeaderboardMessagesRepository _leaderboardsMessageRepository;
         private readonly ILeaderboardScoreSourceRepository _leaderboardScoreSourceRepository;
         private readonly ILeaderboardScoresRepository _leaderboardScoreRepository;
+        private readonly ICacheService _cacheService;
         private readonly ILeaderboardsRepository _leaderboardsRepository;
         private readonly IMessageService<
             LeaderboardMessagesEntity,
@@ -33,6 +35,7 @@ namespace LundBot.Services
             ILeaderboardMessagesRepository leaderboardsMessageRepository,
             ILeaderboardScoreSourceRepository leaderboardScoreSourceRepository,
             ILeaderboardScoresRepository leaderboardScoreRepository,
+            ICacheService cacheService,
             IMessageService<
                 LeaderboardMessagesEntity,
                 LeaderboardMessagesRepository,
@@ -46,6 +49,7 @@ namespace LundBot.Services
             _leaderboardScoreSourceRepository = leaderboardScoreSourceRepository;
             _leaderboardScoreRepository = leaderboardScoreRepository;
             _messageService = messageService;
+            _cacheService = cacheService;
         }
 
         public async Task CreateLeaderboardAsync(
@@ -113,6 +117,16 @@ namespace LundBot.Services
                 Enumerable.Empty<LeaderboardMessagesEntity>(),
                 channel.Id
             );
+
+            var existingLeaderboards = await GetLeaderboardsForGuildAsync(
+                channel.Guild.Id.ToString()
+            );
+            existingLeaderboards.Add(leaderboard);
+
+            _cacheService.Update<List<LeaderboardsEntity>>(
+                CacheKeyHelper.LeaderboardsPerGuild(channel.Guild.Id.ToString()),
+                _ => existingLeaderboards
+            );
         }
 
         public async Task RemoveLeaderboardAsync(DiscordChannel channel)
@@ -134,6 +148,16 @@ namespace LundBot.Services
             );
 
             await _messageService.DeleteMessagesForChannelAsync(existingMessages, channel);
+
+            var existingLeaderboards = await GetLeaderboardsForGuildAsync(
+                channel.Guild.Id.ToString()
+            );
+            existingLeaderboards.RemoveAll(l => l.Id == leaderboard.Id);
+
+            _cacheService.Update<List<LeaderboardsEntity>>(
+                CacheKeyHelper.LeaderboardsPerGuild(channel.Guild.Id.ToString()),
+                _ => existingLeaderboards
+            );
         }
 
         public async Task UpvoteUserOnLeaderboard(
@@ -299,6 +323,22 @@ namespace LundBot.Services
             }
 
             return sb.ToString();
+        }
+
+        public async ValueTask<List<LeaderboardsEntity>> GetLeaderboardsForGuildAsync(
+            string guildId
+        )
+        {
+            var result = _cacheService
+                .Get<List<LeaderboardsEntity>>(CacheKeyHelper.LeaderboardsPerGuild(guildId))
+                ?.ToList();
+
+            if (result is not null)
+            {
+                return result;
+            }
+
+            return await _leaderboardsRepository.GetLeaderboardsForGuildAsync(guildId);
         }
 
         private async Task<LeaderboardsEntity> GetLeaderboardAsync(DiscordChannel channel)
