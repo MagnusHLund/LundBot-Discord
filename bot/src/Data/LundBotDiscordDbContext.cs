@@ -13,6 +13,8 @@ namespace LundBot.Data
         public DbSet<WebsiteTrafficEntity> WebsiteTraffic { get; set; } = null!;
         public DbSet<WebsiteTrafficMessagesEntity> WebsiteTrafficMessages { get; set; } = null!;
 
+        public LundBotDiscordDbContext() { }
+
         public LundBotDiscordDbContext(DbContextOptions<LundBotDiscordDbContext> options)
             : base(options) { }
 

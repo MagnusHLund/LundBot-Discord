@@ -24,8 +24,8 @@ services:
     restart: unless-stopped
     volumes:
       - ./bot:/app
-      - ./bot/src/bin:/app/src/bin
-      - ./bot/src/obj:/app/src/obj
+      - bot_dev_bin:/app/src/bin
+      - bot_dev_obj:/app/src/obj
       - ./bot/src/Logs:/app/src/Logs
     ports:
       - 3000:65535
@@ -34,9 +34,30 @@ services:
       - LundBotDiscordNetwork
     env_file:
       - .env
+    extra_hosts:
+      - 'host.docker.internal:host-gateway'
 
+    profiles: ['Development']
+
+  mariadb-dev:
+    image: mariadb:11
+    container_name: lundbot-mariadb-dev
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: 'password'
+      MYSQL_DATABASE: 'LundBotDiscord'
+    volumes:
+      - ./mariadb/dev-data:/var/lib/mysql
+    ports:
+      - '3306:3306'
+    networks:
+      - LundBotDiscordNetwork
     profiles: ['Development']
 
 networks:
   LundBotDiscordNetwork:
     driver: bridge
+
+volumes:
+  bot_dev_bin:
+  bot_dev_obj:

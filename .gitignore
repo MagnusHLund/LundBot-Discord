@@ -242,3 +242,6 @@ _Pvt_Extensions
 # Production & development appsettings
 **/appsettings.Production.json
 **/appsettings.Development.json
+
+# MariaDB files for dev profile
+/mariadb/**

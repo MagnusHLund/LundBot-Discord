@@ -1,3 +1,4 @@
 {
+  "dotnet.preferVisualStudioCodeFileSystemWatcher": true,
   "cSpell.words": ["Unlocker", "Upvoting"]
 }

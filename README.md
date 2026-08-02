@@ -38,7 +38,7 @@
     }
   },
   "Database": {
-    "ConnectionString": "Server=x;Port=x;Database=x;User=x;Password=x;"
+    "ConnectionString": "Server=mariadb-dev;Port=3306;Database=LundBotDiscord;User=LundBotUser;Password=LundBotPassword;"
   },
   "DeveloperEnvironment": {
     "GenerateIpAddresses": false
@@ -47,8 +47,18 @@
 ```
 
 Note that configs under the `DeveloperEnvironment` object is only available when using `ASPNETCORE_ENVIRONMENT=Development` in the .env file. It can be safely removed from the `appsettings.Production.json` file.
+The Database connection string is setup to work with the development docker compose profile.
 
 ## Run project
 
 1. Docker has to be installed and running on the host machine
 2. Write `docker compose up` within the root directory of this project
+
+## EF Core migrations
+
+When running `dotnet ef` commands in `/bot/src`, EF design-time configuration loads:
+
+1. `appsettings.json`
+2. `appsettings.{DOTNET_ENVIRONMENT/ASPNETCORE_ENVIRONMENT}.json`
+
+If no environment variable is set, it defaults to `Development`.
