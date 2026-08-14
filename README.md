@@ -38,7 +38,7 @@
     }
   },
   "Database": {
-    "ConnectionString": "Server=mariadb-dev;Port=3306;Database=LundBotDiscord;User=LundBotUser;Password=LundBotPassword;"
+    "ConnectionString": "Server=lundbot-mariadb-dev;Port=3306;Database=LundBotDiscord;User=root;Password=password;"
   },
   "DeveloperEnvironment": {
     "GenerateIpAddresses": false
@@ -56,9 +56,7 @@ The Database connection string is setup to work with the development docker comp
 
 ## EF Core migrations
 
-When running `dotnet ef` commands in `/bot/src`, EF design-time configuration loads:
-
-1. `appsettings.json`
-2. `appsettings.{DOTNET_ENVIRONMENT/ASPNETCORE_ENVIRONMENT}.json`
-
-If no environment variable is set, it defaults to `Development`.
+To run migrations, run `bot/migrations.sh` from the root directory.
+You will be prompted for the environment, which is either `dev` or `prod`.
+Then you will be prompted for a migration name.
+The script will then create a migration.
