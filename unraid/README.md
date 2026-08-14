@@ -24,6 +24,8 @@ rm -rf LundBot-Discord
 
 ```bash
 #!/bin/bash
+git config --global --add safe.directory /mnt/user/appdata/LundBot-Discord
+
 cd /mnt/user/appdata/LundBot-Discord
 
 docker compose --profile Production -f docker-compose.yml down --remove-orphans
@@ -40,8 +42,7 @@ git checkout $LATEST_TAG
 docker compose -f docker-compose.yml up -d --build
 ```
 
-5. Run `git config --global --add safe.directory /mnt/user/appdata/LundBot-Discord` in the terminal.
-6. Run the newly created script. Wait until the pop up window closes itself.
+5. Run the newly created script. Wait until the pop up window closes itself.
 
 Use this script whenever you change:
 
