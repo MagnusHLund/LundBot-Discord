@@ -16,7 +16,6 @@ namespace LundBot.Commands
             _leaderboardService = leaderboardService;
         }
 
-        [SlashRequirePermissions(Permissions.All)]
         [SlashCommand("upvote", "Upvotes a user on the specified leaderboard.")]
         public async Task UpvoteUserAsync(
             InteractionContext context,
