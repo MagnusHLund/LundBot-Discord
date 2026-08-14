@@ -20,13 +20,22 @@ namespace LundBot.Commands
         public async Task UpvoteUserAsync(
             InteractionContext context,
             [Autocomplete(typeof(UpvoteLeaderboardChannelsAutocomplete))]
-            [Option("channel", "The Channel that the leaderboard is in")]
-                DiscordChannel channel,
+            [Option("channel", "The Channel that has the leaderboard")]
+                string channelId,
             [Option("user", "The user to upvote")] DiscordUser userTarget
         )
         {
             if (!await IsCommandSentFromServer(context))
             {
+                return;
+            }
+
+            if (
+                !ulong.TryParse(channelId, out var parsedId)
+                || context.Guild.GetChannel(parsedId) is not DiscordChannel channel
+            )
+            {
+                await SendResponseAsync(context, "The specified channel does not exist.");
                 return;
             }
 

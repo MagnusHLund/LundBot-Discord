@@ -335,6 +335,12 @@ namespace LundBot.Services
 
             if (result is not null)
             {
+                _logger.Information(
+                    "Retrieved {Count} leaderboards for guild {GuildId} from cache",
+                    result.Count,
+                    guildId
+                );
+
                 return result;
             }
 
