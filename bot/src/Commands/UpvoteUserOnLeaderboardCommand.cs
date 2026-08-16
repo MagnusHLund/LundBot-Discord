@@ -1,9 +1,9 @@
 using DSharpPlus;
 using DSharpPlus.Entities;
 using DSharpPlus.SlashCommands;
-using DSharpPlus.SlashCommands.Attributes;
 using LundBot.AutocompleteProviders;
 using LundBot.Interfaces.Services;
+using LundBot.Interfaces.Services.Discord;
 
 namespace LundBot.Commands
 {
@@ -11,7 +11,11 @@ namespace LundBot.Commands
     {
         private readonly ILeaderboardService _leaderboardService;
 
-        public UpvoteUserOnLeaderboardCommand(ILeaderboardService leaderboardService)
+        public UpvoteUserOnLeaderboardCommand(
+            ILeaderboardService leaderboardService,
+            IDiscordInteractionService discordInteractionService
+        )
+            : base(discordInteractionService)
         {
             _leaderboardService = leaderboardService;
         }

@@ -7,6 +7,7 @@ using LundBot.Factories.MessageEntityFactories;
 using LundBot.Helpers;
 using LundBot.Interfaces.Repositories;
 using LundBot.Interfaces.Services;
+using LundBot.Interfaces.Services.Discord;
 using LundBot.Repositories;
 using LundBot.Utils;
 
@@ -22,6 +23,7 @@ namespace LundBot.Services
         private readonly ILeaderboardScoresRepository _leaderboardScoreRepository;
         private readonly ICacheService _cacheService;
         private readonly ILeaderboardsRepository _leaderboardsRepository;
+        private readonly IDiscordChannelService _discordChannelService;
         private readonly IMessageService<
             LeaderboardMessagesEntity,
             LeaderboardMessagesRepository,
@@ -36,6 +38,7 @@ namespace LundBot.Services
             ILeaderboardScoreSourceRepository leaderboardScoreSourceRepository,
             ILeaderboardScoresRepository leaderboardScoreRepository,
             ICacheService cacheService,
+            IDiscordChannelService discordChannelService,
             IMessageService<
                 LeaderboardMessagesEntity,
                 LeaderboardMessagesRepository,
@@ -48,6 +51,7 @@ namespace LundBot.Services
             _leaderboardsMessageRepository = leaderboardsMessageRepository;
             _leaderboardScoreSourceRepository = leaderboardScoreSourceRepository;
             _leaderboardScoreRepository = leaderboardScoreRepository;
+            _discordChannelService = discordChannelService;
             _messageService = messageService;
             _cacheService = cacheService;
         }
@@ -263,18 +267,7 @@ namespace LundBot.Services
 
         public async Task RefreshLeaderboardAsync(ulong channelId, ulong guildId)
         {
-            DiscordChannel channel;
-
-            try
-            {
-                channel = await BotService.DiscordClient.GetChannelAsync(channelId);
-            }
-            catch (Exception ex)
-            {
-                _logger.Error(ex, "Error occurred while fetching channel {ChannelId}", channelId);
-                throw;
-            }
-
+            DiscordChannel channel = await _discordChannelService.GetChannelAsync(channelId);
             LeaderboardsEntity leaderboard = await GetLeaderboardAsync(channel);
 
             var topUpvoteScores = await _leaderboardScoreRepository.GetTopScoresAsync(
@@ -375,7 +368,7 @@ namespace LundBot.Services
         {
             if (channel is null)
             {
-                channel = await BotService.DiscordClient.GetChannelAsync(
+                channel = await _discordChannelService.GetChannelAsync(
                     ulong.Parse(leaderboard.DiscordChannelId)
                 );
             }

@@ -3,6 +3,7 @@ using DSharpPlus.Entities;
 using LundBot.Entities;
 using LundBot.Factories.MessageEntityFactories;
 using LundBot.Interfaces.Services;
+using LundBot.Interfaces.Services.Discord;
 using LundBot.Repositories;
 
 namespace LundBot.Services
@@ -16,14 +17,24 @@ namespace LundBot.Services
         public TFactory MessageFactory { get; }
         private readonly TRepository _messageRepository;
         private readonly TFactory _messageFactory;
+        private readonly IDiscordChannelService _discordChannelService;
+        private readonly IDiscordMessageService _discordMessageService;
         private readonly Serilog.ILogger _logger = Serilog.Log.ForContext<
             MessageService<TEntity, TRepository, TFactory>
         >();
 
-        public MessageService(TRepository messageRepository, TFactory messageFactory)
+        public MessageService(
+            TRepository messageRepository,
+            TFactory messageFactory,
+            IDiscordChannelService discordChannelService,
+            IDiscordMessageService discordMessageService
+        )
         {
             _messageRepository = messageRepository;
             _messageFactory = messageFactory;
+            _discordChannelService = discordChannelService;
+            _discordMessageService = discordMessageService;
+
             MessageFactory = messageFactory;
         }
 
@@ -36,7 +47,7 @@ namespace LundBot.Services
             List<string> chunks = SplitMessageIntoChunks(message);
             List<TEntity> existing = existingMessages.ToList();
 
-            DiscordChannel channel = await BotService.DiscordClient.GetChannelAsync(channelId);
+            DiscordChannel channel = await _discordChannelService.GetChannelAsync(channelId);
 
             int sharedLength = Math.Min(existing.Count, chunks.Count);
 
@@ -54,22 +65,12 @@ namespace LundBot.Services
 
             var deleteTasks = existing.Select(async message =>
             {
-                try
-                {
-                    var discordMessage = await channel.GetMessageAsync(
-                        ulong.Parse(message.DiscordMessageId)
-                    );
+                var discordMessage = await _discordMessageService.GetMessageAsync(
+                    channel,
+                    ulong.Parse(message.DiscordMessageId)
+                );
 
-                    await discordMessage.DeleteAsync();
-                }
-                catch
-                {
-                    _logger.Warning(
-                        "Failed to delete Discord message with ID {MessageId} in channel {ChannelId}. It may have already been deleted or is inaccessible.",
-                        message.DiscordMessageId,
-                        channel.Id
-                    );
-                }
+                await _discordMessageService.DeleteMessageAsync(discordMessage);
             });
 
             await Task.WhenAll(deleteTasks);
@@ -90,11 +91,12 @@ namespace LundBot.Services
 
                 try
                 {
-                    DiscordMessage discordMessage = await channel.GetMessageAsync(
+                    DiscordMessage discordMessage = await _discordMessageService.GetMessageAsync(
+                        channel,
                         ulong.Parse(existingMessage.DiscordMessageId)
                     );
 
-                    await discordMessage.ModifyAsync(newContent);
+                    await _discordMessageService.ModifyMessageAsync(discordMessage, newContent);
                 }
                 catch
                 {
@@ -104,7 +106,10 @@ namespace LundBot.Services
                         channel.Id
                     );
 
-                    DiscordMessage replacement = await channel.SendMessageAsync(newContent);
+                    DiscordMessage replacement = await _discordMessageService.SendMessageAsync(
+                        channel,
+                        newContent
+                    );
 
                     existingMessage.DiscordMessageId = replacement.Id.ToString();
 
@@ -123,7 +128,10 @@ namespace LundBot.Services
             {
                 for (int i = existing.Count; i < chunks.Count; i++)
                 {
-                    DiscordMessage newMessage = await channel.SendMessageAsync(chunks[i]);
+                    DiscordMessage newMessage = await _discordMessageService.SendMessageAsync(
+                        channel,
+                        chunks[i]
+                    );
 
                     await _messageRepository.CreateAsync(
                         _messageFactory.Create(newMessage.Id.ToString())

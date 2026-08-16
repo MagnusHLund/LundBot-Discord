@@ -1,42 +1,36 @@
-using DSharpPlus;
-using DSharpPlus.Entities;
 using DSharpPlus.SlashCommands;
 using LundBot.Exceptions;
+using LundBot.Interfaces.Services.Discord;
 
 namespace LundBot.Commands
 {
     public abstract class BaseCommand : ApplicationCommandModule
     {
+        private readonly IDiscordInteractionService _discordInteractionService;
+
+        public BaseCommand(IDiscordInteractionService discordInteractionService)
+        {
+            _discordInteractionService = discordInteractionService;
+        }
+
         public const string GENERIC_ERROR_MESSAGE =
             "An error occurred while processing your command. Please try again later.";
 
-        private protected static async Task<bool> IsCommandSentFromServer(
-            InteractionContext context
-        )
+        private protected async Task<bool> IsCommandSentFromServer(InteractionContext context)
         {
-            if (context.Guild is null)
-            {
-                await SendResponseAsync(context, "This command can only be used inside a server.");
-                return false;
-            }
-            return true;
+            return await _discordInteractionService.IsCommandSentFromServer(context);
         }
 
-        private protected static async Task SendResponseAsync(
+        private protected async Task SendResponseAsync(
             InteractionContext context,
             string content,
             bool showOnlyToUser = true
         )
         {
-            await context.CreateResponseAsync(
-                InteractionResponseType.ChannelMessageWithSource,
-                new DiscordInteractionResponseBuilder()
-                    .WithContent(content)
-                    .AsEphemeral(showOnlyToUser)
-            );
+            await _discordInteractionService.SendResponseAsync(context, content, showOnlyToUser);
         }
 
-        private protected static async Task TaskWithErrorHandlingAsync(
+        private protected async Task TaskWithErrorHandlingAsync(
             InteractionContext context,
             Func<Task> action,
             string successMessage = "Command executed successfully."

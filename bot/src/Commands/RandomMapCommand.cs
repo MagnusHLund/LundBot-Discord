@@ -1,12 +1,16 @@
 using DSharpPlus;
 using DSharpPlus.SlashCommands;
 using DSharpPlus.SlashCommands.Attributes;
+using LundBot.Interfaces.Services.Discord;
 using LundBot.Utils;
 
 namespace LundBot.Commands
 {
     public class RandomMapCommand : BaseCommand
     {
+        public RandomMapCommand(IDiscordInteractionService discordInteractionService)
+            : base(discordInteractionService) { }
+
         [SlashRequirePermissions(Permissions.Administrator)]
         [SlashCommand("random-map", "Selects a random map from the list of maps.")]
         public async Task RandomMapAsync(InteractionContext context)

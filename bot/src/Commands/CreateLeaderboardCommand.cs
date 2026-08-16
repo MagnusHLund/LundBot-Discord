@@ -4,6 +4,7 @@ using DSharpPlus.SlashCommands;
 using DSharpPlus.SlashCommands.Attributes;
 using LundBot.Enums;
 using LundBot.Interfaces.Services;
+using LundBot.Interfaces.Services.Discord;
 using LundBot.Utils;
 
 namespace LundBot.Commands
@@ -12,7 +13,11 @@ namespace LundBot.Commands
     {
         private readonly ILeaderboardService _leaderboardService;
 
-        public CreateLeaderboardCommand(ILeaderboardService leaderboardService)
+        public CreateLeaderboardCommand(
+            ILeaderboardService leaderboardService,
+            IDiscordInteractionService discordInteractionService
+        )
+            : base(discordInteractionService)
         {
             _leaderboardService = leaderboardService;
         }

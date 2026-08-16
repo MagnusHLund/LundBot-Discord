@@ -3,6 +3,7 @@ using DSharpPlus.Entities;
 using DSharpPlus.SlashCommands;
 using DSharpPlus.SlashCommands.Attributes;
 using LundBot.Interfaces.Services;
+using LundBot.Interfaces.Services.Discord;
 
 namespace LundBot.Commands
 {
@@ -10,7 +11,11 @@ namespace LundBot.Commands
     {
         private readonly ILeaderboardService _leaderboardService;
 
-        public RemoveLeaderboardCommand(ILeaderboardService leaderboardService)
+        public RemoveLeaderboardCommand(
+            ILeaderboardService leaderboardService,
+            IDiscordInteractionService discordInteractionService
+        )
+            : base(discordInteractionService)
         {
             _leaderboardService = leaderboardService;
         }

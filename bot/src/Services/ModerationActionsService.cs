@@ -1,12 +1,19 @@
 using DSharpPlus.Entities;
 using LundBot.Interfaces.Services;
+using LundBot.Interfaces.Services.Discord;
 
 namespace LundBot.Services
 {
     public class ModerationActionsService : IModerationActionsService
     {
+        private readonly IDiscordMemberService _discordMemberService;
         private readonly Serilog.ILogger _logger =
             Serilog.Log.ForContext<ModerationActionsService>();
+
+        public ModerationActionsService(IDiscordMemberService discordMemberService)
+        {
+            _discordMemberService = discordMemberService;
+        }
 
         public async Task KickUserDueToRoleAssignmentAsync(
             DiscordGuild guild,
@@ -25,7 +32,7 @@ namespace LundBot.Services
                 return;
             }
 
-            if (user.Roles.Contains(roleToKick))
+            if (_discordMemberService.MemberHasRole(user, roleToKick))
             {
                 await KickUserAsync(guild, user, reason);
             }
@@ -36,33 +43,14 @@ namespace LundBot.Services
             if (user.IsPending == true)
             {
                 _logger.Information(
-                    "User {UserId} is doing onboarding in guild {GuildId}. Skipping kick. If the role is still assigned after the onboarding, the user will be kicked after the onboarding is complete.",
+                    "User {UserId} is doing onboarding in guild {GuildId}. Skipping kick.",
                     user.Id,
                     guild.Id
                 );
                 return;
             }
 
-            try
-            {
-                await user.RemoveAsync(reason);
-                _logger.Information(
-                    "Kicked user {UserId} from guild {GuildId} for reason: {Reason}",
-                    user.Id,
-                    guild.Id,
-                    reason
-                );
-            }
-            catch (Exception ex)
-            {
-                _logger.Error(
-                    ex,
-                    "Error kicking user {UserId} from guild {GuildId} for reason: {Reason}",
-                    user.Id,
-                    guild.Id,
-                    reason
-                );
-            }
+            await _discordMemberService.KickMemberAsync(user, reason);
         }
     }
 }
