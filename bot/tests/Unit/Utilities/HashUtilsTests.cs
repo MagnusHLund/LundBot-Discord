@@ -8,9 +8,9 @@ public sealed class HashUtilsTests
     internal void HashString_WhenInputProvided_ReturnsExpectedSha256Bytes()
     {
         // Arrange
-        const string input = "lundbot";
+        const string input = "LundBot";
         byte[] expected = Convert.FromHexString(
-            "24BFC170869294EFC235665D46EB720722A3221108C6C02754593E8D7D5AB912"
+            "BC4203401C51F39760F90E061C30AEE31F92EF1E02E4C84732F9735CB0229080"
         );
 
         // Act
