@@ -1,4 +1,3 @@
 1. Bot made welcome messages, which support discord "Welcome stickers" and are removed when someone gets kicked by the "Not PC Player" role
 2. warnings leaderboard
 3. Automated testing
-4. Separate the leaderboard message update, from the upvote command. To prevent the user waiting for requests to discord, when creating the message.
