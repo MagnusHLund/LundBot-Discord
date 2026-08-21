@@ -24,6 +24,7 @@ namespace LundBot.Services
         private readonly IDiscordBotService _discordBotService;
         private readonly IDiscordInteractionService _discordInteractionService;
         private readonly IDiscordGuildService _discordGuildService;
+        private readonly IDiscordMemberService _discordMemberService;
         private readonly IModerationActionsService _moderationActionsService;
         private readonly DiscordConfig _discordConfig;
         private readonly ServerConfig _serverConfig;
@@ -37,6 +38,7 @@ namespace LundBot.Services
             IDiscordBotService discordBotService,
             IDiscordInteractionService discordInteractionService,
             IDiscordGuildService discordGuildService,
+            IDiscordMemberService discordMemberService,
             IModerationActionsService moderationActionsService
         )
         {
@@ -48,6 +50,7 @@ namespace LundBot.Services
             _moderationActionsService = moderationActionsService;
             _discordBotService = discordBotService;
             _discordInteractionService = discordInteractionService;
+            _discordMemberService = discordMemberService;
             _discordGuildService = discordGuildService;
         }
 
@@ -93,6 +96,17 @@ namespace LundBot.Services
         {
             _logger.Information("Ready fired, running BotService initialization...");
             await SetBotStatusAsync();
+
+            foreach (var guild in sender.Guilds.Values)
+            {
+                _logger.Information(
+                    "Bot is in guild: {GuildName} ({GuildId})",
+                    guild.Name,
+                    guild.Id
+                );
+
+                await _discordMemberService.PreloadMembersAsync(guild);
+            }
         }
 
         private async Task OnSlashCommandExecuted(
