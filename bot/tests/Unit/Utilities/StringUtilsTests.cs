@@ -21,12 +21,12 @@ public sealed class StringUtilsTests
     public void SplitCamelCaseOrPascalCaseToWords_WhenContainsNumbers_ReturnsSpacedSentence()
     {
         // Arrange
-        const string input = "Map2Winner";
+        const string input = "IGot1NumberInMyString";
 
         // Act
         string result = StringUtils.SplitCamelCaseOrPascalCaseToWords(input);
 
         // Assert
-        Assert.Equal("Map 2 winner", result);
+        Assert.Equal("I got 1 number in my string", result);
     }
 }
