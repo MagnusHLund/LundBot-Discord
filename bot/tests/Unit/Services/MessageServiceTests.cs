@@ -1,36 +1,13 @@
 using LundBot.Entities;
-using LundBot.Services;
-using LundBot.Tests.Mocks.Factories;
 using LundBot.Tests.Mocks.Repositories;
 using LundBot.Tests.Mocks.Services.Discord;
 using LundBot.Tests.TestHelpers;
+using LundBot.Tests.Unit.Services.Factories;
 
 namespace LundBot.Tests.Unit.Services;
 
 public sealed class MessageServiceTests
 {
-    private MessageService<
-        LeaderboardMessagesEntity,
-        MockMessageRepository<LeaderboardMessagesEntity>,
-        MockMessageFactory<LeaderboardMessagesEntity>
-    > CreateService(
-        MockDiscordMessageService discordMessageService,
-        MockDiscordChannelService discordChannelService,
-        MockMessageRepository<LeaderboardMessagesEntity> repo
-    )
-    {
-        return new MessageService<
-            LeaderboardMessagesEntity,
-            MockMessageRepository<LeaderboardMessagesEntity>,
-            MockMessageFactory<LeaderboardMessagesEntity>
-        >(
-            repo,
-            new MockMessageFactory<LeaderboardMessagesEntity>(),
-            discordChannelService,
-            discordMessageService
-        );
-    }
-
     [Fact]
     internal async Task SynchronizeDiscordMessagesAsync_UpdatesExistingMessages()
     {
@@ -46,7 +23,7 @@ public sealed class MessageServiceTests
             new() { Id = 1, DiscordMessageId = "10" },
         };
 
-        var service = CreateService(discord, channelService, repo);
+        var service = MessageServiceTestFactory.Create(discord, channelService, repo);
 
         await service.SynchronizeDiscordMessagesAsync(
             "Updated text",
@@ -70,7 +47,7 @@ public sealed class MessageServiceTests
 
         var existing = new List<LeaderboardMessagesEntity>();
 
-        var service = CreateService(discord, channelService, repo);
+        var service = MessageServiceTestFactory.Create(discord, channelService, repo);
 
         await service.SynchronizeDiscordMessagesAsync(
             "Hello world",
@@ -98,7 +75,7 @@ public sealed class MessageServiceTests
             new() { Id = 2, DiscordMessageId = "11" },
         };
 
-        var service = CreateService(discord, channelService, repo);
+        var service = MessageServiceTestFactory.Create(discord, channelService, repo);
 
         await service.SynchronizeDiscordMessagesAsync(
             "Only one chunk",

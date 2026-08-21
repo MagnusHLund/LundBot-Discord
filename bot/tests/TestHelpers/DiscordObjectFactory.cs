@@ -1,6 +1,8 @@
+using System.Collections.Concurrent;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using DSharpPlus.Entities;
+using DSharpPlus.SlashCommands;
 
 namespace LundBot.Tests.TestHelpers;
 
@@ -26,6 +28,25 @@ internal static class DiscordObjectFactory
         DiscordGuild guild = CreateUninitialized<DiscordGuild>();
         SetMemberValue(guild, "Id", id);
         return guild;
+    }
+
+    internal static DiscordGuild CreateGuildWithChannel(ulong guildId, DiscordChannel channel)
+    {
+        var channels = new ConcurrentDictionary<ulong, DiscordChannel>();
+        channels[channel.Id] = channel;
+
+        DiscordGuild guild = CreateUninitialized<DiscordGuild>();
+        SetMemberValue(guild, "Id", guildId);
+        SetMemberValue(guild, "_channels", channels);
+        return guild;
+    }
+
+    internal static InteractionContext CreateInteractionContext(DiscordUser user, DiscordGuild guild)
+    {
+        InteractionContext context = CreateUninitialized<InteractionContext>();
+        SetMemberValue(context, "User", user);
+        SetMemberValue(context, "Guild", guild);
+        return context;
     }
 
     internal static DiscordMessage CreateMessage(ulong id, DiscordChannel channel)

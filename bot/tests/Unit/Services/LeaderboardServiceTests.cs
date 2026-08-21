@@ -1,14 +1,7 @@
 using System.Reflection;
 using LundBot.Entities;
 using LundBot.Enums;
-using LundBot.Factories.MessageEntityFactories;
 using LundBot.Helpers;
-using LundBot.Interfaces.Queues;
-using LundBot.Interfaces.Repositories;
-using LundBot.Interfaces.Services;
-using LundBot.Interfaces.Services.Discord;
-using LundBot.Repositories;
-using LundBot.Services;
 using LundBot.Tests.TestHelpers;
 using LundBot.Tests.Unit.Services.Contexts;
 using LundBot.Utils;
@@ -23,7 +16,7 @@ public sealed class LeaderboardServiceTests
     internal async Task RegisterUserJoinedWithInviteAsync_WhenNoInviteLeaderboardExists_DoesNotWriteScore()
     {
         // Arrange
-        var context = CreateContext();
+        var context = LeaderboardServiceTestContextFactory.Create();
         var guild = DiscordObjectFactory.CreateUninitializedGuild(10);
         var joinedUser = DiscordTestHelper.TestUser(100, "Joined");
         var inviter = DiscordTestHelper.TestUser(200, "Inviter");
@@ -50,7 +43,7 @@ public sealed class LeaderboardServiceTests
     internal async Task RegisterUserJoinedWithInviteAsync_WhenValidInvite_AddsScoreAndEnqueuesJob()
     {
         // Arrange
-        var context = CreateContext();
+        var context = LeaderboardServiceTestContextFactory.Create();
         var guild = DiscordObjectFactory.CreateUninitializedGuild(14);
         var joinedUser = DiscordTestHelper.TestUser(301, "Joined");
         var inviter = DiscordTestHelper.TestUser(401, "Inviter");
@@ -102,7 +95,7 @@ public sealed class LeaderboardServiceTests
     internal async Task GetLeaderboardsForGuildAsync_WhenCacheHasValue_ReturnsCache()
     {
         // Arrange
-        var context = CreateContext();
+        var context = LeaderboardServiceTestContextFactory.Create();
         var cached = new List<LeaderboardsEntity>
         {
             new()
@@ -135,7 +128,7 @@ public sealed class LeaderboardServiceTests
     internal async Task GetLeaderboardsForGuildAsync_WhenCacheIsEmpty_LoadsFromRepository()
     {
         // Arrange
-        var context = CreateContext();
+        var context = LeaderboardServiceTestContextFactory.Create();
         var expected = new List<LeaderboardsEntity>
         {
             new()
@@ -173,7 +166,7 @@ public sealed class LeaderboardServiceTests
     internal async Task RegisterUserJoinedWithInviteAsync_WhenInviterIsBot_SkipsRegistration()
     {
         // Arrange
-        var context = CreateContext();
+        var context = LeaderboardServiceTestContextFactory.Create();
         var guild = DiscordObjectFactory.CreateUninitializedGuild(300);
         var joinedUser = DiscordTestHelper.TestUser(1100, "Joined");
         var inviter = DiscordTestHelper.TestUser(2200, "BotInviter");
@@ -198,7 +191,7 @@ public sealed class LeaderboardServiceTests
     internal async Task RegisterUserJoinedWithInviteAsync_WhenInviteAlreadyRecorded_SkipsRegistration()
     {
         // Arrange
-        var context = CreateContext();
+        var context = LeaderboardServiceTestContextFactory.Create();
         var guild = DiscordObjectFactory.CreateUninitializedGuild(301);
         var joinedUser = DiscordTestHelper.TestUser(1101, "JoinedAgain");
         var inviter = DiscordTestHelper.TestUser(2201, "Inviter");
@@ -239,7 +232,7 @@ public sealed class LeaderboardServiceTests
     internal async Task RegisterUserJoinedWithInviteAsync_WhenInviterIsOwnerInProduction_SkipsRegistration()
     {
         // Arrange
-        var context = CreateContext();
+        var context = LeaderboardServiceTestContextFactory.Create();
         var guild = DiscordObjectFactory.CreateUninitializedGuild(302);
         var joinedUser = DiscordTestHelper.TestUser(1102, "JoinedOwner");
         var inviter = DiscordTestHelper.TestUser(2202, "Owner");
@@ -271,60 +264,5 @@ public sealed class LeaderboardServiceTests
         {
             environmentField?.SetValue(null, originalEnvironment ?? string.Empty);
         }
-    }
-
-    private static LeaderboardServiceTestContext CreateContext()
-    {
-        var userService = new Mock<IUserService>();
-        userService
-            .Setup(s => s.IsUserOwnerAsync(It.IsAny<ulong>(), It.IsAny<ulong>()))
-            .ReturnsAsync(false);
-        userService
-            .Setup(s => s.IsUserABot(It.IsAny<ulong>(), It.IsAny<ulong>()))
-            .ReturnsAsync(false);
-
-        var leaderboardsRepository = new Mock<ILeaderboardsRepository>();
-        var leaderboardMessagesRepository = new Mock<ILeaderboardMessagesRepository>();
-        var leaderboardScoreSourceRepository = new Mock<ILeaderboardScoreSourceRepository>();
-        var leaderboardScoresRepository = new Mock<ILeaderboardScoresRepository>();
-        var discordMemberService = new Mock<IDiscordMemberService>();
-        var cacheService = new Mock<ICacheService>();
-        var discordChannelService = new Mock<IDiscordChannelService>();
-        var leaderboardQueue = new Mock<ILeaderboardQueue>();
-        var messageService =
-            new Mock<
-                IMessageService<
-                    LeaderboardMessagesEntity,
-                    LeaderboardMessagesRepository,
-                    LeaderboardMessageFactory
-                >
-            >();
-
-        messageService.SetupGet(m => m.MessageFactory).Returns(new LeaderboardMessageFactory());
-
-        var service = new LeaderboardService(
-            userService.Object,
-            leaderboardsRepository.Object,
-            leaderboardMessagesRepository.Object,
-            leaderboardScoreSourceRepository.Object,
-            leaderboardScoresRepository.Object,
-            discordMemberService.Object,
-            cacheService.Object,
-            discordChannelService.Object,
-            messageService.Object,
-            leaderboardQueue.Object
-        );
-
-        return new LeaderboardServiceTestContext(
-            userService,
-            service,
-            leaderboardsRepository,
-            leaderboardMessagesRepository,
-            leaderboardScoreSourceRepository,
-            leaderboardScoresRepository,
-            cacheService,
-            discordChannelService,
-            leaderboardQueue
-        );
     }
 }
