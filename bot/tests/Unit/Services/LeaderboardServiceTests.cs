@@ -1,8 +1,6 @@
 using System.Reflection;
-using DSharpPlus.Entities;
 using LundBot.Entities;
 using LundBot.Enums;
-using LundBot.Exceptions;
 using LundBot.Factories.MessageEntityFactories;
 using LundBot.Helpers;
 using LundBot.Interfaces.Queues;
