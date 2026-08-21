@@ -113,10 +113,11 @@ namespace LundBot.Services
 
             _messageService.MessageFactory.SetLeaderboardId(leaderboard.Id);
 
-            string leaderboardMessage = GenerateLeaderboardMessage(
+            string leaderboardMessage = await GenerateLeaderboardMessageAsync(
                 Enumerable.Empty<LeaderboardScoresEntity>(),
                 title,
-                message
+                message,
+                channel.Guild
             );
 
             await _messageService.SynchronizeDiscordMessagesAsync(
@@ -278,10 +279,11 @@ namespace LundBot.Services
                 TOP_UPVOTE_SCORES_LIMIT
             );
 
-            string leaderboardMessage = GenerateLeaderboardMessage(
+            string leaderboardMessage = await GenerateLeaderboardMessageAsync(
                 topUpvoteScores,
                 leaderboard.Title,
-                leaderboard.Message
+                leaderboard.Message,
+                channel.Guild
             );
 
             List<LeaderboardMessagesEntity> existingMessages =
@@ -401,10 +403,11 @@ namespace LundBot.Services
                 TOP_UPVOTE_SCORES_LIMIT
             );
 
-            string leaderboardMessage = GenerateLeaderboardMessage(
+            string leaderboardMessage = await GenerateLeaderboardMessageAsync(
                 topUpvoteScores,
                 leaderboard.Title,
-                leaderboard.Message
+                leaderboard.Message,
+                channel.Guild
             );
 
             var existingMessages =
