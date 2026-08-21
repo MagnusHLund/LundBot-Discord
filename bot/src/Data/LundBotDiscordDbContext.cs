@@ -20,14 +20,22 @@ namespace LundBot.Data
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            bool isMySql = Database.ProviderName?.Contains("MySql", StringComparison.OrdinalIgnoreCase) ?? false;
+            bool isMySql =
+                Database.ProviderName?.Contains("MySql", StringComparison.OrdinalIgnoreCase)
+                ?? false;
 
             ConfigureLeaderboards(modelBuilder.Entity<LeaderboardsEntity>(), isMySql);
             ConfigureLeaderboardScores(modelBuilder.Entity<LeaderboardScoresEntity>(), isMySql);
-            ConfigureLeaderBoardScoreSource(modelBuilder.Entity<LeaderboardScoreSourceEntity>(), isMySql);
+            ConfigureLeaderBoardScoreSource(
+                modelBuilder.Entity<LeaderboardScoreSourceEntity>(),
+                isMySql
+            );
             ConfigureLeaderboardMessages(modelBuilder.Entity<LeaderboardMessagesEntity>(), isMySql);
             ConfigureWebsiteTraffic(modelBuilder.Entity<WebsiteTrafficEntity>(), isMySql);
-            ConfigureWebsiteTrafficMessages(modelBuilder.Entity<WebsiteTrafficMessagesEntity>(), isMySql);
+            ConfigureWebsiteTrafficMessages(
+                modelBuilder.Entity<WebsiteTrafficMessagesEntity>(),
+                isMySql
+            );
         }
 
         private static void ConfigureLeaderboards(
@@ -44,10 +52,26 @@ namespace LundBot.Data
                 "int unsigned"
             );
 
-            ConfigureMySqlColumnType(entity.Property(e => e.DiscordServerId).IsRequired(), isMySql, "char(19)");
-            ConfigureMySqlColumnType(entity.Property(e => e.DiscordChannelId).IsRequired(), isMySql, "char(19)");
-            ConfigureMySqlColumnType(entity.Property(e => e.Title).IsRequired(), isMySql, "varchar(64)");
-            ConfigureMySqlColumnType(entity.Property(e => e.Message).IsRequired(), isMySql, "varchar(256)");
+            ConfigureMySqlColumnType(
+                entity.Property(e => e.DiscordServerId).IsRequired(),
+                isMySql,
+                "char(19)"
+            );
+            ConfigureMySqlColumnType(
+                entity.Property(e => e.DiscordChannelId).IsRequired(),
+                isMySql,
+                "char(19)"
+            );
+            ConfigureMySqlColumnType(
+                entity.Property(e => e.Title).IsRequired(),
+                isMySql,
+                "varchar(64)"
+            );
+            ConfigureMySqlColumnType(
+                entity.Property(e => e.Message).IsRequired(),
+                isMySql,
+                "varchar(256)"
+            );
 
             ConfigureMySqlColumnType(
                 entity.Property(e => e.LeaderboardType).HasConversion<string>().IsRequired(),
@@ -56,7 +80,9 @@ namespace LundBot.Data
             );
 
             ConfigureMySqlColumnType(
-                entity.Property(e => e.CreatedAt).HasDefaultValueSql(GetCreatedAtDefaultSql(isMySql)),
+                entity
+                    .Property(e => e.CreatedAt)
+                    .HasDefaultValueSql(GetCreatedAtDefaultSql(isMySql)),
                 isMySql,
                 "datetime(3)"
             );
@@ -88,14 +114,29 @@ namespace LundBot.Data
 
             entity.HasKey(e => e.Id);
             ConfigureMySqlColumnType(
-                entity.Property(e => e.Id).HasColumnName("LeaderboardScoresId").ValueGeneratedOnAdd(),
+                entity
+                    .Property(e => e.Id)
+                    .HasColumnName("LeaderboardScoresId")
+                    .ValueGeneratedOnAdd(),
                 isMySql,
                 "int unsigned"
             );
 
-            ConfigureMySqlColumnType(entity.Property(e => e.LeaderboardsId).IsRequired(), isMySql, "int unsigned");
-            ConfigureMySqlColumnType(entity.Property(e => e.DiscordUserId).IsRequired(), isMySql, "char(19)");
-            ConfigureMySqlColumnType(entity.Property(e => e.Score).IsRequired(), isMySql, "int unsigned");
+            ConfigureMySqlColumnType(
+                entity.Property(e => e.LeaderboardsId).IsRequired(),
+                isMySql,
+                "int unsigned"
+            );
+            ConfigureMySqlColumnType(
+                entity.Property(e => e.DiscordUserId).IsRequired(),
+                isMySql,
+                "char(19)"
+            );
+            ConfigureMySqlColumnType(
+                entity.Property(e => e.Score).IsRequired(),
+                isMySql,
+                "int unsigned"
+            );
 
             ConfigureMySqlColumnType(
                 entity
@@ -107,7 +148,9 @@ namespace LundBot.Data
             );
 
             ConfigureMySqlColumnType(
-                entity.Property(e => e.CreatedAt).HasDefaultValueSql(GetCreatedAtDefaultSql(isMySql)),
+                entity
+                    .Property(e => e.CreatedAt)
+                    .HasDefaultValueSql(GetCreatedAtDefaultSql(isMySql)),
                 isMySql,
                 "datetime(3)"
             );
@@ -138,17 +181,34 @@ namespace LundBot.Data
 
             entity.HasKey(e => e.Id);
             ConfigureMySqlColumnType(
-                entity.Property(e => e.Id).HasColumnName("LeaderboardScoreSourceId").ValueGeneratedOnAdd(),
+                entity
+                    .Property(e => e.Id)
+                    .HasColumnName("LeaderboardScoreSourceId")
+                    .ValueGeneratedOnAdd(),
                 isMySql,
                 "int unsigned"
             );
 
-            ConfigureMySqlColumnType(entity.Property(e => e.LeaderboardsId).IsRequired(), isMySql, "int unsigned");
-            ConfigureMySqlColumnType(entity.Property(e => e.DiscordUserIdActor).IsRequired(), isMySql, "char(19)");
-            ConfigureMySqlColumnType(entity.Property(e => e.DiscordUserIdTarget).IsRequired(), isMySql, "char(19)");
+            ConfigureMySqlColumnType(
+                entity.Property(e => e.LeaderboardsId).IsRequired(),
+                isMySql,
+                "int unsigned"
+            );
+            ConfigureMySqlColumnType(
+                entity.Property(e => e.DiscordUserIdActor).IsRequired(),
+                isMySql,
+                "char(19)"
+            );
+            ConfigureMySqlColumnType(
+                entity.Property(e => e.DiscordUserIdTarget).IsRequired(),
+                isMySql,
+                "char(19)"
+            );
 
             ConfigureMySqlColumnType(
-                entity.Property(e => e.CreatedAt).HasDefaultValueSql(GetCreatedAtDefaultSql(isMySql)),
+                entity
+                    .Property(e => e.CreatedAt)
+                    .HasDefaultValueSql(GetCreatedAtDefaultSql(isMySql)),
                 isMySql,
                 "datetime(3)"
             );
@@ -184,16 +244,29 @@ namespace LundBot.Data
 
             entity.HasKey(e => e.Id);
             ConfigureMySqlColumnType(
-                entity.Property(e => e.Id).HasColumnName("LeaderboardMessagesId").ValueGeneratedOnAdd(),
+                entity
+                    .Property(e => e.Id)
+                    .HasColumnName("LeaderboardMessagesId")
+                    .ValueGeneratedOnAdd(),
                 isMySql,
                 "int unsigned"
             );
 
-            ConfigureMySqlColumnType(entity.Property(e => e.LeaderboardsId).IsRequired(), isMySql, "int unsigned");
-            ConfigureMySqlColumnType(entity.Property(e => e.DiscordMessageId).IsRequired(), isMySql, "char(19)");
+            ConfigureMySqlColumnType(
+                entity.Property(e => e.LeaderboardsId).IsRequired(),
+                isMySql,
+                "int unsigned"
+            );
+            ConfigureMySqlColumnType(
+                entity.Property(e => e.DiscordMessageId).IsRequired(),
+                isMySql,
+                "char(19)"
+            );
 
             ConfigureMySqlColumnType(
-                entity.Property(e => e.CreatedAt).HasDefaultValueSql(GetCreatedAtDefaultSql(isMySql)),
+                entity
+                    .Property(e => e.CreatedAt)
+                    .HasDefaultValueSql(GetCreatedAtDefaultSql(isMySql)),
                 isMySql,
                 "datetime(3)"
             );
@@ -229,7 +302,11 @@ namespace LundBot.Data
                 "int unsigned"
             );
 
-            ConfigureMySqlColumnType(entity.Property(e => e.HashedIp).IsRequired(), isMySql, "binary(32)");
+            ConfigureMySqlColumnType(
+                entity.Property(e => e.HashedIp).IsRequired(),
+                isMySql,
+                "binary(32)"
+            );
             ConfigureMySqlColumnType(
                 entity.Property(e => e.ClickedInviteButton).HasDefaultValue(false),
                 isMySql,
@@ -237,7 +314,9 @@ namespace LundBot.Data
             );
 
             ConfigureMySqlColumnType(
-                entity.Property(e => e.CreatedAt).HasDefaultValueSql(GetCreatedAtDefaultSql(isMySql)),
+                entity
+                    .Property(e => e.CreatedAt)
+                    .HasDefaultValueSql(GetCreatedAtDefaultSql(isMySql)),
                 isMySql,
                 "datetime(3)"
             );
@@ -262,10 +341,16 @@ namespace LundBot.Data
                 "int unsigned"
             );
 
-            ConfigureMySqlColumnType(entity.Property(e => e.DiscordMessageId).IsRequired(), isMySql, "char(19)");
+            ConfigureMySqlColumnType(
+                entity.Property(e => e.DiscordMessageId).IsRequired(),
+                isMySql,
+                "char(19)"
+            );
 
             ConfigureMySqlColumnType(
-                entity.Property(e => e.CreatedAt).HasDefaultValueSql(GetCreatedAtDefaultSql(isMySql)),
+                entity
+                    .Property(e => e.CreatedAt)
+                    .HasDefaultValueSql(GetCreatedAtDefaultSql(isMySql)),
                 isMySql,
                 "datetime(3)"
             );
@@ -285,6 +370,10 @@ namespace LundBot.Data
             string mySqlColumnType
         )
         {
+            // Apply MySQL/MariaDB-specific column types only when using the Pomelo provider.
+            // Tests use SQLite, which has different type mappings and does not support these
+            // provider-specific declarations consistently.
+
             if (isMySql)
             {
                 property.HasColumnType(mySqlColumnType);
