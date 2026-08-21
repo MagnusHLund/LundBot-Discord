@@ -54,7 +54,6 @@ The Database connection string is setup to work with the development docker comp
 1. Docker has to be installed and running on the host machine
 2. Write `docker compose up` within the root directory of this project
 
-
 ## EF Core migrations
 
 To run migrations, run `bot/migrations.sh` from the root directory.
