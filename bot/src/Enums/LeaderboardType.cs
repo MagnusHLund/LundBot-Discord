@@ -4,5 +4,6 @@ namespace LundBot.Enums
     {
         Upvote = 1,
         Invite = 2,
+        Warning = 3,
     }
 }

@@ -173,7 +173,7 @@ namespace LundBot.Services
             );
         }
 
-        public async Task UpvoteUserOnLeaderboard(
+        public async Task UpvoteUserOnLeaderboardAsync(
             DiscordChannel channel,
             DiscordUser userUpvoting,
             DiscordUser userTarget
@@ -219,7 +219,7 @@ namespace LundBot.Services
             );
         }
 
-        public async Task RegisterUserJoinedWithInvite(
+        public async Task RegisterUserJoinedWithInviteAsync(
             DiscordGuild guild,
             DiscordUser userJoined,
             DiscordUser userInvitedBy
@@ -271,6 +271,35 @@ namespace LundBot.Services
                 userJoined.Id.ToString(),
                 userInvitedBy.Id.ToString(),
                 leaderboard
+            );
+        }
+
+        public async Task RegisterWarningOnLeaderboardAsync(
+            DiscordChannel channel,
+            DiscordUser userTarget
+        )
+        {
+            _logger.Information(
+                "Registering a warning for user {UserTargetId} on the leaderboard in channel {ChannelId}",
+                userTarget.Id,
+                channel.Id
+            );
+
+            LeaderboardsEntity leaderboard = await GetLeaderboardAsync(channel);
+
+            if (leaderboard.LeaderboardType != LeaderboardType.Warning)
+            {
+                throw new CommandException(
+                    $"The leaderboard in <#{channel.Id}> is not a warning leaderboard.",
+                    showMessageToUser: true
+                );
+            }
+
+            await AddScoreToLeaderboardAsync(
+                userTarget.Id.ToString(),
+                userTarget.Id.ToString(),
+                leaderboard,
+                channel
             );
         }
 

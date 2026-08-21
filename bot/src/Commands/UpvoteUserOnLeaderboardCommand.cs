@@ -54,7 +54,11 @@ namespace LundBot.Commands
             await TaskWithErrorHandlingAsync(
                 context,
                 () =>
-                    _leaderboardService.UpvoteUserOnLeaderboard(channel, userUpvoting, userTarget),
+                    _leaderboardService.UpvoteUserOnLeaderboardAsync(
+                        channel,
+                        userUpvoting,
+                        userTarget
+                    ),
                 $"You have successfully upvoted {userTarget.Username} on the leaderboard in {channel.Mention}."
             );
         }

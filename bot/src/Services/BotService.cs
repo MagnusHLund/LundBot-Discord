@@ -258,7 +258,11 @@ namespace LundBot.Services
                 var leaderboardService =
                     scope.ServiceProvider.GetRequiredService<ILeaderboardService>();
 
-                await leaderboardService.RegisterUserJoinedWithInvite(guild, joinedUser, inviter);
+                await leaderboardService.RegisterUserJoinedWithInviteAsync(
+                    guild,
+                    joinedUser,
+                    inviter
+                );
             }
             else
             {
