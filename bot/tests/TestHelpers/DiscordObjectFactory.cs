@@ -27,6 +27,7 @@ internal static class DiscordObjectFactory
     {
         DiscordGuild guild = CreateUninitialized<DiscordGuild>();
         SetMemberValue(guild, "Id", id);
+        SetMemberValue(guild, "_channels", new ConcurrentDictionary<ulong, DiscordChannel>());
         return guild;
     }
 
