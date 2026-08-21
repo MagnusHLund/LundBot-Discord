@@ -13,16 +13,17 @@ namespace LundBot.Interfaces.Services
             LeaderboardType leaderboardType
         );
         Task RemoveLeaderboardAsync(DiscordChannel channel);
-        Task UpvoteUserOnLeaderboard(
+        Task UpvoteUserOnLeaderboardAsync(
             DiscordChannel channel,
             DiscordUser userUpvoting,
             DiscordUser userTarget
         );
-        Task RegisterUserJoinedWithInvite(
+        Task RegisterUserJoinedWithInviteAsync(
             DiscordGuild guild,
             DiscordUser userJoined,
             DiscordUser userInvitedBy
         );
+        Task RegisterWarningOnLeaderboardAsync(DiscordChannel channel, DiscordUser userTarget);
         Task RefreshLeaderboardAsync(ulong channelId, ulong guildId);
         ValueTask<List<LeaderboardsEntity>> GetLeaderboardsForGuildAsync(string guildId);
         Task UpdateLeaderboardMessageAsync(LeaderboardsEntity leaderboard, DiscordChannel channel);
