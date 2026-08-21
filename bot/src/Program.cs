@@ -1,12 +1,15 @@
 using DSharpPlus;
+using LundBot.BackgroundServices;
 using LundBot.Config;
 using LundBot.Data;
 using LundBot.Entities;
 using LundBot.Factories.MessageEntityFactories;
+using LundBot.Interfaces.Queues;
 using LundBot.Interfaces.Repositories;
 using LundBot.Interfaces.Services;
 using LundBot.Interfaces.Services.Discord;
 using LundBot.Middleware;
+using LundBot.Queues;
 using LundBot.Repositories;
 using LundBot.Services;
 using LundBot.Services.Discord;
@@ -55,6 +58,9 @@ namespace LundBot
 
         private static void RegisterServices(IServiceCollection services)
         {
+            // Queues
+            services.AddSingleton<ILeaderboardQueue, LeaderboardQueue>();
+
             // Base singleton services
             services.AddSingleton<IBotService, BotService>();
             services.AddSingleton<IUserService, UserService>();
@@ -138,7 +144,8 @@ namespace LundBot
 
         private static void RegisterBackgroundServices(IServiceCollection services)
         {
-            services.AddHostedService<BackgroundServices.DiscordBotBackgroundService>();
+            services.AddHostedService<DiscordBotBackgroundService>();
+            services.AddHostedService<UpdateLeaderboardBackgroundService>();
         }
 
         private static void RegisterMiddleware(WebApplication app)

@@ -11,5 +11,6 @@ namespace LundBot.Interfaces.Services.Discord
         Task<bool> IsMemberAdminInGuildAsync(DiscordMember member, DiscordGuild guild);
         Task<bool> MemberHasPermission(DiscordMember member, Permissions permission);
         Task<bool> IsMemberOwnerInGuildAsync(DiscordMember member, DiscordGuild guild);
+        Task PreloadMembersAsync(DiscordGuild guild);
     }
 }

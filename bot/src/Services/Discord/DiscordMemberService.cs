@@ -184,5 +184,29 @@ namespace LundBot.Services.Discord
                 throw;
             }
         }
+
+        /// <summary>
+        /// Preloads the members of a guild to ensure that the member cache is populated. Prevents API calls to discord, when getting individual members.
+        /// </summary>
+        /// <param name="guild"></param>
+        /// <returns></returns>
+        public async Task PreloadMembersAsync(DiscordGuild guild)
+        {
+            _logger.Information("Preloading members for guild {GuildId}...", guild.Id);
+
+            try
+            {
+                await guild.RequestMembersAsync();
+                _logger.Information(
+                    "Successfully preloaded members for guild {GuildId}.",
+                    guild.Id
+                );
+            }
+            catch (Exception ex)
+            {
+                _logger.Error(ex, "Failed to preload members for guild {GuildId}.", guild.Id);
+                throw;
+            }
+        }
     }
 }
