@@ -23,6 +23,7 @@ namespace LundBot.Services
         private readonly ILeaderboardScoresRepository _leaderboardScoreRepository;
         private readonly ICacheService _cacheService;
         private readonly ILeaderboardsRepository _leaderboardsRepository;
+        private readonly IDiscordMemberService _discordMemberService;
         private readonly IDiscordChannelService _discordChannelService;
         private readonly IMessageService<
             LeaderboardMessagesEntity,
@@ -37,6 +38,7 @@ namespace LundBot.Services
             ILeaderboardMessagesRepository leaderboardsMessageRepository,
             ILeaderboardScoreSourceRepository leaderboardScoreSourceRepository,
             ILeaderboardScoresRepository leaderboardScoreRepository,
+            IDiscordMemberService discordMemberService,
             ICacheService cacheService,
             IDiscordChannelService discordChannelService,
             IMessageService<
@@ -52,6 +54,7 @@ namespace LundBot.Services
             _leaderboardScoreSourceRepository = leaderboardScoreSourceRepository;
             _leaderboardScoreRepository = leaderboardScoreRepository;
             _discordChannelService = discordChannelService;
+            _discordMemberService = discordMemberService;
             _messageService = messageService;
             _cacheService = cacheService;
         }
@@ -291,10 +294,11 @@ namespace LundBot.Services
             );
         }
 
-        private string GenerateLeaderboardMessage(
+        private async Task<string> GenerateLeaderboardMessageAsync(
             IEnumerable<LeaderboardScoresEntity> topScores,
             string title,
-            string message
+            string message,
+            DiscordGuild guild
         )
         {
             StringBuilder sb = new StringBuilder();
@@ -311,7 +315,18 @@ namespace LundBot.Services
             int rank = 1;
             foreach (var score in topScores)
             {
-                sb.AppendLine($"{rank}. <@{score.DiscordUserId}> - {score.Score}");
+                if (!ulong.TryParse(score.DiscordUserId, out ulong parsedUserId))
+                {
+                    _logger.Warning(
+                        "Failed to parse DiscordUserId '{DiscordUserId}' to ulong for leaderboard score with ID {ScoreId}",
+                        score.DiscordUserId,
+                        score.Id
+                    );
+                    continue;
+                }
+
+                var member = await _discordMemberService.GetMemberAsync(guild, parsedUserId);
+                sb.AppendLine($"{rank}. {member.Mention} - {score.Score}");
                 rank++;
             }
 
