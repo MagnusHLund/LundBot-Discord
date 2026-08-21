@@ -29,17 +29,17 @@ jobs:
             ${{ runner.os }}-nuget-
 
       - name: Restore dependencies
-        run: dotnet restore ./bot
+        run: dotnet restore ./bot/src
 
       - name: Build solution
-        run: dotnet build ./bot --configuration Release --no-restore
+        run: dotnet build ./bot/src --configuration Release --no-restore
 
       - name: Run tests
-        run: dotnet test ./bot/tests/LundBot.Tests.csproj --configuration Release --logger "trx" --results-directory ./TestResults
+        run: dotnet test ./bot/tests/LundBot.Tests.csproj --configuration Release --logger "trx" --results-directory ./bot/tests/TestResults
 
       - name: Upload test results
         uses: actions/upload-artifact@v4
         if: always()
         with:
           name: test-results
-          path: ./TestResults
+          path: ./bot/tests/TestResults

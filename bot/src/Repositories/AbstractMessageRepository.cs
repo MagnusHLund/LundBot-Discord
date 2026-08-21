@@ -1,5 +1,3 @@
-using LundBot.Entities;
-
 namespace LundBot.Repositories
 {
     public abstract class AbstractMessageRepository<TEntity>

@@ -1,4 +1,5 @@
 {
   "dotnet.preferVisualStudioCodeFileSystemWatcher": true,
-  "cSpell.words": ["Unlocker", "Upvoting"]
+  "cSpell.words": ["Unlocker", "Upvoting"],
+  "cmake.ignoreCMakeListsMissing": true
 }
