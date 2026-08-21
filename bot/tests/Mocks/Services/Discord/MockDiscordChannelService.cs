@@ -2,7 +2,7 @@ using DSharpPlus.Entities;
 using LundBot.Interfaces.Services.Discord;
 using LundBot.Tests.TestHelpers;
 
-namespace LundBot.Tests.Mocks.Discord;
+namespace LundBot.Tests.Mocks.Services.Discord;
 
 internal sealed class MockDiscordChannelService : IDiscordChannelService
 {

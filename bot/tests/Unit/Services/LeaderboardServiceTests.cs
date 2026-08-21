@@ -12,6 +12,7 @@ using LundBot.Interfaces.Services.Discord;
 using LundBot.Repositories;
 using LundBot.Services;
 using LundBot.Tests.TestHelpers;
+using LundBot.Tests.Unit.Services.Contexts;
 using LundBot.Utils;
 using LundBot.ValueObjects.Jobs;
 using Moq;
@@ -328,16 +329,4 @@ public sealed class LeaderboardServiceTests
             leaderboardQueue
         );
     }
-
-    private sealed record LeaderboardServiceTestContext(
-        Mock<IUserService> UserService,
-        LeaderboardService Service,
-        Mock<ILeaderboardsRepository> LeaderboardsRepository,
-        Mock<ILeaderboardMessagesRepository> LeaderboardMessagesRepository,
-        Mock<ILeaderboardScoreSourceRepository> LeaderboardScoreSourceRepository,
-        Mock<ILeaderboardScoresRepository> LeaderboardScoresRepository,
-        Mock<ICacheService> CacheService,
-        Mock<IDiscordChannelService> DiscordChannelService,
-        Mock<ILeaderboardQueue> LeaderboardQueue
-    );
 }
