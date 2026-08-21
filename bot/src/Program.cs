@@ -5,9 +5,11 @@ using LundBot.Entities;
 using LundBot.Factories.MessageEntityFactories;
 using LundBot.Interfaces.Repositories;
 using LundBot.Interfaces.Services;
+using LundBot.Interfaces.Services.Discord;
 using LundBot.Middleware;
 using LundBot.Repositories;
 using LundBot.Services;
+using LundBot.Services.Discord;
 using Microsoft.EntityFrameworkCore;
 using Serilog;
 
@@ -53,12 +55,24 @@ namespace LundBot
 
         private static void RegisterServices(IServiceCollection services)
         {
+            // Base singleton services
             services.AddSingleton<IBotService, BotService>();
             services.AddSingleton<IUserService, UserService>();
             services.AddSingleton<ICacheService, CacheService>();
             services.AddSingleton<ICommandsService, CommandsService>();
             services.AddSingleton<IModerationActionsService, ModerationActionsService>();
 
+            // Discord services. Always singleton.
+            services.AddSingleton<IDiscordBotService, DiscordBotService>();
+            services.AddSingleton<IDiscordChannelService, DiscordChannelService>();
+            services.AddSingleton<IDiscordCommandService, DiscordCommandService>();
+            services.AddSingleton<IDiscordGuildService, DiscordGuildService>();
+            services.AddSingleton<IDiscordInteractionService, DiscordInteractionService>();
+            services.AddSingleton<IDiscordMemberService, DiscordMemberService>();
+            services.AddSingleton<IDiscordMessageService, DiscordMessageService>();
+            services.AddSingleton<IDiscordUserService, DiscordUserService>();
+
+            // Base scoped services
             services.AddScoped<ILeaderboardService, LeaderboardService>();
             services.AddScoped<IWebsiteTrafficService, WebsiteTrafficService>();
 

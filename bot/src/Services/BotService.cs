@@ -6,6 +6,7 @@ using DSharpPlus.SlashCommands.EventArgs;
 using LundBot.Config;
 using LundBot.Helpers;
 using LundBot.Interfaces.Services;
+using LundBot.Interfaces.Services.Discord;
 using LundBot.Utils;
 using Microsoft.Extensions.Options;
 using Serilog;
@@ -14,14 +15,15 @@ namespace LundBot.Services
 {
     public sealed class BotService : IBotService
     {
-        private const string SERVER_INVITES_CACHE_KEY = "server_invites";
-
         public static DiscordClient DiscordClient { get; set; } = null!;
         private readonly Serilog.ILogger _logger = Log.ForContext<BotService>();
 
         private readonly IServiceProvider _serviceProvider;
         private readonly ICommandsService _commandsService;
         private readonly ICacheService _cacheService;
+        private readonly IDiscordBotService _discordBotService;
+        private readonly IDiscordInteractionService _discordInteractionService;
+        private readonly IDiscordGuildService _discordGuildService;
         private readonly IModerationActionsService _moderationActionsService;
         private readonly DiscordConfig _discordConfig;
         private readonly ServerConfig _serverConfig;
@@ -32,6 +34,9 @@ namespace LundBot.Services
             IServiceProvider serviceProvider,
             ICommandsService commandsService,
             ICacheService cacheService,
+            IDiscordBotService discordBotService,
+            IDiscordInteractionService discordInteractionService,
+            IDiscordGuildService discordGuildService,
             IModerationActionsService moderationActionsService
         )
         {
@@ -41,6 +46,9 @@ namespace LundBot.Services
             _commandsService = commandsService;
             _cacheService = cacheService;
             _moderationActionsService = moderationActionsService;
+            _discordBotService = discordBotService;
+            _discordInteractionService = discordInteractionService;
+            _discordGuildService = discordGuildService;
         }
 
         public async Task InitializeAsync(DiscordClient discordClient)
@@ -59,22 +67,16 @@ namespace LundBot.Services
             discordClient.GuildCreated += OnGuildCreated;
             discordClient.Ready += OnClientReady;
 
-            _logger.Information("Creating SlashCommandsExtension and registering commands...");
+            IServiceProvider services = _serviceProvider.CreateScope().ServiceProvider;
 
-            var slash = discordClient.UseSlashCommands(
-                new SlashCommandsConfiguration
-                {
-                    Services = _serviceProvider.CreateScope().ServiceProvider,
-                }
-            );
+            var slash = await _discordBotService.EnableSlashCommands(services);
 
             slash.SlashCommandExecuted += OnSlashCommandExecuted;
             slash.SlashCommandErrored += OnSlashCommandErrored;
 
             await _commandsService.RegisterCommandsAsync();
 
-            _logger.Information("Connecting to Discord...");
-            await discordClient.ConnectAsync();
+            await _discordBotService.ConnectBotAsync();
 
             await _commandsService.LogRegisteredCommandsForGuildsAsync();
 
@@ -84,22 +86,13 @@ namespace LundBot.Services
         private async Task SetBotStatusAsync()
         {
             var activity = new DiscordActivity("Stuck in a movie theater", ActivityType.Playing);
-            await DiscordClient.UpdateStatusAsync(activity, UserStatus.Online);
+            await _discordBotService.UpdateBotStatusAsync(activity);
         }
 
         private async Task OnClientReady(DiscordClient sender, ReadyEventArgs e)
         {
             _logger.Information("Ready fired, running BotService initialization...");
-            try
-            {
-                await SetBotStatusAsync();
-                ;
-                _logger.Information("BotService initialization completed.");
-            }
-            catch (Exception ex)
-            {
-                _logger.Warning(ex, "BotService.InitializeAsync threw.");
-            }
+            await SetBotStatusAsync();
         }
 
         private async Task OnSlashCommandExecuted(
@@ -132,12 +125,15 @@ namespace LundBot.Services
             {
                 if (e.Context != null)
                 {
-                    await e.Context.CreateResponseAsync(
-                        InteractionResponseType.ChannelMessageWithSource,
-                        new DiscordInteractionResponseBuilder()
-                            .WithContent("Internal server error. Please try again later.")
-                            .AsEphemeral(true)
+                    await _discordInteractionService.SendResponseAsync(
+                        e.Context,
+                        "Internal server error. Please try again later.",
+                        showOnlyToUser: true
                     );
+                }
+                else
+                {
+                    _logger.Warning("Cannot send error response because the context is null.");
                 }
             }
             catch { }
@@ -195,7 +191,7 @@ namespace LundBot.Services
         {
             foreach (var guild in sender.Guilds.Values)
             {
-                var invites = await guild.GetInvitesAsync();
+                var invites = await _discordGuildService.GetGuildInvitesAsync(guild);
                 _cacheService.Set(
                     CacheKeyHelper.GuildInvites(guild.Id.ToString()),
                     invites.ToList()
@@ -217,7 +213,7 @@ namespace LundBot.Services
         private async Task RegisterWhoInvitedJoinedUser(DiscordGuild guild, DiscordUser joinedUser)
         {
             // Discord does not provide a direct way to know who invited a user, so we have to compare the invite uses before and after the user joined.
-            var newInvites = await guild.GetInvitesAsync();
+            var newInvites = await _discordGuildService.GetGuildInvitesAsync(guild);
             var oldInvites =
                 _cacheService.Get<List<DiscordInvite>>(
                     CacheKeyHelper.GuildInvites(guild.Id.ToString())
