@@ -11,21 +11,20 @@ namespace LundBot.Tests.Unit.Controllers;
 public sealed class TrafficControllerTests
 {
     [Fact]
-    public async Task VisitedWebsite_WhenServiceSucceeds_ReturnsOk()
+    internal async Task VisitedWebsite_WhenServiceSucceeds_ReturnsOk()
     {
         // Arrange
         var trafficService = new Mock<IWebsiteTrafficService>();
-        trafficService.Setup(s => s.RegisterWebsiteVisitAsync(It.IsAny<string>())).ReturnsAsync(true);
+        trafficService
+            .Setup(s => s.RegisterWebsiteVisitAsync(It.IsAny<string>()))
+            .ReturnsAsync(true);
 
         var controller = new TrafficController(
             trafficService.Object,
             Options.Create(new DeveloperEnvironmentConfig())
         )
         {
-            ControllerContext = new ControllerContext
-            {
-                HttpContext = new DefaultHttpContext(),
-            },
+            ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() },
         };
 
         // Act

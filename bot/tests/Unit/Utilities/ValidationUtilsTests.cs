@@ -8,7 +8,7 @@ public sealed class ValidationUtilsTests
     [InlineData("abc", 3, 3)]
     [InlineData("abcd", 6, 2)]
     [InlineData("", 0, 0)]
-    public void IsValidLengthString_WhenLengthWithinBounds_ReturnsTrue(
+    internal void IsValidLengthString_WhenLengthWithinBounds_ReturnsTrue(
         string value,
         int maxLength,
         int minLength
@@ -26,7 +26,7 @@ public sealed class ValidationUtilsTests
     [Theory]
     [InlineData("a", 10, 2)]
     [InlineData("abcdef", 5, 0)]
-    public void IsValidLengthString_WhenLengthOutsideBounds_ReturnsFalse(
+    internal void IsValidLengthString_WhenLengthOutsideBounds_ReturnsFalse(
         string value,
         int maxLength,
         int minLength

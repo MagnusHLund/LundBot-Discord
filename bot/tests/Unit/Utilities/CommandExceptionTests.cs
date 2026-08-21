@@ -6,7 +6,7 @@ namespace LundBot.Tests.Unit.Utilities;
 public sealed class CommandExceptionTests
 {
     [Fact]
-    public void GetMessage_WhenShowMessageToUserTrue_ReturnsOriginalMessage()
+    internal void GetMessage_WhenShowMessageToUserTrue_ReturnsOriginalMessage()
     {
         // Arrange
         CommandException ex = new("Visible", showMessageToUser: true);
@@ -19,7 +19,7 @@ public sealed class CommandExceptionTests
     }
 
     [Fact]
-    public void GetMessage_WhenShowMessageToUserFalse_ReturnsGenericMessage()
+    internal void GetMessage_WhenShowMessageToUserFalse_ReturnsGenericMessage()
     {
         // Arrange
         CommandException ex = new("Hidden");

@@ -4,13 +4,13 @@ using Microsoft.EntityFrameworkCore;
 
 namespace LundBot.Tests.Fixtures.Data
 {
-    public sealed class SqliteDbFixture : IDisposable
+    internal sealed class SqliteDbFixture : IDisposable
     {
-        public LundBotDiscordDbContext Db { get; private set; }
+        internal LundBotDiscordDbContext Db { get; private set; }
 
         private readonly SqliteConnection _connection;
 
-        public SqliteDbFixture()
+        internal SqliteDbFixture()
         {
             _connection = new SqliteConnection("DataSource=:memory:");
             _connection.Open();

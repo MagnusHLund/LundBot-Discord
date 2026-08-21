@@ -5,7 +5,7 @@ namespace LundBot.Tests.Unit.Utilities;
 public sealed class HashUtilsTests
 {
     [Fact]
-    public void HashString_WhenInputProvided_ReturnsExpectedSha256Bytes()
+    internal void HashString_WhenInputProvided_ReturnsExpectedSha256Bytes()
     {
         // Arrange
         const string input = "lundbot";

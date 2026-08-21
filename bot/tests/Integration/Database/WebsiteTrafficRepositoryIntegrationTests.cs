@@ -8,7 +8,7 @@ namespace LundBot.Tests.Integration.Database;
 public sealed class WebsiteTrafficRepositoryIntegrationTests
 {
     [Fact]
-    public async Task RegisterWebsiteVisitAndInviteClickAsync_WhenVisitExists_UpdatesInviteFlag()
+    internal async Task RegisterWebsiteVisitAndInviteClickAsync_WhenVisitExists_UpdatesInviteFlag()
     {
         // Arrange
         using var fixture = new SqliteDbFixture();
@@ -18,10 +18,11 @@ public sealed class WebsiteTrafficRepositoryIntegrationTests
         // Act
         bool visitSaved = await repository.RegisterWebsiteVisitAsync(hashedIp);
         bool clickSaved = await repository.RegisterInviteLinkClickAsync(hashedIp);
-        List<WebsiteTrafficEntity> entities = await repository.GetWebsiteTrafficEntitiesForPeriodAsync(
-            DateTime.UtcNow.AddMinutes(-5),
-            DateTime.UtcNow.AddMinutes(5)
-        );
+        List<WebsiteTrafficEntity> entities =
+            await repository.GetWebsiteTrafficEntitiesForPeriodAsync(
+                DateTime.UtcNow.AddMinutes(-5),
+                DateTime.UtcNow.AddMinutes(5)
+            );
 
         // Assert
         Assert.True(visitSaved);

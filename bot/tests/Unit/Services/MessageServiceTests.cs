@@ -34,7 +34,7 @@ namespace LundBot.Tests.Unit.Services
         }
 
         [Fact]
-        public async Task SynchronizeDiscordMessagesAsync_UpdatesExistingMessages()
+        internal async Task SynchronizeDiscordMessagesAsync_UpdatesExistingMessages()
         {
             var repo = new MockMessageRepository<LeaderboardMessagesEntity>();
             var discord = new MockDiscordMessageService();
@@ -61,7 +61,7 @@ namespace LundBot.Tests.Unit.Services
         }
 
         [Fact]
-        public async Task SynchronizeDiscordMessagesAsync_CreatesNewMessages()
+        internal async Task SynchronizeDiscordMessagesAsync_CreatesNewMessages()
         {
             var repo = new MockMessageRepository<LeaderboardMessagesEntity>();
             var discord = new MockDiscordMessageService();
@@ -85,7 +85,7 @@ namespace LundBot.Tests.Unit.Services
         }
 
         [Fact]
-        public async Task SynchronizeDiscordMessagesAsync_DeletesExtraMessages()
+        internal async Task SynchronizeDiscordMessagesAsync_DeletesExtraMessages()
         {
             var repo = new MockMessageRepository<LeaderboardMessagesEntity>();
             var discord = new MockDiscordMessageService();

@@ -5,7 +5,7 @@ namespace LundBot.Tests.Unit.Utilities;
 public sealed class StringUtilsTests
 {
     [Fact]
-    public void SplitCamelCaseOrPascalCaseToWords_WhenPascalCase_ReturnsSpacedSentence()
+    internal void SplitCamelCaseOrPascalCaseToWords_WhenPascalCase_ReturnsSpacedSentence()
     {
         // Arrange
         const string input = "CreateLeaderboard";
@@ -18,7 +18,7 @@ public sealed class StringUtilsTests
     }
 
     [Fact]
-    public void SplitCamelCaseOrPascalCaseToWords_WhenContainsNumbers_ReturnsSpacedSentence()
+    internal void SplitCamelCaseOrPascalCaseToWords_WhenContainsNumbers_ReturnsSpacedSentence()
     {
         // Arrange
         const string input = "IGot1NumberInMyString";

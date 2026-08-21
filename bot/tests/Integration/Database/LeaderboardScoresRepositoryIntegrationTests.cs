@@ -8,7 +8,7 @@ namespace LundBot.Tests.Integration.Database;
 public sealed class LeaderboardScoresRepositoryIntegrationTests
 {
     [Fact]
-    public async Task IncrementScoreAsync_WhenSameUserIncrementedTwice_StoresScoreOfTwo()
+    internal async Task IncrementScoreAsync_WhenSameUserIncrementedTwice_StoresScoreOfTwo()
     {
         // Arrange
         using var fixture = new SqliteDbFixture();

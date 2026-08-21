@@ -5,7 +5,7 @@ namespace LundBot.Tests.Unit.Helpers;
 public sealed class CacheKeyHelperTests
 {
     [Fact]
-    public void LeaderboardsPerGuild_WhenGuildIdProvided_ReturnsExpectedKey()
+    internal void LeaderboardsPerGuild_WhenGuildIdProvided_ReturnsExpectedKey()
     {
         // Arrange
         const string guildId = "123";
@@ -18,7 +18,7 @@ public sealed class CacheKeyHelperTests
     }
 
     [Fact]
-    public void GuildInvites_WhenGuildIdProvided_ReturnsExpectedKey()
+    internal void GuildInvites_WhenGuildIdProvided_ReturnsExpectedKey()
     {
         // Arrange
         const string guildId = "456";

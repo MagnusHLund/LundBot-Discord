@@ -10,7 +10,7 @@ namespace LundBot.Tests.Unit.Controllers;
 public sealed class LeaderboardControllerTests
 {
     [Fact]
-    public async Task RefreshLeaderboard_WhenServiceSucceeds_ReturnsOk()
+    internal async Task RefreshLeaderboard_WhenServiceSucceeds_ReturnsOk()
     {
         // Arrange
         var leaderboardService = new Mock<ILeaderboardService>();
@@ -28,7 +28,7 @@ public sealed class LeaderboardControllerTests
     }
 
     [Fact]
-    public async Task RefreshLeaderboard_WhenServiceThrows_ReturnsInternalServerError()
+    internal async Task RefreshLeaderboard_WhenServiceThrows_ReturnsInternalServerError()
     {
         // Arrange
         var leaderboardService = new Mock<ILeaderboardService>();

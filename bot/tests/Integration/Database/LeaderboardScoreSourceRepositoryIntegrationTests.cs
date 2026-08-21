@@ -8,7 +8,7 @@ namespace LundBot.Tests.Integration.Database;
 public sealed class LeaderboardScoreSourceRepositoryIntegrationTests
 {
     [Fact]
-    public async Task AddScoreAsync_WhenInserted_CanBeFoundByHasUserGivenScoreToTargetAsync()
+    internal async Task AddScoreAsync_WhenInserted_CanBeFoundByHasUserGivenScoreToTargetAsync()
     {
         // Arrange
         using var fixture = new SqliteDbFixture();

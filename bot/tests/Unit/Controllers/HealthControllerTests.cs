@@ -8,7 +8,7 @@ namespace LundBot.Tests.Unit.Controllers;
 public sealed class HealthControllerTests
 {
     [Fact]
-    public void Get_WhenCalled_ReturnsHealthyStatusAndVersion()
+    internal void Get_WhenCalled_ReturnsHealthyStatusAndVersion()
     {
         // Arrange
         var controller = new HealthController(

@@ -14,7 +14,7 @@ namespace LundBot.Tests.Unit.Services;
 public sealed class WebsiteTrafficServiceTests
 {
     [Fact]
-    public async Task RegisterWebsiteVisitAsync_WhenRepositorySucceeds_UpdatesStatsMessage()
+    internal async Task RegisterWebsiteVisitAsync_WhenRepositorySucceeds_UpdatesStatsMessage()
     {
         // Arrange
         using var fixture = new SqliteDbFixture();
@@ -23,7 +23,12 @@ public sealed class WebsiteTrafficServiceTests
             .Setup(r => r.RegisterWebsiteVisitAsync(It.IsAny<byte[]>()))
             .ReturnsAsync(true);
         websiteTrafficRepository
-            .Setup(r => r.GetWebsiteTrafficEntitiesForPeriodAsync(It.IsAny<DateTime>(), It.IsAny<DateTime>()))
+            .Setup(r =>
+                r.GetWebsiteTrafficEntitiesForPeriodAsync(
+                    It.IsAny<DateTime>(),
+                    It.IsAny<DateTime>()
+                )
+            )
             .ReturnsAsync(new List<WebsiteTrafficEntity>());
 
         var trafficMessagesRepository = new WebsiteTrafficMessagesRepository(fixture.Db);

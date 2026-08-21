@@ -21,7 +21,7 @@ namespace LundBot.Tests.Unit.Services;
 public sealed class LeaderboardServiceTests
 {
     [Fact]
-    public async Task RegisterUserJoinedWithInviteAsync_WhenNoInviteLeaderboardExists_DoesNotWriteScore()
+    internal async Task RegisterUserJoinedWithInviteAsync_WhenNoInviteLeaderboardExists_DoesNotWriteScore()
     {
         // Arrange
         var context = CreateContext();
@@ -48,7 +48,7 @@ public sealed class LeaderboardServiceTests
     }
 
     [Fact]
-    public async Task RegisterUserJoinedWithInviteAsync_WhenValidInvite_AddsScoreAndEnqueuesJob()
+    internal async Task RegisterUserJoinedWithInviteAsync_WhenValidInvite_AddsScoreAndEnqueuesJob()
     {
         // Arrange
         var context = CreateContext();
@@ -100,7 +100,7 @@ public sealed class LeaderboardServiceTests
     }
 
     [Fact]
-    public async Task GetLeaderboardsForGuildAsync_WhenCacheHasValue_ReturnsCache()
+    internal async Task GetLeaderboardsForGuildAsync_WhenCacheHasValue_ReturnsCache()
     {
         // Arrange
         var context = CreateContext();
@@ -133,7 +133,7 @@ public sealed class LeaderboardServiceTests
     }
 
     [Fact]
-    public async Task GetLeaderboardsForGuildAsync_WhenCacheIsEmpty_LoadsFromRepository()
+    internal async Task GetLeaderboardsForGuildAsync_WhenCacheIsEmpty_LoadsFromRepository()
     {
         // Arrange
         var context = CreateContext();
@@ -171,7 +171,7 @@ public sealed class LeaderboardServiceTests
     }
 
     [Fact]
-    public async Task RegisterUserJoinedWithInviteAsync_WhenInviterIsBot_SkipsRegistration()
+    internal async Task RegisterUserJoinedWithInviteAsync_WhenInviterIsBot_SkipsRegistration()
     {
         // Arrange
         var context = CreateContext();
@@ -196,7 +196,7 @@ public sealed class LeaderboardServiceTests
     }
 
     [Fact]
-    public async Task RegisterUserJoinedWithInviteAsync_WhenInviteAlreadyRecorded_SkipsRegistration()
+    internal async Task RegisterUserJoinedWithInviteAsync_WhenInviteAlreadyRecorded_SkipsRegistration()
     {
         // Arrange
         var context = CreateContext();
@@ -237,7 +237,7 @@ public sealed class LeaderboardServiceTests
     }
 
     [Fact]
-    public async Task RegisterUserJoinedWithInviteAsync_WhenInviterIsOwnerInProduction_SkipsRegistration()
+    internal async Task RegisterUserJoinedWithInviteAsync_WhenInviterIsOwnerInProduction_SkipsRegistration()
     {
         // Arrange
         var context = CreateContext();

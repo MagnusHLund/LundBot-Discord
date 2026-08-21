@@ -4,13 +4,13 @@ using LundBot.Tests.TestHelpers;
 
 namespace LundBot.Tests.Mocks.Services.Discord
 {
-    public class MockDiscordMessageService : IDiscordMessageService
+    internal class MockDiscordMessageService : IDiscordMessageService
     {
-        public List<(DiscordChannel Channel, string Content)> Sent { get; } = new();
-        public List<(DiscordMessage Message, string NewContent)> Modified { get; } = new();
-        public List<DiscordMessage> Deleted { get; } = new();
+        internal List<(DiscordChannel Channel, string Content)> Sent { get; } = new();
+        internal List<(DiscordMessage Message, string NewContent)> Modified { get; } = new();
+        internal List<DiscordMessage> Deleted { get; } = new();
 
-        public Func<ulong, DiscordMessage>? GetMessageBehavior { get; set; }
+        internal Func<ulong, DiscordMessage>? GetMessageBehavior { get; set; }
 
         public Task<DiscordMessage> GetMessageAsync(DiscordChannel channel, ulong messageId)
         {

@@ -10,7 +10,7 @@ namespace LundBot.Tests.Unit.Commands;
 public sealed class CreateLeaderboardCommandTests
 {
     [Fact]
-    public async Task CreateLeaderboardAsync_WhenCommandNotFromServer_DoesNothing()
+    internal async Task CreateLeaderboardAsync_WhenCommandNotFromServer_DoesNothing()
     {
         // Arrange
         var interactionService = new MockDiscordInteractionService
@@ -45,7 +45,7 @@ public sealed class CreateLeaderboardCommandTests
     }
 
     [Fact]
-    public async Task CreateLeaderboardAsync_WhenTitleInvalid_SendsValidationError()
+    internal async Task CreateLeaderboardAsync_WhenTitleInvalid_SendsValidationError()
     {
         // Arrange
         var interactionService = new MockDiscordInteractionService();
@@ -81,7 +81,7 @@ public sealed class CreateLeaderboardCommandTests
     }
 
     [Fact]
-    public async Task CreateLeaderboardAsync_WhenMessageLengthIsInvalid_SendsValidationError()
+    internal async Task CreateLeaderboardAsync_WhenMessageLengthIsInvalid_SendsValidationError()
     {
         // Arrange
         var interactionService = new MockDiscordInteractionService();
@@ -118,7 +118,7 @@ public sealed class CreateLeaderboardCommandTests
     }
 
     [Fact]
-    public async Task CreateLeaderboardAsync_WhenValidInput_InvokesServiceWithTrimmedValues()
+    internal async Task CreateLeaderboardAsync_WhenValidInput_InvokesServiceWithTrimmedValues()
     {
         // Arrange
         var interactionService = new MockDiscordInteractionService();

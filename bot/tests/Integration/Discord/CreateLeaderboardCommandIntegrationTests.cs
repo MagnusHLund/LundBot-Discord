@@ -10,7 +10,7 @@ namespace LundBot.Tests.Integration.Discord;
 public sealed class CreateLeaderboardCommandIntegrationTests
 {
     [Fact]
-    public async Task CreateLeaderboardAsync_WhenValidInput_CallsServiceAndSendsSuccessMessage()
+    internal async Task CreateLeaderboardAsync_WhenValidInput_CallsServiceAndSendsSuccessMessage()
     {
         // Arrange
         var interactionService = new MockDiscordInteractionService();

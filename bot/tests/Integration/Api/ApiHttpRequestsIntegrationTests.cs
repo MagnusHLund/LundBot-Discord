@@ -5,7 +5,7 @@ namespace LundBot.Tests.Integration.Api;
 public sealed class ApiHttpRequestsIntegrationTests
 {
     [Fact]
-    public async Task GetHealthEndpoint_WhenCalled_ReturnsHealthyPayload()
+    internal async Task GetHealthEndpoint_WhenCalled_ReturnsHealthyPayload()
     {
         // Arrange
         (HttpClient client, _, _, _) = await ApiTestServerFactory.CreateAsync();
@@ -21,10 +21,11 @@ public sealed class ApiHttpRequestsIntegrationTests
     }
 
     [Fact]
-    public async Task PostCommandSyncEndpoint_WhenCalled_InvokesCommandsService()
+    internal async Task PostCommandSyncEndpoint_WhenCalled_InvokesCommandsService()
     {
         // Arrange
-        (HttpClient client, SpyCommandsService commands, _, _) = await ApiTestServerFactory.CreateAsync();
+        (HttpClient client, SpyCommandsService commands, _, _) =
+            await ApiTestServerFactory.CreateAsync();
 
         // Act
         HttpResponseMessage response = await client.PostAsync("/api/command/sync", null);
@@ -35,10 +36,11 @@ public sealed class ApiHttpRequestsIntegrationTests
     }
 
     [Fact]
-    public async Task DeleteUnregisterAllEndpoint_WhenServiceFails_ReturnsInternalServerError()
+    internal async Task DeleteUnregisterAllEndpoint_WhenServiceFails_ReturnsInternalServerError()
     {
         // Arrange
-        (HttpClient client, SpyCommandsService commands, _, _) = await ApiTestServerFactory.CreateAsync();
+        (HttpClient client, SpyCommandsService commands, _, _) =
+            await ApiTestServerFactory.CreateAsync();
         commands.UnregisterAllShouldSucceed = false;
 
         // Act
@@ -51,7 +53,7 @@ public sealed class ApiHttpRequestsIntegrationTests
     }
 
     [Fact]
-    public async Task PostTrafficVisitEndpoint_WhenServiceSucceeds_ReturnsOk()
+    internal async Task PostTrafficVisitEndpoint_WhenServiceSucceeds_ReturnsOk()
     {
         // Arrange
         (HttpClient client, _, _, SpyWebsiteTrafficService traffic) =
@@ -66,7 +68,7 @@ public sealed class ApiHttpRequestsIntegrationTests
     }
 
     [Fact]
-    public async Task PostLeaderboardRefreshEndpoint_WhenServiceThrows_ReturnsInternalServerError()
+    internal async Task PostLeaderboardRefreshEndpoint_WhenServiceThrows_ReturnsInternalServerError()
     {
         // Arrange
         (HttpClient client, _, SpyLeaderboardService leaderboardService, _) =

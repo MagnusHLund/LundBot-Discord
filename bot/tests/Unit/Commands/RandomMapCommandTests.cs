@@ -6,7 +6,7 @@ namespace LundBot.Tests.Unit.Commands;
 public sealed class RandomMapCommandTests
 {
     [Fact]
-    public async Task RandomMapAsync_WhenCalled_SendsOneMapName()
+    internal async Task RandomMapAsync_WhenCalled_SendsOneMapName()
     {
         // Arrange
         var interactionService = new MockDiscordInteractionService();

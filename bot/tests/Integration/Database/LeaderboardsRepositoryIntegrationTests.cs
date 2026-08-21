@@ -8,7 +8,7 @@ namespace LundBot.Tests.Integration.Database;
 public sealed class LeaderboardsRepositoryIntegrationTests
 {
     [Fact]
-    public async Task CreateAndFindLeaderboardAsync_WhenPersisted_ReturnsStoredLeaderboard()
+    internal async Task CreateAndFindLeaderboardAsync_WhenPersisted_ReturnsStoredLeaderboard()
     {
         // Arrange
         using var fixture = new SqliteDbFixture();
@@ -22,7 +22,10 @@ public sealed class LeaderboardsRepositoryIntegrationTests
             "Weekly",
             LeaderboardType.Upvote
         );
-        (bool exists, LeaderboardsEntity? found) = await repository.DoesLeaderboardExistAsync("100", "200");
+        (bool exists, LeaderboardsEntity? found) = await repository.DoesLeaderboardExistAsync(
+            "100",
+            "200"
+        );
 
         // Assert
         Assert.True(exists);
@@ -32,12 +35,18 @@ public sealed class LeaderboardsRepositoryIntegrationTests
     }
 
     [Fact]
-    public async Task RemoveLeaderboardAsync_WhenPersisted_RemovesLeaderboard()
+    internal async Task RemoveLeaderboardAsync_WhenPersisted_RemovesLeaderboard()
     {
         // Arrange
         using var fixture = new SqliteDbFixture();
         var repository = new LeaderboardsRepository(fixture.Db);
-        await repository.CreateLeaderboardAsync("300", "400", "Title", "Message", LeaderboardType.Warning);
+        await repository.CreateLeaderboardAsync(
+            "300",
+            "400",
+            "Title",
+            "Message",
+            LeaderboardType.Warning
+        );
 
         // Act
         await repository.RemoveLeaderboardAsync("300", "400");

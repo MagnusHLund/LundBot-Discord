@@ -1,15 +1,17 @@
 using DSharpPlus.Entities;
 using LundBot.Entities;
+using LundBot.Enums;
 using LundBot.Interfaces.Services;
 
 namespace LundBot.Tests.Integration.Api;
 
 internal sealed class SpyCommandsService : ICommandsService
 {
-    public bool RefreshCommandsCalled { get; private set; }
-    public bool UnregisterAllShouldSucceed { get; set; } = true;
+    internal bool RefreshCommandsCalled { get; private set; }
+    internal bool UnregisterAllShouldSucceed { get; set; } = true;
 
     public Task RegisterCommandsAsync() => Task.CompletedTask;
+
     public Task LogRegisteredCommandsForGuildsAsync() => Task.CompletedTask;
 
     public Task RefreshCommands()
@@ -27,14 +29,14 @@ internal sealed class SpyCommandsService : ICommandsService
 
 internal sealed class SpyLeaderboardService : ILeaderboardService
 {
-    public bool ThrowOnRefresh { get; set; }
-    public bool RefreshCalled { get; private set; }
+    internal bool ThrowOnRefresh { get; set; }
+    internal bool RefreshCalled { get; private set; }
 
     public Task CreateLeaderboardAsync(
         DiscordChannel channel,
         string title,
         string message,
-        LundBot.Enums.LeaderboardType leaderboardType
+        LeaderboardType leaderboardType
     ) => Task.CompletedTask;
 
     public Task RemoveLeaderboardAsync(DiscordChannel channel) => Task.CompletedTask;
@@ -68,14 +70,16 @@ internal sealed class SpyLeaderboardService : ILeaderboardService
     public ValueTask<List<LeaderboardsEntity>> GetLeaderboardsForGuildAsync(string guildId) =>
         ValueTask.FromResult(new List<LeaderboardsEntity>());
 
-    public Task UpdateLeaderboardMessageAsync(LeaderboardsEntity leaderboard, DiscordChannel channel) =>
-        Task.CompletedTask;
+    public Task UpdateLeaderboardMessageAsync(
+        LeaderboardsEntity leaderboard,
+        DiscordChannel channel
+    ) => Task.CompletedTask;
 }
 
 internal sealed class SpyWebsiteTrafficService : IWebsiteTrafficService
 {
-    public bool RegisterVisitResult { get; set; } = true;
-    public bool RegisterInviteClickResult { get; set; } = true;
+    internal bool RegisterVisitResult { get; set; } = true;
+    internal bool RegisterInviteClickResult { get; set; } = true;
 
     public Task<bool> RegisterWebsiteVisitAsync(string ipAddress) =>
         Task.FromResult(RegisterVisitResult);

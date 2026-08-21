@@ -11,7 +11,12 @@ namespace LundBot.Tests.Integration.Api;
 
 internal static class ApiTestServerFactory
 {
-    public static async Task<(HttpClient Client, SpyCommandsService Commands, SpyLeaderboardService Leaderboards, SpyWebsiteTrafficService Traffic)> CreateAsync()
+    internal static async Task<(
+        HttpClient Client,
+        SpyCommandsService Commands,
+        SpyLeaderboardService Leaderboards,
+        SpyWebsiteTrafficService Traffic
+    )> CreateAsync()
     {
         var commands = new SpyCommandsService();
         var leaderboards = new SpyLeaderboardService();

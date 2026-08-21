@@ -10,7 +10,7 @@ namespace LundBot.Tests.Unit.Controllers;
 public sealed class CommandControllerTests
 {
     [Fact]
-    public async Task SyncCommands_WhenCalled_ReturnsOk()
+    internal async Task SyncCommands_WhenCalled_ReturnsOk()
     {
         // Arrange
         var commandsService = new Mock<ICommandsService>();
@@ -28,7 +28,7 @@ public sealed class CommandControllerTests
     }
 
     [Fact]
-    public async Task UnregisterAllCommands_WhenServiceFails_ReturnsInternalServerError()
+    internal async Task UnregisterAllCommands_WhenServiceFails_ReturnsInternalServerError()
     {
         // Arrange
         var commandsService = new Mock<ICommandsService>();

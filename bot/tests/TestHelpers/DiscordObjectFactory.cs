@@ -6,14 +6,14 @@ namespace LundBot.Tests.TestHelpers;
 
 internal static class DiscordObjectFactory
 {
-    public static DiscordChannel CreateChannel(ulong id)
+    internal static DiscordChannel CreateChannel(ulong id)
     {
         DiscordChannel channel = CreateUninitialized<DiscordChannel>();
         SetMemberValue(channel, "Id", id);
         return channel;
     }
 
-    public static DiscordUser CreateUser(ulong id, string username)
+    internal static DiscordUser CreateUser(ulong id, string username)
     {
         DiscordUser user = CreateUninitialized<DiscordUser>();
         SetMemberValue(user, "Id", id);
@@ -21,14 +21,14 @@ internal static class DiscordObjectFactory
         return user;
     }
 
-    public static DiscordGuild CreateUninitializedGuild(ulong id)
+    internal static DiscordGuild CreateUninitializedGuild(ulong id)
     {
         DiscordGuild guild = CreateUninitialized<DiscordGuild>();
         SetMemberValue(guild, "Id", id);
         return guild;
     }
 
-    public static DiscordMessage CreateMessage(ulong id, DiscordChannel channel)
+    internal static DiscordMessage CreateMessage(ulong id, DiscordChannel channel)
     {
         DiscordMessage message = CreateUninitialized<DiscordMessage>();
         SetMemberValue(message, "Id", id);
@@ -58,7 +58,10 @@ internal static class DiscordObjectFactory
                 $"<{memberName}>k__BackingField",
                 BindingFlags.Instance | BindingFlags.NonPublic
             )
-            ?? type.GetField(memberName, BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
+            ?? type.GetField(
+                memberName,
+                BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic
+            );
 
         if (backingField is null)
         {

@@ -7,7 +7,7 @@ namespace LundBot.Tests.Unit.Commands;
 public sealed class PingCommandTests
 {
     [Fact]
-    public async Task PingAsync_WhenCalled_SendsPongResponse()
+    internal async Task PingAsync_WhenCalled_SendsPongResponse()
     {
         // Arrange
         var interactionService = new MockDiscordInteractionService();

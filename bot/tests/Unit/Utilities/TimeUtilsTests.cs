@@ -5,7 +5,7 @@ namespace LundBot.Tests.Unit.Utilities;
 public sealed class TimeUtilsTests
 {
     [Fact]
-    public void GetCurrentUtcWeekBounds_WhenGivenDate_ReturnsMondayAndNextMonday()
+    internal void GetCurrentUtcWeekBounds_WhenGivenDate_ReturnsMondayAndNextMonday()
     {
         // Arrange
         DateTime reference = new(2026, 8, 19, 12, 0, 0, DateTimeKind.Utc);

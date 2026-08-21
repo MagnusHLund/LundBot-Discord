@@ -9,7 +9,7 @@ namespace LundBot.Tests.Unit.Commands;
 public sealed class RemoveLeaderboardCommandTests
 {
     [Fact]
-    public async Task RemoveLeaderboardAsync_WhenConfirmFalse_SendsWarningAndSkipsServiceCall()
+    internal async Task RemoveLeaderboardAsync_WhenConfirmFalse_SendsWarningAndSkipsServiceCall()
     {
         // Arrange
         var interactionService = new MockDiscordInteractionService();
@@ -33,7 +33,7 @@ public sealed class RemoveLeaderboardCommandTests
     }
 
     [Fact]
-    public async Task RemoveLeaderboardAsync_WhenConfirmTrue_InvokesService()
+    internal async Task RemoveLeaderboardAsync_WhenConfirmTrue_InvokesService()
     {
         // Arrange
         var interactionService = new MockDiscordInteractionService();
