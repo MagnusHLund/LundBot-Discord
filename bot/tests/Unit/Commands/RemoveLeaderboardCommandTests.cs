@@ -31,4 +31,25 @@ public sealed class RemoveLeaderboardCommandTests
             Times.Never
         );
     }
+
+    [Fact]
+    public async Task RemoveLeaderboardAsync_WhenConfirmTrue_InvokesService()
+    {
+        // Arrange
+        var interactionService = new MockDiscordInteractionService();
+        var leaderboardService = new Mock<ILeaderboardService>();
+        var command = new RemoveLeaderboardCommand(leaderboardService.Object, interactionService);
+        var channel = DiscordTestHelper.TestChannel(3334);
+
+        // Act
+        await command.RemoveLeaderboardAsync(null!, channel, confirm: true);
+
+        // Assert
+        leaderboardService.Verify(s => s.RemoveLeaderboardAsync(channel), Times.Once);
+        Assert.Single(interactionService.Responses);
+        Assert.Equal(
+            "Leaderboard removed successfully from <#3334>.",
+            interactionService.Responses[0].Content
+        );
+    }
 }
