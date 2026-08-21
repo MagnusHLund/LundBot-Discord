@@ -1,5 +1,6 @@
 using DSharpPlus.Entities;
 using LundBot.Interfaces.Services.Discord;
+using LundBot.Tests.TestHelpers;
 
 namespace LundBot.Tests.Mocks.Services.Discord
 {
@@ -21,11 +22,7 @@ namespace LundBot.Tests.Mocks.Services.Discord
 
         public Task<DiscordMessage> SendMessageAsync(DiscordChannel channel, string content)
         {
-            DiscordMessage msg = new DiscordMessage
-            {
-                Id = (ulong)(Sent.Count + 1),
-                Channel = channel,
-            };
+            DiscordMessage msg = DiscordTestHelper.TestMessage((ulong)(Sent.Count + 1), channel);
             Sent.Add((channel, content));
             return Task.FromResult(msg);
         }

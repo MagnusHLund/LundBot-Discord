@@ -1,13 +1,12 @@
 using DSharpPlus.Entities;
 using LundBot.Interfaces.Services.Discord;
-using LundBot.Tests.Fakes.Discord;
+using LundBot.Tests.TestHelpers;
 
 namespace LundBot.Tests.Mocks.Discord;
 
 public sealed class MockDiscordChannelService : IDiscordChannelService
 {
-    public FakeDiscordChannel Channel { get; set; } =
-        new FakeDiscordChannel { Id = 123456789012345678 };
+    public DiscordChannel Channel { get; set; } = DiscordTestHelper.TestChannel(123456789012345678);
 
-    public Task<FakeDiscordChannel> GetChannelAsync(ulong channelId) => Task.FromResult(Channel);
+    public Task<DiscordChannel> GetChannelAsync(ulong channelId) => Task.FromResult(Channel);
 }
