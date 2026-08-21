@@ -5,11 +5,13 @@ using LundBot.Enums;
 using LundBot.Exceptions;
 using LundBot.Factories.MessageEntityFactories;
 using LundBot.Helpers;
+using LundBot.Interfaces.Queues;
 using LundBot.Interfaces.Repositories;
 using LundBot.Interfaces.Services;
 using LundBot.Interfaces.Services.Discord;
 using LundBot.Repositories;
 using LundBot.Utils;
+using LundBot.ValueObjects.Jobs;
 
 namespace LundBot.Services
 {
@@ -30,6 +32,7 @@ namespace LundBot.Services
             LeaderboardMessagesRepository,
             LeaderboardMessageFactory
         > _messageService;
+        private readonly ILeaderboardQueue _leaderboardQueue;
         private readonly Serilog.ILogger _logger = Serilog.Log.ForContext<LeaderboardService>();
 
         public LeaderboardService(
@@ -45,7 +48,8 @@ namespace LundBot.Services
                 LeaderboardMessagesEntity,
                 LeaderboardMessagesRepository,
                 LeaderboardMessageFactory
-            > messageService
+            > messageService,
+            ILeaderboardQueue leaderboardQueue
         )
         {
             _userService = userService;
@@ -57,6 +61,7 @@ namespace LundBot.Services
             _discordMemberService = discordMemberService;
             _messageService = messageService;
             _cacheService = cacheService;
+            _leaderboardQueue = leaderboardQueue;
         }
 
         public async Task CreateLeaderboardAsync(
@@ -357,6 +362,33 @@ namespace LundBot.Services
             return await _leaderboardsRepository.GetLeaderboardsForGuildAsync(guildId);
         }
 
+        public async Task UpdateLeaderboardMessageAsync(
+            LeaderboardsEntity leaderboard,
+            DiscordChannel channel
+        )
+        {
+            var topUpvoteScores = await _leaderboardScoreRepository.GetTopScoresAsync(
+                leaderboard.Id,
+                TOP_UPVOTE_SCORES_LIMIT
+            );
+
+            string leaderboardMessage = await GenerateLeaderboardMessageAsync(
+                topUpvoteScores,
+                leaderboard.Title,
+                leaderboard.Message,
+                channel.Guild
+            );
+
+            var existingMessages =
+                await _leaderboardsMessageRepository.GetMessagesForLeaderboardAsync(leaderboard.Id);
+
+            await _messageService.SynchronizeDiscordMessagesAsync(
+                leaderboardMessage,
+                existingMessages,
+                channel.Id
+            );
+        }
+
         private async Task<LeaderboardsEntity> GetLeaderboardAsync(DiscordChannel channel)
         {
             (bool doesLeaderboardExist, LeaderboardsEntity? leaderboard) =
@@ -398,25 +430,8 @@ namespace LundBot.Services
 
             await _leaderboardScoreRepository.IncrementScoreAsync(targetUserId, leaderboard.Id);
 
-            var topUpvoteScores = await _leaderboardScoreRepository.GetTopScoresAsync(
-                leaderboard.Id,
-                TOP_UPVOTE_SCORES_LIMIT
-            );
-
-            string leaderboardMessage = await GenerateLeaderboardMessageAsync(
-                topUpvoteScores,
-                leaderboard.Title,
-                leaderboard.Message,
-                channel.Guild
-            );
-
-            var existingMessages =
-                await _leaderboardsMessageRepository.GetMessagesForLeaderboardAsync(leaderboard.Id);
-
-            await _messageService.SynchronizeDiscordMessagesAsync(
-                leaderboardMessage,
-                existingMessages,
-                channel.Id
+            _leaderboardQueue.Enqueue(
+                new LeaderboardUpdateJob { Leaderboard = leaderboard, Channel = channel }
             );
         }
     }

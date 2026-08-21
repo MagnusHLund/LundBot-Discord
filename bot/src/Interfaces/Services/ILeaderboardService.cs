@@ -25,5 +25,6 @@ namespace LundBot.Interfaces.Services
         );
         Task RefreshLeaderboardAsync(ulong channelId, ulong guildId);
         ValueTask<List<LeaderboardsEntity>> GetLeaderboardsForGuildAsync(string guildId);
+        Task UpdateLeaderboardMessageAsync(LeaderboardsEntity leaderboard, DiscordChannel channel);
     }
 }
