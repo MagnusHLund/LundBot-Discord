@@ -3,6 +3,9 @@ name: CI
 on:
   pull_request:
     branches: [main]
+    paths:
+      - 'bot/**'
+      - '!**/*.md'
 
 jobs:
   build-and-test:
@@ -15,16 +18,28 @@ jobs:
       - name: Setup .NET
         uses: actions/setup-dotnet@v4
         with:
-          dotnet-version: '10.0.x'
+          dotnet-version: '10.0.110'
+
+      - name: Cache NuGet packages
+        uses: actions/cache@v4
+        with:
+          path: ~/.nuget/packages
+          key: ${{ runner.os }}-nuget-${{ hashFiles('**/*.csproj') }}
+          restore-keys: |
+            ${{ runner.os }}-nuget-
 
       - name: Restore dependencies
-        run: dotnet restore
+        run: dotnet restore ./bot
 
-      - name: Build main project
-        run: dotnet build ./bot/src/LundBot.csproj --configuration Release --no-restore
-
-      - name: Build test project
-        run: dotnet build ./bot/tests/LundBot.Tests.csproj --configuration Release --no-restore
+      - name: Build solution
+        run: dotnet build ./bot --configuration Release --no-restore
 
       - name: Run tests
-        run: dotnet test ./bot/tests/LundBot.Tests.csproj --configuration Release --no-build --logger "trx"
+        run: dotnet test ./bot/tests/LundBot.Tests.csproj --configuration Release --logger "trx" --results-directory ./TestResults
+
+      - name: Upload test results
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: test-results
+          path: ./TestResults
