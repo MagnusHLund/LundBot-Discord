@@ -7,107 +7,110 @@ using LundBot.Tests.Mocks.Services.Discord;
 using LundBot.Tests.TestHelpers;
 using Xunit;
 
-public sealed class MessageServiceTests
+namespace LundBot.Tests.Unit.Services
 {
-    private MessageService<
-        LeaderboardMessagesEntity,
-        MockMessageRepository<LeaderboardMessagesEntity>,
-        MockMessageFactory<LeaderboardMessagesEntity>
-    > CreateService(
-        MockDiscordMessageService discordMessageService,
-        MockDiscordChannelService discordChannelService,
-        MockMessageRepository<LeaderboardMessagesEntity> repo
-    )
+    public sealed class MessageServiceTests
     {
-        return new MessageService<
+        private MessageService<
             LeaderboardMessagesEntity,
             MockMessageRepository<LeaderboardMessagesEntity>,
             MockMessageFactory<LeaderboardMessagesEntity>
-        >(
-            repo,
-            new MockMessageFactory<LeaderboardMessagesEntity>(),
-            discordChannelService,
-            discordMessageService
-        );
-    }
-
-    [Fact]
-    public async Task SynchronizeDiscordMessagesAsync_UpdatesExistingMessages()
-    {
-        var repo = new MockMessageRepository<LeaderboardMessagesEntity>();
-        var discord = new MockDiscordMessageService();
-        var channelService = new MockDiscordChannelService();
-
-        discord.GetMessageBehavior = id =>
-            DiscordTestHelper.TestMessage(id, channelService.Channel);
-
-        var existing = new List<LeaderboardMessagesEntity>
+        > CreateService(
+            MockDiscordMessageService discordMessageService,
+            MockDiscordChannelService discordChannelService,
+            MockMessageRepository<LeaderboardMessagesEntity> repo
+        )
         {
-            new() { Id = 1, DiscordMessageId = "10" },
-        };
+            return new MessageService<
+                LeaderboardMessagesEntity,
+                MockMessageRepository<LeaderboardMessagesEntity>,
+                MockMessageFactory<LeaderboardMessagesEntity>
+            >(
+                repo,
+                new MockMessageFactory<LeaderboardMessagesEntity>(),
+                discordChannelService,
+                discordMessageService
+            );
+        }
 
-        var service = CreateService(discord, channelService, repo);
-
-        await service.SynchronizeDiscordMessagesAsync(
-            "Updated text",
-            existing,
-            channelService.Channel.Id
-        );
-
-        Assert.Single(discord.Modified);
-        Assert.Equal("Updated text", discord.Modified[0].NewContent);
-    }
-
-    [Fact]
-    public async Task SynchronizeDiscordMessagesAsync_CreatesNewMessages()
-    {
-        var repo = new MockMessageRepository<LeaderboardMessagesEntity>();
-        var discord = new MockDiscordMessageService();
-        var channelService = new MockDiscordChannelService();
-
-        discord.GetMessageBehavior = id =>
-            DiscordTestHelper.TestMessage(id, channelService.Channel);
-
-        var existing = new List<LeaderboardMessagesEntity>(); // empty
-
-        var service = CreateService(discord, channelService, repo);
-
-        await service.SynchronizeDiscordMessagesAsync(
-            "Hello world",
-            existing,
-            channelService.Channel.Id
-        );
-
-        Assert.Single(discord.Sent);
-        Assert.Single(repo.Created);
-    }
-
-    [Fact]
-    public async Task SynchronizeDiscordMessagesAsync_DeletesExtraMessages()
-    {
-        var repo = new MockMessageRepository<LeaderboardMessagesEntity>();
-        var discord = new MockDiscordMessageService();
-        var channelService = new MockDiscordChannelService();
-
-        discord.GetMessageBehavior = id =>
-            DiscordTestHelper.TestMessage(id, channelService.Channel);
-
-        var existing = new List<LeaderboardMessagesEntity>
+        [Fact]
+        public async Task SynchronizeDiscordMessagesAsync_UpdatesExistingMessages()
         {
-            new() { Id = 1, DiscordMessageId = "10" },
-            new() { Id = 2, DiscordMessageId = "11" },
-        };
+            var repo = new MockMessageRepository<LeaderboardMessagesEntity>();
+            var discord = new MockDiscordMessageService();
+            var channelService = new MockDiscordChannelService();
 
-        var service = CreateService(discord, channelService, repo);
+            discord.GetMessageBehavior = id =>
+                DiscordTestHelper.TestMessage(id, channelService.Channel);
 
-        await service.SynchronizeDiscordMessagesAsync(
-            "Only one chunk",
-            existing,
-            channelService.Channel.Id
-        );
+            var existing = new List<LeaderboardMessagesEntity>
+            {
+                new() { Id = 1, DiscordMessageId = "10" },
+            };
 
-        Assert.Single(discord.Deleted);
-        Assert.Single(repo.Deleted);
-        Assert.Equal(2, repo.Deleted[0]);
+            var service = CreateService(discord, channelService, repo);
+
+            await service.SynchronizeDiscordMessagesAsync(
+                "Updated text",
+                existing,
+                channelService.Channel.Id
+            );
+
+            Assert.Single(discord.Modified);
+            Assert.Equal("Updated text", discord.Modified[0].NewContent);
+        }
+
+        [Fact]
+        public async Task SynchronizeDiscordMessagesAsync_CreatesNewMessages()
+        {
+            var repo = new MockMessageRepository<LeaderboardMessagesEntity>();
+            var discord = new MockDiscordMessageService();
+            var channelService = new MockDiscordChannelService();
+
+            discord.GetMessageBehavior = id =>
+                DiscordTestHelper.TestMessage(id, channelService.Channel);
+
+            var existing = new List<LeaderboardMessagesEntity>(); // empty
+
+            var service = CreateService(discord, channelService, repo);
+
+            await service.SynchronizeDiscordMessagesAsync(
+                "Hello world",
+                existing,
+                channelService.Channel.Id
+            );
+
+            Assert.Single(discord.Sent);
+            Assert.Single(repo.Created);
+        }
+
+        [Fact]
+        public async Task SynchronizeDiscordMessagesAsync_DeletesExtraMessages()
+        {
+            var repo = new MockMessageRepository<LeaderboardMessagesEntity>();
+            var discord = new MockDiscordMessageService();
+            var channelService = new MockDiscordChannelService();
+
+            discord.GetMessageBehavior = id =>
+                DiscordTestHelper.TestMessage(id, channelService.Channel);
+
+            var existing = new List<LeaderboardMessagesEntity>
+            {
+                new() { Id = 1, DiscordMessageId = "10" },
+                new() { Id = 2, DiscordMessageId = "11" },
+            };
+
+            var service = CreateService(discord, channelService, repo);
+
+            await service.SynchronizeDiscordMessagesAsync(
+                "Only one chunk",
+                existing,
+                channelService.Channel.Id
+            );
+
+            Assert.Single(discord.Deleted);
+            Assert.Single(repo.Deleted);
+            Assert.Equal(2, repo.Deleted[0]);
+        }
     }
 }
