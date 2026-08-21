@@ -4,6 +4,8 @@ using Serilog;
 
 namespace LundBot.BackgroundServices
 {
+    // TODO: Does this not need a scope provider?
+
     public sealed class UpdateLeaderboardBackgroundService : BackgroundService
     {
         private readonly ILeaderboardQueue leaderboardQueue;

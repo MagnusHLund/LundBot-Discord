@@ -77,6 +77,17 @@ namespace LundBot.Services
             await _messageRepository.DeleteManyAsync(existing.Select(x => x.Id));
         }
 
+        public async Task DeleteMessageByIdAsync(TEntity message, DiscordChannel channel)
+        {
+            var discordMessage = await _discordMessageService.GetMessageAsync(
+                channel,
+                ulong.Parse(message.DiscordMessageId)
+            );
+
+            await _discordMessageService.DeleteMessageAsync(discordMessage);
+            await _messageRepository.DeleteManyAsync(new List<int> { message.Id });
+        }
+
         private async Task UpdateMessagesAsync(
             int sharedLength,
             List<TEntity> existing,

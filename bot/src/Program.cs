@@ -106,6 +106,18 @@ namespace LundBot
                     WebsiteTrafficMessageFactory
                 >
             >();
+            services.AddScoped<
+                IMessageService<
+                    WelcomeMessageEntity,
+                    WelcomeMessagesRepository,
+                    WelcomeMessageFactory
+                >,
+                MessageService<
+                    WelcomeMessageEntity,
+                    WelcomeMessagesRepository,
+                    WelcomeMessageFactory
+                >
+            >();
         }
 
         private static void RegisterRepositories(IServiceCollection services)

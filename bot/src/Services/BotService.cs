@@ -4,9 +4,12 @@ using DSharpPlus.EventArgs;
 using DSharpPlus.SlashCommands;
 using DSharpPlus.SlashCommands.EventArgs;
 using LundBot.Config;
+using LundBot.Entities;
+using LundBot.Factories.MessageEntityFactories;
 using LundBot.Helpers;
 using LundBot.Interfaces.Services;
 using LundBot.Interfaces.Services.Discord;
+using LundBot.Repositories;
 using LundBot.Utils;
 using Microsoft.Extensions.Options;
 using Serilog;
@@ -26,6 +29,7 @@ namespace LundBot.Services
         private readonly IDiscordGuildService _discordGuildService;
         private readonly IDiscordMemberService _discordMemberService;
         private readonly IModerationActionsService _moderationActionsService;
+        private readonly IWelcomeMessageService _welcomeMessageService;
         private readonly DiscordConfig _discordConfig;
         private readonly ServerConfig _serverConfig;
 
@@ -39,7 +43,8 @@ namespace LundBot.Services
             IDiscordInteractionService discordInteractionService,
             IDiscordGuildService discordGuildService,
             IDiscordMemberService discordMemberService,
-            IModerationActionsService moderationActionsService
+            IModerationActionsService moderationActionsService,
+            IWelcomeMessageService welcomeMessageService
         )
         {
             _discordConfig = discordConfig.Value;
@@ -48,6 +53,7 @@ namespace LundBot.Services
             _commandsService = commandsService;
             _cacheService = cacheService;
             _moderationActionsService = moderationActionsService;
+            _welcomeMessageService = welcomeMessageService;
             _discordBotService = discordBotService;
             _discordInteractionService = discordInteractionService;
             _discordMemberService = discordMemberService;
@@ -221,6 +227,7 @@ namespace LundBot.Services
 
         private async Task OnGuildMemberAdded(DiscordClient sender, GuildMemberAddEventArgs e)
         {
+            await _welcomeMessageService.SendWelcomeMessageAsync(e.Guild, e.Member);
             await RegisterWhoInvitedJoinedUser(e.Guild, e.Member);
         }
 
