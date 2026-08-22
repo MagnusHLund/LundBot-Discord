@@ -10,16 +10,16 @@ namespace LundBot.Services.Discord
 {
     public sealed class DiscordInteractionService : IDiscordInteractionService
     {
+        private readonly Microsoft.Extensions.DependencyInjection.IServiceScopeFactory _scopeFactory;
         private readonly IDiscordMessageService _discordMessageService;
-        private readonly IWelcomeMessageService _welcomeMessageService;
         private readonly Serilog.ILogger _logger = Log.ForContext<DiscordInteractionService>();
 
         public DiscordInteractionService(
-            IWelcomeMessageService welcomeMessageService,
+            Microsoft.Extensions.DependencyInjection.IServiceScopeFactory scopeFactory,
             IDiscordMessageService discordMessageService
         )
         {
-            _welcomeMessageService = welcomeMessageService;
+            _scopeFactory = scopeFactory;
             _discordMessageService = discordMessageService;
         }
 
