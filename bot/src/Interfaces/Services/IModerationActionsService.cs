@@ -4,8 +4,8 @@ namespace LundBot.Interfaces.Services
 {
     public interface IModerationActionsService
     {
-        Task KickUserAsync(DiscordGuild guild, DiscordMember user, string reason);
-        Task KickUserDueToRoleAssignmentAsync(
+        Task<bool> KickUserAsync(DiscordGuild guild, DiscordMember user, string reason);
+        Task<bool> KickUserDueToRoleAssignmentAsync(
             DiscordGuild guild,
             DiscordMember user,
             DiscordRole? roleToKick,

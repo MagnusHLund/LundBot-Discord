@@ -1,3 +1,5 @@
+using DSharpPlus.Entities;
+using DSharpPlus.EventArgs;
 using DSharpPlus.SlashCommands;
 using LundBot.Interfaces.Services.Discord;
 
@@ -20,4 +22,23 @@ internal sealed class MockDiscordInteractionService : IDiscordInteractionService
         Responses.Add((content, showOnlyToUser));
         return Task.CompletedTask;
     }
+
+    public Task SendResponseAsync(
+        DiscordInteraction interaction,
+        string content,
+        bool showOnlyToUser = true
+    )
+    {
+        Responses.Add((content, showOnlyToUser));
+        return Task.CompletedTask;
+    }
+
+    public Task SendResponseAsync(
+        DiscordInteraction interaction,
+        DiscordInteractionResponseBuilder responseBuilder,
+        bool showOnlyToUser = true
+    ) => Task.CompletedTask;
+
+    public Task HandleComponentInteractionAsync(ComponentInteractionCreateEventArgs e) =>
+        Task.CompletedTask;
 }

@@ -1,3 +1,5 @@
+using DSharpPlus;
+using DSharpPlus.Entities;
 using LundBot.Entities;
 using LundBot.Tests.Mocks.Repositories;
 using LundBot.Tests.Mocks.Services.Discord;
@@ -11,6 +13,7 @@ public sealed class MessageServiceTests
     [Fact]
     internal async Task SynchronizeDiscordMessagesAsync_UpdatesExistingMessages()
     {
+        // Arrange
         var repo = new MockMessageRepository<LeaderboardMessagesEntity>();
         var discord = new MockDiscordMessageService();
         var channelService = new MockDiscordChannelService();
@@ -25,12 +28,14 @@ public sealed class MessageServiceTests
 
         var service = MessageServiceTestFactory.Create(discord, channelService, repo);
 
+        // Act
         await service.SynchronizeDiscordMessagesAsync(
             "Updated text",
             existing,
             channelService.Channel.Id
         );
 
+        // Assert
         Assert.Single(discord.Modified);
         Assert.Equal("Updated text", discord.Modified[0].NewContent);
     }
@@ -38,6 +43,7 @@ public sealed class MessageServiceTests
     [Fact]
     internal async Task SynchronizeDiscordMessagesAsync_CreatesNewMessages()
     {
+        // Arrange
         var repo = new MockMessageRepository<LeaderboardMessagesEntity>();
         var discord = new MockDiscordMessageService();
         var channelService = new MockDiscordChannelService();
@@ -49,12 +55,14 @@ public sealed class MessageServiceTests
 
         var service = MessageServiceTestFactory.Create(discord, channelService, repo);
 
+        // Act
         await service.SynchronizeDiscordMessagesAsync(
             "Hello world",
             existing,
             channelService.Channel.Id
         );
 
+        // Assert
         Assert.Single(discord.Sent);
         Assert.Single(repo.Created);
     }
@@ -62,6 +70,7 @@ public sealed class MessageServiceTests
     [Fact]
     internal async Task SynchronizeDiscordMessagesAsync_DeletesExtraMessages()
     {
+        // Arrange
         var repo = new MockMessageRepository<LeaderboardMessagesEntity>();
         var discord = new MockDiscordMessageService();
         var channelService = new MockDiscordChannelService();
@@ -77,14 +86,66 @@ public sealed class MessageServiceTests
 
         var service = MessageServiceTestFactory.Create(discord, channelService, repo);
 
+        // Act
         await service.SynchronizeDiscordMessagesAsync(
             "Only one chunk",
             existing,
             channelService.Channel.Id
         );
 
+        // Assert
         Assert.Single(discord.Deleted);
         Assert.Single(repo.Deleted);
         Assert.Equal(2, repo.Deleted[0]);
+    }
+
+    [Fact]
+    internal async Task DeleteMessageByIdAsync_FetchesMessageFromDiscordAndDeletesFromDiscordAndRepository()
+    {
+        // Arrange
+        var repo = new MockMessageRepository<LeaderboardMessagesEntity>();
+        var discord = new MockDiscordMessageService();
+        var channelService = new MockDiscordChannelService();
+
+        var entity = new LeaderboardMessagesEntity { Id = 5, DiscordMessageId = "999" };
+        var expectedMessage = DiscordTestHelper.TestMessage(999, channelService.Channel);
+        discord.GetMessageBehavior = _ => expectedMessage;
+
+        var service = MessageServiceTestFactory.Create(discord, channelService, repo);
+
+        // Act
+        await service.DeleteMessageByIdAsync(entity, channelService.Channel);
+
+        // Assert
+        Assert.Single(discord.Deleted);
+        Assert.Contains(5, repo.Deleted);
+    }
+
+    [Fact]
+    internal async Task CreateMessageWithComponentsAsync_SendsWithComponentsAndCreatesEntityInRepository()
+    {
+        // Arrange
+        var repo = new MockMessageRepository<LeaderboardMessagesEntity>();
+        var discord = new MockDiscordMessageService();
+        var channelService = new MockDiscordChannelService();
+
+        var components = new List<DiscordComponent>
+        {
+            new DiscordButtonComponent(ButtonStyle.Primary, "test_id", "Test"),
+        };
+
+        var service = MessageServiceTestFactory.Create(discord, channelService, repo);
+
+        // Act
+        await service.CreateMessageWithComponentsAsync(
+            "Hello!",
+            channelService.Channel,
+            components
+        );
+
+        // Assert
+        Assert.Single(discord.SentWithComponents);
+        Assert.Equal("Hello!", discord.SentWithComponents[0].Content);
+        Assert.Single(repo.Created);
     }
 }

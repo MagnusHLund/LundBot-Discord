@@ -22,5 +22,13 @@ namespace LundBot.Interfaces.Services
             IEnumerable<TEntity> existingMessages,
             DiscordChannel channel
         );
+
+        Task DeleteMessageByIdAsync(TEntity message, DiscordChannel channel);
+
+        Task CreateMessageWithComponentsAsync(
+            string content,
+            DiscordChannel channel,
+            List<DiscordComponent> components
+        );
     }
 }

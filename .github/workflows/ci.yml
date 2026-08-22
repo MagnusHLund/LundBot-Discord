@@ -34,6 +34,22 @@ jobs:
       - name: Build solution
         run: dotnet build ./bot/src --configuration Release --no-restore
 
+      - name: Set dummy Discord token
+        run: echo "Discord__Token=dummy" >> $GITHUB_ENV
+
+      - name: Runtime DI validation
+        run: |
+          echo "Starting runtime validation..."
+          dotnet run --project ./bot/src/LundBot.csproj --no-build --configuration Release &
+          BOT_PID=$!
+          sleep 10
+          if ! kill -0 $BOT_PID 2>/dev/null; then
+            echo "❌ Runtime failed (DI error or crash detected)"
+            exit 1
+          fi
+          kill $BOT_PID || true
+          echo "✅ Runtime validation passed"
+
       - name: Run tests
         run: dotnet test ./bot/tests/LundBot.Tests.csproj --configuration Release --logger "trx" --results-directory ./bot/tests/TestResults
 

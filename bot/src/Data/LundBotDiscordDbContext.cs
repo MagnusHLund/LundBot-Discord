@@ -12,6 +12,7 @@ namespace LundBot.Data
         public DbSet<LeaderboardMessagesEntity> LeaderboardMessages { get; set; } = null!;
         public DbSet<WebsiteTrafficEntity> WebsiteTraffic { get; set; } = null!;
         public DbSet<WebsiteTrafficMessagesEntity> WebsiteTrafficMessages { get; set; } = null!;
+        public DbSet<WelcomeMessageEntity> WelcomeMessages { get; set; } = null!;
 
         public LundBotDiscordDbContext() { }
 
@@ -36,6 +37,7 @@ namespace LundBot.Data
                 modelBuilder.Entity<WebsiteTrafficMessagesEntity>(),
                 isMySql
             );
+            ConfigureWelcomeMessages(modelBuilder.Entity<WelcomeMessageEntity>(), isMySql);
         }
 
         private static void ConfigureLeaderboards(
@@ -359,6 +361,45 @@ namespace LundBot.Data
                 .HasIndex(e => e.DiscordMessageId)
                 .IsUnique()
                 .HasDatabaseName("WebsiteTrafficMessages_index_1");
+        }
+
+        private static void ConfigureWelcomeMessages(
+            EntityTypeBuilder<WelcomeMessageEntity> entity,
+            bool isMySql
+        )
+        {
+            entity.ToTable("WelcomeMessages");
+
+            entity.HasKey(e => e.Id);
+            ConfigureMySqlColumnType(
+                entity.Property(e => e.Id).HasColumnName("WelcomeMessagesId").ValueGeneratedOnAdd(),
+                isMySql,
+                "int unsigned"
+            );
+
+            ConfigureMySqlColumnType(
+                entity.Property(e => e.DiscordMessageId).IsRequired(),
+                isMySql,
+                "char(19)"
+            );
+            ConfigureMySqlColumnType(
+                entity.Property(e => e.DiscordUserId).IsRequired(),
+                isMySql,
+                "char(19)"
+            );
+
+            ConfigureMySqlColumnType(
+                entity
+                    .Property(e => e.CreatedAt)
+                    .HasDefaultValueSql(GetCreatedAtDefaultSql(isMySql)),
+                isMySql,
+                "datetime(3)"
+            );
+
+            entity
+                .HasIndex(e => e.DiscordUserId)
+                .IsUnique()
+                .HasDatabaseName("WelcomeMessages_index_1");
         }
 
         private static string GetCreatedAtDefaultSql(bool isMySql) =>

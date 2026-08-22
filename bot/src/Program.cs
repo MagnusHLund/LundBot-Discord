@@ -77,8 +77,10 @@ namespace LundBot
             services.AddSingleton<IDiscordMemberService, DiscordMemberService>();
             services.AddSingleton<IDiscordMessageService, DiscordMessageService>();
             services.AddSingleton<IDiscordUserService, DiscordUserService>();
+            services.AddSingleton<IDiscordStickerService, DiscordStickerService>();
 
             // Base scoped services
+            services.AddScoped<IWelcomeMessageService, WelcomeMessageService>();
             services.AddScoped<ILeaderboardService, LeaderboardService>();
             services.AddScoped<IWebsiteTrafficService, WebsiteTrafficService>();
 
@@ -106,12 +108,25 @@ namespace LundBot
                     WebsiteTrafficMessageFactory
                 >
             >();
+            services.AddScoped<
+                IMessageService<
+                    WelcomeMessageEntity,
+                    WelcomeMessagesRepository,
+                    WelcomeMessageFactory
+                >,
+                MessageService<
+                    WelcomeMessageEntity,
+                    WelcomeMessagesRepository,
+                    WelcomeMessageFactory
+                >
+            >();
         }
 
         private static void RegisterRepositories(IServiceCollection services)
         {
             services.AddScoped<LeaderboardMessagesRepository>();
             services.AddScoped<WebsiteTrafficMessagesRepository>();
+            services.AddScoped<WelcomeMessagesRepository>();
 
             services.AddScoped<IWebsiteTrafficRepository, WebsiteTrafficRepository>();
             services.AddScoped<ILeaderboardsRepository, LeaderboardsRepository>();
@@ -125,12 +140,14 @@ namespace LundBot
                 IWebsiteTrafficMessagesRepository,
                 WebsiteTrafficMessagesRepository
             >();
+            services.AddScoped<IWelcomeMessagesRepository, WelcomeMessagesRepository>();
         }
 
         private static void RegisterFactories(IServiceCollection services)
         {
             services.AddScoped<LeaderboardMessageFactory>();
             services.AddScoped<WebsiteTrafficMessageFactory>();
+            services.AddScoped<WelcomeMessageFactory>();
 
             services.AddScoped<
                 IMessageEntityFactory<LeaderboardMessagesEntity>,
@@ -139,6 +156,10 @@ namespace LundBot
             services.AddScoped<
                 IMessageEntityFactory<WebsiteTrafficMessagesEntity>,
                 WebsiteTrafficMessageFactory
+            >();
+            services.AddScoped<
+                IMessageEntityFactory<WelcomeMessageEntity>,
+                WelcomeMessageFactory
             >();
         }
 

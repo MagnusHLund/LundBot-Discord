@@ -77,6 +77,35 @@ namespace LundBot.Services
             await _messageRepository.DeleteManyAsync(existing.Select(x => x.Id));
         }
 
+        public async Task DeleteMessageByIdAsync(TEntity message, DiscordChannel channel)
+        {
+            var discordMessage = await _discordMessageService.GetMessageAsync(
+                channel,
+                ulong.Parse(message.DiscordMessageId)
+            );
+
+            await _discordMessageService.DeleteMessageAsync(discordMessage);
+            await _messageRepository.DeleteManyAsync(new List<int> { message.Id });
+        }
+
+        public async Task CreateMessageWithComponentsAsync(
+            string content,
+            DiscordChannel channel,
+            List<DiscordComponent> components
+        )
+        {
+            DiscordMessage discordMessage =
+                await _discordMessageService.SendMessageWithComponentsAsync(
+                    channel,
+                    content,
+                    components
+                );
+
+            await _messageRepository.CreateAsync(
+                _messageFactory.Create(discordMessage.Id.ToString())
+            );
+        }
+
         private async Task UpdateMessagesAsync(
             int sharedLength,
             List<TEntity> existing,
@@ -106,9 +135,11 @@ namespace LundBot.Services
                         channel.Id
                     );
 
+                    var messageBuilder = new DiscordMessageBuilder().WithContent(newContent);
+
                     DiscordMessage replacement = await _discordMessageService.SendMessageAsync(
                         channel,
-                        newContent
+                        messageBuilder
                     );
 
                     existingMessage.DiscordMessageId = replacement.Id.ToString();
@@ -128,9 +159,11 @@ namespace LundBot.Services
             {
                 for (int i = existing.Count; i < chunks.Count; i++)
                 {
+                    var messageBuilder = new DiscordMessageBuilder().WithContent(chunks[i]);
+
                     DiscordMessage newMessage = await _discordMessageService.SendMessageAsync(
                         channel,
-                        chunks[i]
+                        messageBuilder
                     );
 
                     await _messageRepository.CreateAsync(

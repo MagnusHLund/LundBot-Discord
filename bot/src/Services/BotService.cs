@@ -4,9 +4,12 @@ using DSharpPlus.EventArgs;
 using DSharpPlus.SlashCommands;
 using DSharpPlus.SlashCommands.EventArgs;
 using LundBot.Config;
+using LundBot.Entities;
+using LundBot.Factories.MessageEntityFactories;
 using LundBot.Helpers;
 using LundBot.Interfaces.Services;
 using LundBot.Interfaces.Services.Discord;
+using LundBot.Repositories;
 using LundBot.Utils;
 using Microsoft.Extensions.Options;
 using Serilog;
@@ -66,6 +69,7 @@ namespace LundBot.Services
 
             discordClient.GuildDownloadCompleted += OnGuildDownloadCompleted;
             discordClient.GuildMemberUpdated += OnGuildMemberUpdated;
+            discordClient.ComponentInteractionCreated += OnComponentInteractionCreated;
             discordClient.GuildMemberAdded += OnGuildMemberAdded;
             discordClient.GuildCreated += OnGuildCreated;
             discordClient.Ready += OnClientReady;
@@ -84,6 +88,34 @@ namespace LundBot.Services
             await _commandsService.LogRegisteredCommandsForGuildsAsync();
 
             _logger.Information("Bot initialization is complete!");
+        }
+
+        public async Task OnComponentInteractionCreated(
+            DiscordClient sender,
+            ComponentInteractionCreateEventArgs e
+        )
+        {
+            _logger.Information(
+                "Component interaction created: {CustomId} by {User} in Guild={Guild}",
+                e.Id,
+                e.User?.Username,
+                e.Guild?.Id ?? 0
+            );
+
+            try
+            {
+                await _discordInteractionService.HandleComponentInteractionAsync(e);
+            }
+            catch (Exception ex)
+            {
+                _logger.Error(
+                    ex,
+                    "Error handling component interaction: {CustomId} by {User} in Guild={Guild}",
+                    e.Id,
+                    e.User?.Username,
+                    e.Guild?.Id ?? 0
+                );
+            }
         }
 
         private async Task SetBotStatusAsync()
@@ -189,12 +221,20 @@ namespace LundBot.Services
                 string kickReason =
                     $"You have been automatically kicked due to picking the \"{roleToKick?.Name ?? "Unknown"}\" role. This community is PC only. Feel free to join back, if you own IW on PC or plan to purchase it on PC";
 
-                await _moderationActionsService.KickUserDueToRoleAssignmentAsync(
+                bool kicked = await _moderationActionsService.KickUserDueToRoleAssignmentAsync(
                     guild,
                     member,
                     roleToKick,
                     kickReason
                 );
+
+                if (kicked)
+                {
+                    using var scope = _serviceProvider.CreateScope();
+                    var welcomeMessageService =
+                        scope.ServiceProvider.GetRequiredService<IWelcomeMessageService>();
+                    await welcomeMessageService.RemoveWelcomeMessageAsync(guild, member.Id);
+                }
             }
         }
 
@@ -221,6 +261,11 @@ namespace LundBot.Services
 
         private async Task OnGuildMemberAdded(DiscordClient sender, GuildMemberAddEventArgs e)
         {
+            using var scope = _serviceProvider.CreateScope();
+            var welcomeMessageService =
+                scope.ServiceProvider.GetRequiredService<IWelcomeMessageService>();
+
+            await welcomeMessageService.SendWelcomeMessageAsync(e.Guild, e.Member);
             await RegisterWhoInvitedJoinedUser(e.Guild, e.Member);
         }
 
