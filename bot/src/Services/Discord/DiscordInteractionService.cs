@@ -102,9 +102,12 @@ namespace LundBot.Services.Discord
             short randomIndex = (short)new Random().Next(welcomeStickers.Count);
             var randomSticker = welcomeStickers[randomIndex];
 
-            var message = new DiscordMessageBuilder()
-                .WithSticker(randomSticker)
-                .WithContent($"{user.Mention} says hi!");
+            var message = new DiscordMessageBuilder().WithContent($"{user.Mention} says hi!");
+
+            if (randomSticker is not null)
+            {
+                message.WithSticker(randomSticker);
+            }
 
             await _discordMessageService.SendMessageAsync(channel, message);
         }
