@@ -52,6 +52,10 @@ namespace LundBot.Repositories
                         $"No welcome message found for DiscordUserId {joinedUserId}."
                     );
             }
+            catch (KeyNotFoundException)
+            {
+                throw;
+            }
             catch (Exception ex)
             {
                 _logger.Error(
