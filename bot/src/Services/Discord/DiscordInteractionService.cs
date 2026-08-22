@@ -77,12 +77,11 @@ namespace LundBot.Services.Discord
         {
             string eventId = e.Id;
 
-            // Acknowledge the button press (required)
-            await e.Interaction.CreateResponseAsync(InteractionResponseType.DeferredMessageUpdate);
-
             switch (eventId)
             {
                 case "welcome_hi":
+                    // Acknowledge the button press (required)
+                    await e.Interaction.CreateResponseAsync(InteractionResponseType.DeferredMessageUpdate);
                     await HandleWelcomeInteractionAsync(e.User, e.Channel);
                     break;
                 default:
