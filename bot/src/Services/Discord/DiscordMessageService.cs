@@ -1,3 +1,4 @@
+using DSharpPlus;
 using DSharpPlus.Entities;
 using LundBot.Interfaces.Services.Discord;
 using Serilog;
@@ -32,17 +33,50 @@ namespace LundBot.Services.Discord
             }
         }
 
-        public async Task<DiscordMessage> SendMessageAsync(DiscordChannel channel, string content)
+        public async Task<DiscordMessage> SendMessageAsync(
+            DiscordChannel channel,
+            DiscordMessageBuilder builder
+        )
         {
             _logger.Information("Sending message to channel {ChannelId}...", channel.Id);
 
             try
             {
-                return await channel.SendMessageAsync(content);
+                return await channel.SendMessageAsync(builder);
             }
             catch (Exception ex)
             {
                 _logger.Error(ex, "Failed to send message to channel {ChannelId}.", channel.Id);
+                throw;
+            }
+        }
+
+        public async Task<DiscordMessage> SendMessageWithComponentsAsync(
+            DiscordChannel channel,
+            string content,
+            List<DiscordComponent> components
+        )
+        {
+            _logger.Information(
+                "Sending message with components to channel {ChannelId}...",
+                channel.Id
+            );
+
+            try
+            {
+                var builder = new DiscordMessageBuilder()
+                    .WithContent(content)
+                    .AddComponents(components.ToArray());
+
+                return await channel.SendMessageAsync(builder);
+            }
+            catch (Exception ex)
+            {
+                _logger.Error(
+                    ex,
+                    "Failed to send message with components to channel {ChannelId}.",
+                    channel.Id
+                );
                 throw;
             }
         }

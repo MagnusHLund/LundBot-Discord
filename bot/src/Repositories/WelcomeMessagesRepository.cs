@@ -2,7 +2,6 @@ using LundBot.Data;
 using LundBot.Entities;
 using LundBot.Interfaces.Repositories;
 using Microsoft.EntityFrameworkCore;
-using MySql.Data.MySqlClient;
 using MySqlConnector;
 
 namespace LundBot.Repositories
@@ -20,58 +19,51 @@ namespace LundBot.Repositories
             _context = context;
         }
 
-        public override Task CreateAsync(WelcomeMessageEntity entity)
+        public override async Task CreateAsync(WelcomeMessageEntity entity)
         {
             try
             {
                 _context.WelcomeMessages.Add(entity);
-                return _context.SaveChangesAsync();
-            }
-            catch (DbUpdateException ex)
-            {
-                // TODO: Can this be written better? Keep in mind sqlite for automated testing.
-                if (ex.InnerException is MySqlException mysqlEx)
-                {
-                    if (
-                        mysqlEx.Message.Contains("Duplicate entry")
-                        && mysqlEx.Message.Contains("for key 'IX_WelcomeMessages_DiscordUserId'")
-                    )
-                    {
-                        _logger.Warning(
-                            "Attempted to create a duplicate WelcomeMessageEntity for DiscordUserId: {DiscordUserId}",
-                            entity.DiscordUserId
-                        );
-                        throw new InvalidOperationException(
-                            $"A welcome message for DiscordUserId {entity.DiscordUserId} already exists.",
-                            ex
-                        );
-                    }
-                }
-                else
-                {
-                    // TODO: Would this throw to the 2nd catch?
-                    throw;
-                }
+                await _context.SaveChangesAsync();
+                return;
             }
             catch (Exception ex)
             {
                 _logger.Error(ex, "Error creating WelcomeMessageEntity: {Entity}", entity);
                 throw new Exception("An error occurred while creating the entity.", ex);
             }
-
-            throw new NotImplementedException(); // TODO: Better exception
         }
 
         public override Task DeleteManyAsync(IEnumerable<int> ids)
         {
-            // TODO: Implement
-            throw new NotImplementedException();
+            var entitiesToDelete = _context.WelcomeMessages.Where(e => ids.Contains(e.Id));
+            _context.WelcomeMessages.RemoveRange(entitiesToDelete);
+            return _context.SaveChangesAsync();
         }
 
-        public Task<WelcomeMessageEntity> GetByJoinedUserIdAsync(string joinedUserId)
+        public async Task<WelcomeMessageEntity> GetByJoinedUserIdAsync(string joinedUserId)
         {
-            //  TODO: Implement
-            throw new NotImplementedException();
+            try
+            {
+                return await _context.WelcomeMessages.FirstOrDefaultAsync(e =>
+                        e.DiscordUserId == joinedUserId
+                    )
+                    ?? throw new KeyNotFoundException(
+                        $"No welcome message found for DiscordUserId {joinedUserId}."
+                    );
+            }
+            catch (Exception ex)
+            {
+                _logger.Error(
+                    ex,
+                    "Error retrieving WelcomeMessageEntity for DiscordUserId: {DiscordUserId}",
+                    joinedUserId
+                );
+                throw new Exception(
+                    $"An error occurred while retrieving the welcome message for DiscordUserId {joinedUserId}.",
+                    ex
+                );
+            }
         }
 
         public override Task UpdateAsync(WelcomeMessageEntity entity)

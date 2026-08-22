@@ -29,7 +29,6 @@ namespace LundBot.Services
         private readonly IDiscordGuildService _discordGuildService;
         private readonly IDiscordMemberService _discordMemberService;
         private readonly IModerationActionsService _moderationActionsService;
-        private readonly IWelcomeMessageService _welcomeMessageService;
         private readonly DiscordConfig _discordConfig;
         private readonly ServerConfig _serverConfig;
 
@@ -43,8 +42,7 @@ namespace LundBot.Services
             IDiscordInteractionService discordInteractionService,
             IDiscordGuildService discordGuildService,
             IDiscordMemberService discordMemberService,
-            IModerationActionsService moderationActionsService,
-            IWelcomeMessageService welcomeMessageService
+            IModerationActionsService moderationActionsService
         )
         {
             _discordConfig = discordConfig.Value;
@@ -53,7 +51,6 @@ namespace LundBot.Services
             _commandsService = commandsService;
             _cacheService = cacheService;
             _moderationActionsService = moderationActionsService;
-            _welcomeMessageService = welcomeMessageService;
             _discordBotService = discordBotService;
             _discordInteractionService = discordInteractionService;
             _discordMemberService = discordMemberService;
@@ -72,6 +69,7 @@ namespace LundBot.Services
 
             discordClient.GuildDownloadCompleted += OnGuildDownloadCompleted;
             discordClient.GuildMemberUpdated += OnGuildMemberUpdated;
+            discordClient.ComponentInteractionCreated += OnComponentInteractionCreated;
             discordClient.GuildMemberAdded += OnGuildMemberAdded;
             discordClient.GuildCreated += OnGuildCreated;
             discordClient.Ready += OnClientReady;
@@ -90,6 +88,34 @@ namespace LundBot.Services
             await _commandsService.LogRegisteredCommandsForGuildsAsync();
 
             _logger.Information("Bot initialization is complete!");
+        }
+
+        public async Task OnComponentInteractionCreated(
+            DiscordClient sender,
+            ComponentInteractionCreateEventArgs e
+        )
+        {
+            _logger.Information(
+                "Component interaction created: {CustomId} by {User} in Guild={Guild}",
+                e.Id,
+                e.User?.Username,
+                e.Guild?.Id ?? 0
+            );
+
+            try
+            {
+                await _discordInteractionService.HandleComponentInteractionAsync(e);
+            }
+            catch (Exception ex)
+            {
+                _logger.Error(
+                    ex,
+                    "Error handling component interaction: {CustomId} by {User} in Guild={Guild}",
+                    e.Id,
+                    e.User?.Username,
+                    e.Guild?.Id ?? 0
+                );
+            }
         }
 
         private async Task SetBotStatusAsync()
@@ -195,12 +221,20 @@ namespace LundBot.Services
                 string kickReason =
                     $"You have been automatically kicked due to picking the \"{roleToKick?.Name ?? "Unknown"}\" role. This community is PC only. Feel free to join back, if you own IW on PC or plan to purchase it on PC";
 
-                await _moderationActionsService.KickUserDueToRoleAssignmentAsync(
+                bool kicked = await _moderationActionsService.KickUserDueToRoleAssignmentAsync(
                     guild,
                     member,
                     roleToKick,
                     kickReason
                 );
+
+                if (kicked)
+                {
+                    using var scope = _serviceProvider.CreateScope();
+                    var welcomeMessageService =
+                        scope.ServiceProvider.GetRequiredService<IWelcomeMessageService>();
+                    await welcomeMessageService.RemoveWelcomeMessageAsync(guild, member.Id);
+                }
             }
         }
 
@@ -227,7 +261,11 @@ namespace LundBot.Services
 
         private async Task OnGuildMemberAdded(DiscordClient sender, GuildMemberAddEventArgs e)
         {
-            await _welcomeMessageService.SendWelcomeMessageAsync(e.Guild, e.Member);
+            using var scope = _serviceProvider.CreateScope();
+            var welcomeMessageService =
+                scope.ServiceProvider.GetRequiredService<IWelcomeMessageService>();
+
+            await welcomeMessageService.SendWelcomeMessageAsync(e.Guild, e.Member);
             await RegisterWhoInvitedJoinedUser(e.Guild, e.Member);
         }
 

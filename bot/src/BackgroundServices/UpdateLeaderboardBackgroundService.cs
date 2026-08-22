@@ -4,29 +4,27 @@ using Serilog;
 
 namespace LundBot.BackgroundServices
 {
-    // TODO: Does this not need a scope provider?
-
     public sealed class UpdateLeaderboardBackgroundService : BackgroundService
     {
-        private readonly ILeaderboardQueue leaderboardQueue;
-        private readonly ILeaderboardService _leaderboardService;
+        private readonly IServiceScopeFactory _scopeFactory;
+        private readonly ILeaderboardQueue _leaderboardQueue;
         private readonly Serilog.ILogger _logger =
             Log.ForContext<UpdateLeaderboardBackgroundService>();
 
         public UpdateLeaderboardBackgroundService(
-            ILeaderboardQueue leaderboardQueue,
-            ILeaderboardService leaderboardService
+            IServiceScopeFactory scopeFactory,
+            ILeaderboardQueue leaderboardQueue
         )
         {
-            this.leaderboardQueue = leaderboardQueue;
-            _leaderboardService = leaderboardService;
+            _scopeFactory = scopeFactory;
+            _leaderboardQueue = leaderboardQueue;
         }
 
         protected override async Task ExecuteAsync(CancellationToken cancellationToken)
         {
             _logger.Information("Starting UpdateLeaderboardBackgroundService...");
 
-            await foreach (var job in leaderboardQueue.ReadAllAsync(cancellationToken))
+            await foreach (var job in _leaderboardQueue.ReadAllAsync(cancellationToken))
             {
                 if (job.Leaderboard is null)
                 {
@@ -40,6 +38,10 @@ namespace LundBot.BackgroundServices
                     continue;
                 }
 
+                using var scope = _scopeFactory.CreateScope();
+                var leaderboardService =
+                    scope.ServiceProvider.GetRequiredService<ILeaderboardService>();
+
                 try
                 {
                     _logger.Information(
@@ -47,7 +49,7 @@ namespace LundBot.BackgroundServices
                         job.Leaderboard.Id
                     );
 
-                    await _leaderboardService.UpdateLeaderboardMessageAsync(
+                    await leaderboardService.UpdateLeaderboardMessageAsync(
                         job.Leaderboard,
                         job.Channel
                     );

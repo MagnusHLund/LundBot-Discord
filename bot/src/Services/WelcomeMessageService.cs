@@ -1,14 +1,18 @@
+using DSharpPlus;
 using DSharpPlus.Entities;
 using LundBot.Entities;
 using LundBot.Factories.MessageEntityFactories;
 using LundBot.Interfaces.Repositories;
 using LundBot.Interfaces.Services;
+using LundBot.Interfaces.Services.Discord;
+using LundBot.Models;
 using LundBot.Repositories;
 
 namespace LundBot.Services
 {
     public sealed class WelcomeMessageService : IWelcomeMessageService
     {
+        private readonly IDiscordStickerService _discordStickerService;
         private readonly IMessageService<
             WelcomeMessageEntity,
             WelcomeMessagesRepository,
@@ -24,11 +28,13 @@ namespace LundBot.Services
                 WelcomeMessagesRepository,
                 WelcomeMessageFactory
             > messageService,
-            IWelcomeMessagesRepository welcomeMessagesRepository
+            IWelcomeMessagesRepository welcomeMessagesRepository,
+            IDiscordStickerService discordStickerService
         )
         {
             _messageService = messageService;
             _welcomeMessagesRepository = welcomeMessagesRepository;
+            _discordStickerService = discordStickerService;
         }
 
         public async Task SendWelcomeMessageAsync(DiscordGuild guild, DiscordMember member)
@@ -47,14 +53,21 @@ namespace LundBot.Services
                 return;
             }
 
-            // TODO: Get random IW related welcome message from some dictionary somewhere.
+            short randomIndex = (short)new Random().Next(WelcomeMessages.Messages.Count);
+            string welcomeMessage = string.Format(
+                WelcomeMessages.Messages[randomIndex],
+                member.Mention
+            );
 
             _messageService.MessageFactory.SetJoinedUserId(member.Id.ToString());
 
-            await _messageService.SynchronizeDiscordMessagesAsync(
-                $"Welcome {member.Mention}!",
-                Enumerable.Empty<WelcomeMessageEntity>(),
-                systemChannel.Id
+            await _messageService.CreateMessageWithComponentsAsync(
+                welcomeMessage,
+                systemChannel,
+                new List<DiscordComponent>
+                {
+                    new DiscordButtonComponent(ButtonStyle.Primary, "welcome_hi", "Say Hi 👋"),
+                }
             );
 
             _logger.Information(
@@ -64,7 +77,6 @@ namespace LundBot.Services
             );
         }
 
-        // TODO: Use method
         public async Task RemoveWelcomeMessageAsync(DiscordGuild guild, ulong discordMemberId)
         {
             _logger.Information(
@@ -91,6 +103,27 @@ namespace LundBot.Services
                 discordMemberId,
                 guild.Id
             );
+        }
+
+        public async Task<List<DiscordMessageSticker>> GetWelcomeStickersAsync()
+        {
+            List<string> uniqueTitles = new List<string>() { "Wave", "Heya", "Sup", "Hello" };
+
+            var stickerPacks = await _discordStickerService.GetStickerPacksAsync();
+
+            List<DiscordMessageSticker> welcomeStickers = new List<DiscordMessageSticker>();
+            foreach (var pack in stickerPacks)
+            {
+                foreach (var sticker in pack.Stickers)
+                {
+                    if (uniqueTitles.Contains(sticker.Value.Name))
+                    {
+                        welcomeStickers.Add(sticker.Value);
+                    }
+                }
+            }
+
+            return welcomeStickers;
         }
     }
 }

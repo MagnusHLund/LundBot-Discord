@@ -26,7 +26,7 @@ namespace LundBot.Data
                     .AddEnvironmentVariables()
                     .Build();
 
-                conn = config.GetSection("Database")["ConnectionString"];
+                conn = config.GetSection("Database")["ConnectionString"] ?? string.Empty;
             }
 
             var options = new DbContextOptionsBuilder<LundBotDiscordDbContext>()

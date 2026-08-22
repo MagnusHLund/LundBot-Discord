@@ -15,7 +15,7 @@ namespace LundBot.Services
             _discordMemberService = discordMemberService;
         }
 
-        public async Task KickUserDueToRoleAssignmentAsync(
+        public async Task<bool> KickUserDueToRoleAssignmentAsync(
             DiscordGuild guild,
             DiscordMember user,
             DiscordRole? roleToKick,
@@ -29,16 +29,18 @@ namespace LundBot.Services
                     user.Id,
                     guild.Id
                 );
-                return;
+                return false;
             }
 
-            if (_discordMemberService.MemberHasRole(user, roleToKick))
+            if (!_discordMemberService.MemberHasRole(user, roleToKick))
             {
-                await KickUserAsync(guild, user, reason);
+                return false;
             }
+
+            return await KickUserAsync(guild, user, reason);
         }
 
-        public async Task KickUserAsync(DiscordGuild guild, DiscordMember user, string reason)
+        public async Task<bool> KickUserAsync(DiscordGuild guild, DiscordMember user, string reason)
         {
             if (user.IsPending == true)
             {
@@ -47,10 +49,24 @@ namespace LundBot.Services
                     user.Id,
                     guild.Id
                 );
-                return;
+                return false;
             }
 
-            await _discordMemberService.KickMemberAsync(user, reason);
+            try
+            {
+                await _discordMemberService.KickMemberAsync(user, reason);
+            }
+            catch (Exception ex)
+            {
+                _logger.Error(
+                    ex,
+                    "Failed to kick user {UserId} from guild {GuildId}.",
+                    user.Id,
+                    guild.Id
+                );
+                return false;
+            }
+            return true;
         }
     }
 }
