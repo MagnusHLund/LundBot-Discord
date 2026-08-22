@@ -81,7 +81,9 @@ namespace LundBot.Services.Discord
             {
                 case "welcome_hi":
                     // Acknowledge the button press (required)
-                    await e.Interaction.CreateResponseAsync(InteractionResponseType.DeferredMessageUpdate);
+                    await e.Interaction.CreateResponseAsync(
+                        InteractionResponseType.DeferredMessageUpdate
+                    );
                     await HandleWelcomeInteractionAsync(e.User, e.Channel);
                     break;
                 default:
@@ -92,7 +94,11 @@ namespace LundBot.Services.Discord
 
         private async Task HandleWelcomeInteractionAsync(DiscordUser user, DiscordChannel channel)
         {
-            var welcomeStickers = await _welcomeMessageService.GetWelcomeStickersAsync();
+            using var scope = _scopeFactory.CreateScope();
+            var welcomeMessageService =
+                scope.ServiceProvider.GetRequiredService<IWelcomeMessageService>();
+
+            var welcomeStickers = await welcomeMessageService.GetWelcomeStickersAsync();
             short randomIndex = (short)new Random().Next(welcomeStickers.Count);
             var randomSticker = welcomeStickers[randomIndex];
 
