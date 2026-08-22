@@ -5,20 +5,20 @@ using LundBot.Interfaces.Services;
 
 namespace LundBot.AutocompleteProviders
 {
-    public class UpvoteLeaderboardChannelsAutocomplete : LeaderboardChannelsAutocomplete
+    public class WarningLeaderboardChannelsAutocomplete : LeaderboardChannelsAutocomplete
     {
-        public UpvoteLeaderboardChannelsAutocomplete(ILeaderboardService leaderboardService)
+        public WarningLeaderboardChannelsAutocomplete(ILeaderboardService leaderboardService)
             : base(leaderboardService) { }
 
         public override async Task<IEnumerable<DiscordAutoCompleteChoice>> Provider(
             AutocompleteContext context
         )
         {
-            var upvoteLeaderboards = (
-                await GetLeaderboardChoicesForGuildAsync(context.Guild.Id, LeaderboardType.Upvote)
+            var warningLeaderboards = (
+                await GetLeaderboardChoicesForGuildAsync(context.Guild.Id, LeaderboardType.Warning)
             );
 
-            return upvoteLeaderboards.Select(l => new DiscordAutoCompleteChoice(
+            return warningLeaderboards.Select(l => new DiscordAutoCompleteChoice(
                 l.Title,
                 l.DiscordChannelId
             ));

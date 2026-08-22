@@ -2,6 +2,7 @@ using DSharpPlus;
 using DSharpPlus.Entities;
 using DSharpPlus.SlashCommands;
 using DSharpPlus.SlashCommands.Attributes;
+using LundBot.AutocompleteProviders;
 using LundBot.Interfaces.Services;
 using LundBot.Interfaces.Services.Discord;
 
@@ -27,7 +28,9 @@ namespace LundBot.Commands
         )]
         public async Task RegisterWarningAsync(
             InteractionContext context,
-            [Option("channel", "The Channel that has the leaderboard")] string channelId,
+            [Autocomplete(typeof(WarningLeaderboardChannelsAutocomplete))]
+            [Option("channel", "The Channel that has the leaderboard")]
+                string channelId,
             [Option("user", "The user to register warning for")] DiscordUser userTarget
         )
         {
