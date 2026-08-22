@@ -93,8 +93,22 @@ namespace LundBot.Services
                 return;
             }
 
-            WelcomeMessageEntity welcomeMessage =
-                await _welcomeMessagesRepository.GetByJoinedUserIdAsync(discordMemberId.ToString());
+            WelcomeMessageEntity welcomeMessage;
+            try
+            {
+                welcomeMessage = await _welcomeMessagesRepository.GetByJoinedUserIdAsync(
+                    discordMemberId.ToString()
+                );
+            }
+            catch (KeyNotFoundException)
+            {
+                _logger.Warning(
+                    "No welcome message found for user {UserId} in guild {GuildId}; nothing to remove.",
+                    discordMemberId,
+                    guild.Id
+                );
+                return;
+            }
 
             await _messageService.DeleteMessageByIdAsync(welcomeMessage, systemChannel);
 
