@@ -6,7 +6,11 @@ namespace LundBot.Tests.Mocks.Services.Discord;
 
 internal sealed class MockDiscordMessageService : IDiscordMessageService
 {
-    internal List<(DiscordChannel Channel, string Content)> Sent { get; } = new();
+    internal List<(DiscordChannel Channel, DiscordMessageBuilder Builder)> Sent { get; } = new();
+    internal List<(DiscordChannel Channel, string Content, List<DiscordComponent> Components)> SentWithComponents
+    {
+        get;
+    } = new();
     internal List<(DiscordMessage Message, string NewContent)> Modified { get; } = new();
     internal List<DiscordMessage> Deleted { get; } = new();
 
@@ -20,10 +24,21 @@ internal sealed class MockDiscordMessageService : IDiscordMessageService
         return Task.FromResult(GetMessageBehavior(messageId));
     }
 
-    public Task<DiscordMessage> SendMessageAsync(DiscordChannel channel, string content)
+    public Task<DiscordMessage> SendMessageAsync(DiscordChannel channel, DiscordMessageBuilder builder)
     {
         DiscordMessage msg = DiscordTestHelper.TestMessage((ulong)(Sent.Count + 1), channel);
-        Sent.Add((channel, content));
+        Sent.Add((channel, builder));
+        return Task.FromResult(msg);
+    }
+
+    public Task<DiscordMessage> SendMessageWithComponentsAsync(
+        DiscordChannel channel,
+        string content,
+        List<DiscordComponent> components
+    )
+    {
+        DiscordMessage msg = DiscordTestHelper.TestMessage((ulong)(SentWithComponents.Count + 100), channel);
+        SentWithComponents.Add((channel, content, components));
         return Task.FromResult(msg);
     }
 

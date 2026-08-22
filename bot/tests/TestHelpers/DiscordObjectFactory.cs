@@ -23,6 +23,22 @@ internal static class DiscordObjectFactory
         return user;
     }
 
+    internal static DiscordMember CreateMember(ulong id, bool? isPending = null)
+    {
+        DiscordMember member = CreateUninitialized<DiscordMember>();
+        SetMemberValue(member, "Id", id);
+        if (isPending.HasValue)
+            SetMemberValue(member, "IsPending", isPending.Value);
+        return member;
+    }
+
+    internal static DiscordRole CreateRole(ulong id)
+    {
+        DiscordRole role = CreateUninitialized<DiscordRole>();
+        SetMemberValue(role, "Id", id);
+        return role;
+    }
+
     internal static DiscordGuild CreateUninitializedGuild(ulong id)
     {
         DiscordGuild guild = CreateUninitialized<DiscordGuild>();
@@ -39,6 +55,19 @@ internal static class DiscordObjectFactory
         DiscordGuild guild = CreateUninitialized<DiscordGuild>();
         SetMemberValue(guild, "Id", guildId);
         SetMemberValue(guild, "_channels", channels);
+        return guild;
+    }
+
+    internal static DiscordGuild CreateGuildWithSystemChannel(ulong guildId, DiscordChannel systemChannel)
+    {
+        var channels = new ConcurrentDictionary<ulong, DiscordChannel>();
+        channels[systemChannel.Id] = systemChannel;
+
+        DiscordGuild guild = CreateUninitialized<DiscordGuild>();
+        SetMemberValue(guild, "Id", guildId);
+        SetMemberValue(guild, "_channels", channels);
+        // DSharpPlus stores this as a property named _systemChannelId (Nullable<ulong>)
+        SetMemberValue(guild, "_systemChannelId", (ulong?)systemChannel.Id);
         return guild;
     }
 
@@ -75,15 +104,22 @@ internal static class DiscordObjectFactory
             return;
         }
 
-        FieldInfo? backingField =
-            type.GetField(
-                $"<{memberName}>k__BackingField",
-                BindingFlags.Instance | BindingFlags.NonPublic
-            )
-            ?? type.GetField(
-                memberName,
-                BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic
-            );
+        // Walk inheritance chain so backing fields on base classes are also found.
+        Type? current = type;
+        FieldInfo? backingField = null;
+        while (current is not null && backingField is null)
+        {
+            backingField =
+                current.GetField(
+                    $"<{memberName}>k__BackingField",
+                    BindingFlags.Instance | BindingFlags.NonPublic
+                )
+                ?? current.GetField(
+                    memberName,
+                    BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic
+                );
+            current = current.BaseType;
+        }
 
         if (backingField is null)
         {
