@@ -33,10 +33,10 @@ namespace DSharpPlus.Entities
         /// <summary>
         /// Gets the stickers contained in this pack.
         /// </summary>
-        public IReadOnlyDictionary<ulong, DiscordMessageSticker> Stickers => this._stickers;
+        public IReadOnlyList<DiscordMessageSticker> Stickers => this._stickers;
 
         [JsonProperty("stickers")]
-        internal Dictionary<ulong, DiscordMessageSticker> _stickers = new();
+        internal List<DiscordMessageSticker> _stickers = new();
 
         /// <summary>
         /// Gets the name of this sticker pack.
