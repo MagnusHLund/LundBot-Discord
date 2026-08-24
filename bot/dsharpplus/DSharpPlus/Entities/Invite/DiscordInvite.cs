@@ -1,0 +1,234 @@
+using System;
+using System.Buffers;
+using System.Collections.Generic;
+using System.Globalization;
+using System.IO;
+using System.Threading.Tasks;
+using CommunityToolkit.HighPerformance.Buffers;
+using Newtonsoft.Json;
+
+namespace DSharpPlus.Entities;
+
+/// <summary>
+/// Represents a Discord invite.
+/// </summary>
+public class DiscordInvite
+{
+    internal BaseDiscordClient Discord { get; set; }
+
+    /// <summary>
+    /// Gets the invite's code.
+    /// </summary>
+    [JsonProperty("code", NullValueHandling = NullValueHandling.Ignore)]
+    public string Code { get; internal set; }
+
+    /// <summary>
+    /// Gets the guild this invite is for.
+    /// </summary>
+    [JsonProperty("guild", NullValueHandling = NullValueHandling.Ignore)]
+    public DiscordInviteGuild Guild { get; internal set; }
+
+    /// <summary>
+    /// Gets the channel this invite is for.
+    /// </summary>
+    [JsonProperty("channel", NullValueHandling = NullValueHandling.Ignore)]
+    public DiscordInviteChannel Channel { get; internal set; }
+
+    /// <summary>
+    /// Gets the partial user that is currently livestreaming.
+    /// </summary>
+    [JsonProperty("target_user", NullValueHandling = NullValueHandling.Ignore)]
+    public DiscordUser TargetUser { get; internal set; }
+
+    /// <summary>
+    /// Gets the partial embedded application to open for a voice channel.
+    /// </summary>
+    [JsonProperty("target_application", NullValueHandling = NullValueHandling.Ignore)]
+    public DiscordApplication TargetApplication { get; internal set; }
+    /// <summary>
+    /// Gets the target application for this invite.
+    /// </summary>
+    [JsonProperty("target_type", NullValueHandling = NullValueHandling.Ignore)]
+    public DiscordInviteTargetType? TargetType { get; internal set; }
+
+    /// <summary>
+    /// Gets the approximate guild online member count for the invite.
+    /// </summary>
+    [JsonProperty("approximate_presence_count", NullValueHandling = NullValueHandling.Ignore)]
+    public int? ApproximatePresenceCount { get; internal set; }
+
+    /// <summary>
+    /// Gets the approximate guild total member count for the invite.
+    /// </summary>
+    [JsonProperty("approximate_member_count")]
+    public int? ApproximateMemberCount { get; internal set; }
+
+    /// <summary>
+    /// Gets the user who created the invite.
+    /// </summary>
+    [JsonProperty("inviter", NullValueHandling = NullValueHandling.Ignore)]
+    public DiscordUser Inviter { get; internal set; }
+
+    /// <summary>
+    /// Gets the number of times this invite has been used.
+    /// </summary>
+    [JsonProperty("uses", NullValueHandling = NullValueHandling.Ignore)]
+    public int Uses { get; internal set; }
+
+    /// <summary>
+    /// Gets the max number of times this invite can be used.
+    /// </summary>
+    [JsonProperty("max_uses", NullValueHandling = NullValueHandling.Ignore)]
+    public int MaxUses { get; internal set; }
+
+    /// <summary>
+    /// Gets duration in seconds after which the invite expires.
+    /// </summary>
+    [JsonProperty("max_age", NullValueHandling = NullValueHandling.Ignore)]
+    public int MaxAge { get; internal set; }
+
+    /// <summary>
+    /// Gets whether this invite only grants temporary membership.
+    /// </summary>
+    [JsonProperty("temporary", NullValueHandling = NullValueHandling.Ignore)]
+    public bool IsTemporary { get; internal set; }
+
+    /// <summary>
+    /// Gets the date and time this invite was created.
+    /// </summary>
+    [JsonProperty("created_at", NullValueHandling = NullValueHandling.Ignore)]
+    public DateTimeOffset CreatedAt { get; internal set; }
+
+    /// <summary>
+    /// Gets whether this invite is revoked.
+    /// </summary>
+    [JsonProperty("revoked", NullValueHandling = NullValueHandling.Ignore)]
+    public bool IsRevoked { get; internal set; }
+
+    /// <summary>
+    /// Gets the expiration date of this invite.
+    /// </summary>
+    [JsonIgnore]
+    public DateTimeOffset? ExpiresAt
+        => !string.IsNullOrWhiteSpace(this.ExpiresAtRaw) && DateTimeOffset.TryParse(this.ExpiresAtRaw, CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTimeOffset dto) ? dto : null;
+
+    [JsonProperty("expires_at", NullValueHandling = NullValueHandling.Ignore)]
+    internal string ExpiresAtRaw { get; set; }
+
+    /// <summary>
+    /// Gets stage instance data for this invite if it is for a stage instance channel.
+    /// </summary>
+    [JsonProperty("stage_instance")]
+    public DiscordStageInvite StageInstance { get; internal set; }
+
+    /// <summary>
+    /// The roles given to the user when accepting the invite.
+    /// </summary>
+    [JsonProperty("roles", NullValueHandling = NullValueHandling.Ignore)]
+    public IReadOnlyList<DiscordRole>? Roles { get; internal set; }
+
+    internal DiscordInvite() { }
+
+    /// <summary>
+    /// Deletes the invite.
+    /// </summary>
+    /// <param name="reason">Reason for audit logs.</param>
+    /// <returns></returns>
+    /// <exception cref="Exceptions.UnauthorizedException">Thrown when the client does not have the <see cref="DiscordPermission.ManageChannels"/> permission or the <see cref="DiscordPermission.ManageGuild"/> permission.</exception>
+    /// <exception cref="Exceptions.NotFoundException">Thrown when the emoji does not exist.</exception>
+    /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
+    /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
+    public async Task<DiscordInvite> DeleteAsync(string reason = null)
+        => await this.Discord.ApiClient.DeleteInviteAsync(this.Code, reason);
+
+    /// <summary>
+    /// Gets the users allowed to accept this invite.
+    /// </summary>
+    /// <returns>A list of user IDs allowed to accept the invite.</returns>
+    /// <exception cref="Exceptions.NotFoundException">Thrown when no target users are set for the invite.</exception>
+    /// <exception cref="Exceptions.UnauthorizedException">Thrown when the client is not the inviter and
+    /// does not have <see cref="DiscordPermission.ManageGuild"/> permission or the <see cref="DiscordPermission.ViewAuditLog"/> permission.</exception>
+    public async Task<IReadOnlyList<ulong>> GetTargetUsersAsync()
+        => await this.Discord.ApiClient.GetInviteTargetUsersAsync(this.Code);
+
+    /// <summary>
+    /// Updates the users allowed to accept this invite.
+    /// </summary>
+    /// <param name="targetUsers">A list of user IDs alllowed to accept the invite.</param>
+    /// <returns></returns>
+    /// <exception cref="Exceptions.BadRequestException">Thrown when the csv file contains invalid user IDs.</exception>
+    /// <exception cref="Exceptions.UnauthorizedException">Thrown when the client is not the creator of the invite and
+    /// does not have the <see cref="DiscordPermission.ManageGuild"/> permission.</exception>
+    public async Task UpdateTargetUsersAsync(IEnumerable<ulong> targetUsers)
+    {
+        DiscordFile csvFile = new(null, CreateTargetUserCsvStream(targetUsers), null, "csv", "text/csv", AddFileOptions.CloseStream);
+
+        await this.Discord.ApiClient.UpdateInviteTargetUsersAsync(this.Code, csvFile);
+    }
+    /// <summary>
+    /// Gets the status of the job processing the change of target users asynchronously.
+    /// </summary>
+    /// <returns></returns>
+    /// <exception cref="Exceptions.NotFoundException">Thrown when there is no job found for the invite.</exception>
+    /// <exception cref="Exceptions.UnauthorizedException">Thrown when the client is not the inviter and
+    /// does not have <see cref="DiscordPermission.ManageGuild"/> permission or the <see cref="DiscordPermission.ViewAuditLog"/> permission.</exception>
+    public async Task<DiscordInviteTargetUsersJobStatus> GetTargetUsersJobStatusAsync()
+        => await this.Discord.ApiClient.GetInviteTargetUserJobStatusAsync(this.Code);
+
+    /*
+     * Disabled due to API restrictions.
+     *
+     * /// <summary>
+     * /// Accepts an invite. Not available to bot accounts. Requires "guilds.join" scope or user token. Please note that accepting these via the API will get your account unverified.
+     * /// </summary>
+     * /// <returns></returns>
+     * [Obsolete("Using this method will get your account unverified.")]
+     * public Task<DiscordInvite> AcceptAsync()
+     *     => this.Discord.rest_client.InternalAcceptInvite(Code);
+     */
+
+    /// <summary>
+    /// Converts this invite into an invite link.
+    /// </summary>
+    /// <returns>A discord.gg invite link.</returns>
+    public override string ToString() => $"https://discord.gg/{this.Code}";
+
+    /// <summary>
+    /// Creates a stream containing a single column csv file of user IDs.
+    /// </summary>
+    /// <param name="userIds">A list of user IDs to put into the csv file.</param>
+    /// <returns>A stream containing the csv file.</returns>
+    internal static MemoryStream CreateTargetUserCsvStream(IEnumerable<ulong> userIds)
+    {
+        using ArrayPoolBufferWriter<byte> writer = new();
+        writer.Write("user_id\r\n"u8);
+
+        foreach (ulong id in userIds)
+        {
+            _ = id.TryFormat(writer.GetSpan(20), out int bytesWritten, "D", CultureInfo.InvariantCulture);
+            writer.Advance(bytesWritten);
+            writer.Write("\r\n"u8);
+        }
+        return new(writer.WrittenSpan.ToArray());
+    }
+
+    /// <summary>
+    /// Parses a csv file containing a single column of user IDs and returns the user IDs.
+    /// </summary>
+    /// <param name="content">The content of the csv file to parse.</param>
+    /// <returns>A list containg all user IDs of the csv file.</returns>
+    internal static IReadOnlyList<ulong> ReadTargetUserCsv(string content)
+    {
+        List<ulong> ids = [];
+
+        foreach (ReadOnlySpan<char> line in content.AsSpan().EnumerateLines())
+        {
+            if (ulong.TryParse(line, out ulong value))
+            {
+                ids.Add(value);
+            }
+        }
+
+        return ids;
+    }
+}

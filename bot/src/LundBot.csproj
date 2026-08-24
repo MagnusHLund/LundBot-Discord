@@ -8,7 +8,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="DSharpPlus" Version="5.0.0" />
+   <!-- <PackageReference Include="DSharpPlus" Version="5.0.0" /> -->
     <PackageReference Include="DSharpPlus.Interactivity" Version="5.0.0" />
     <PackageReference Include="DSharpPlus.SlashCommands" Version="5.0.0" />
     <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="10.0.10" />
@@ -25,6 +25,10 @@
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\dsharpplus\DSharpPlus\DSharpPlus.csproj" />
   </ItemGroup>
 
 </Project>
