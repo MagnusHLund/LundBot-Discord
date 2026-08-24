@@ -1,3 +1,4 @@
+using System.Reflection;
 using DSharpPlus;
 using DSharpPlus.Entities;
 using DSharpPlus.EventArgs;
@@ -59,10 +60,17 @@ namespace LundBot.Services
 
         public async Task InitializeAsync(DiscordClient discordClient)
         {
+            string dSharpPlusVersion =
+                typeof(DiscordClient)
+                    .Assembly.GetCustomAttribute<AssemblyInformationalVersionAttribute>()
+                    ?.InformationalVersion
+                ?? "Unknown";
+
             _logger.Information(
-                "Initializing Bot version {Version} in {Environment} mode...",
+                "Initializing Bot version {Version} in {Environment} mode... (DSharpPlus version: {DSharpPlusVersion})",
                 _serverConfig.Version,
-                EnvironmentUtils.GetEnvironment()
+                EnvironmentUtils.GetEnvironment(),
+                dSharpPlusVersion
             );
 
             DiscordClient = discordClient;
