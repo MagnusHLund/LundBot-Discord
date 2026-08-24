@@ -2,4 +2,3 @@
 
 1. Create formatting standards for the C# project and then format all the C# files.
 2. TODO fix migration script to actually check when MariaDb is ready, rather than failing for 20 seconds.
-3. Modify the migration script so it also works with dotnet-ef, installed not globally.

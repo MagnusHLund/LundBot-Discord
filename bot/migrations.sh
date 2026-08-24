@@ -5,13 +5,14 @@ if ! command -v jq >/dev/null 2>&1; then
     exit 1
 fi
 
-if ! dotnet tool list -g | grep -q "dotnet-ef"; then
+if ! dotnet ef --version >/dev/null 2>&1; then
     echo "ERROR: dotnet-ef is not installed."
     echo "Install it with:"
     echo "  dotnet tool install --global dotnet-ef"
+    echo "or:"
+    echo "  dotnet tool install dotnet-ef"
     exit 1
 fi
-
 
 echo "Choose environment (dev/prod): "
 read ENVIRONMENT
