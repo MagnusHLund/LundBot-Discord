@@ -130,9 +130,9 @@ namespace LundBot.Services
             {
                 foreach (var sticker in pack.Stickers)
                 {
-                    if (uniqueTitles.Contains(sticker.Value.Name))
+                    if (uniqueTitles.Contains(sticker.Name))
                     {
-                        welcomeStickers.Add(sticker.Value);
+                        welcomeStickers.Add(sticker);
                     }
                 }
             }
