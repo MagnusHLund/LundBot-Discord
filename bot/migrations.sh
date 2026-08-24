@@ -1,5 +1,18 @@
 #!/bin/bash
 
+if ! command -v jq >/dev/null 2>&1; then
+    echo "ERROR: jq is not installed. Install jq to continue."
+    exit 1
+fi
+
+if ! dotnet tool list -g | grep -q "dotnet-ef"; then
+    echo "ERROR: dotnet-ef is not installed."
+    echo "Install it with:"
+    echo "  dotnet tool install --global dotnet-ef"
+    exit 1
+fi
+
+
 echo "Choose environment (dev/prod): "
 read ENVIRONMENT
 
