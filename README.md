@@ -60,3 +60,9 @@ To run migrations, run `bot/migrations.sh` from the root directory.
 You will be prompted for the environment, which is either `dev` or `prod`.
 Then you will be prompted for a migration name.
 The script will then create a migration.
+
+Note that you must have jq installed.
+`https://jqlang.org/download/`
+
+And obviously also dotnet-ef
+`dotnet tool install --global dotnet-ef`

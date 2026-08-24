@@ -1,0 +1,9 @@
+* text=auto
+
+# Docker / shell scripts must use LF in containers
+*.sh text eol=lf
+*.bash text eol=lf
+*.env text eol=lf
+Dockerfile text eol=lf
+*.yml text eol=lf
+*.yaml text eol=lf
