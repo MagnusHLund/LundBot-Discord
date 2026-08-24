@@ -31,7 +31,12 @@ namespace LundBot.Services
 
             var member = await _discordMemberService.GetMemberAsync(guild, userId);
 
-            if (await _discordMemberService.MemberHasPermission(member, Permissions.Administrator))
+            if (
+                await _discordMemberService.MemberHasPermission(
+                    member,
+                    DiscordPermission.Administrator
+                )
+            )
             {
                 return true;
             }
@@ -49,7 +54,7 @@ namespace LundBot.Services
             }
 
             var member = await _discordMemberService.GetMemberAsync(guild, userId);
-            var ownerRole = _discordGuildService.GetRoleById(
+            var ownerRole = await _discordGuildService.GetRoleByIdAsync(
                 guild,
                 _discordConfig.Roles[DiscordRoles.Owner.Key]
             );
@@ -68,7 +73,7 @@ namespace LundBot.Services
                 return true;
             }
 
-            var botRole = _discordGuildService.GetRoleById(
+            var botRole = await _discordGuildService.GetRoleByIdAsync(
                 guild,
                 _discordConfig.Roles[DiscordRoles.Bot.Key]
             );

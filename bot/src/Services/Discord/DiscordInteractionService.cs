@@ -10,12 +10,12 @@ namespace LundBot.Services.Discord
 {
     public sealed class DiscordInteractionService : IDiscordInteractionService
     {
-        private readonly Microsoft.Extensions.DependencyInjection.IServiceScopeFactory _scopeFactory;
+        private readonly IServiceScopeFactory _scopeFactory;
         private readonly IDiscordMessageService _discordMessageService;
         private readonly Serilog.ILogger _logger = Log.ForContext<DiscordInteractionService>();
 
         public DiscordInteractionService(
-            Microsoft.Extensions.DependencyInjection.IServiceScopeFactory scopeFactory,
+            IServiceScopeFactory scopeFactory,
             IDiscordMessageService discordMessageService
         )
         {
@@ -40,7 +40,7 @@ namespace LundBot.Services.Discord
         )
         {
             await context.CreateResponseAsync(
-                InteractionResponseType.ChannelMessageWithSource,
+                DiscordInteractionResponseType.ChannelMessageWithSource,
                 new DiscordInteractionResponseBuilder()
                     .WithContent(content)
                     .AsEphemeral(showOnlyToUser)
@@ -54,7 +54,7 @@ namespace LundBot.Services.Discord
         )
         {
             await interaction.CreateResponseAsync(
-                InteractionResponseType.ChannelMessageWithSource,
+                DiscordInteractionResponseType.ChannelMessageWithSource,
                 new DiscordInteractionResponseBuilder()
                     .WithContent(content)
                     .AsEphemeral(showOnlyToUser)
@@ -68,12 +68,12 @@ namespace LundBot.Services.Discord
         )
         {
             await interaction.CreateResponseAsync(
-                InteractionResponseType.ChannelMessageWithSource,
+                DiscordInteractionResponseType.ChannelMessageWithSource,
                 responseBuilder.AsEphemeral(showOnlyToUser)
             );
         }
 
-        public async Task HandleComponentInteractionAsync(ComponentInteractionCreateEventArgs e)
+        public async Task HandleComponentInteractionAsync(ComponentInteractionCreatedEventArgs e)
         {
             string eventId = e.Id;
 
@@ -82,7 +82,7 @@ namespace LundBot.Services.Discord
                 case "welcome_hi":
                     // Acknowledge the button press (required)
                     await e.Interaction.CreateResponseAsync(
-                        InteractionResponseType.DeferredMessageUpdate
+                        DiscordInteractionResponseType.DeferredMessageUpdate
                     );
                     await HandleWelcomeInteractionAsync(e.User, e.Channel);
                     break;
@@ -106,7 +106,8 @@ namespace LundBot.Services.Discord
 
             if (randomSticker is not null)
             {
-                message.WithSticker(randomSticker);
+                // TODO: This is now broken due to DSharpPlus changes. Need to find a new way to send stickers with messages.
+                // message.WithSticker(randomSticker);
             }
 
             await _discordMessageService.SendMessageAsync(channel, message);

@@ -22,12 +22,12 @@ namespace LundBot.Commands
             _leaderboardService = leaderboardService;
         }
 
-        [SlashRequirePermissions(Permissions.Administrator)]
+        [SlashRequirePermissions(true, DiscordPermission.Administrator)]
         [SlashCommand("create-leaderboard", "Creates a new leaderboard.")]
         public async Task CreateLeaderboardAsync(
             InteractionContext context,
             [Option("Channel", "The Channel that the leaderboard will use")]
-            [ChannelTypes(ChannelType.Text)]
+            [ChannelTypes(DiscordChannelType.Text)]
                 DiscordChannel Channel,
             [Option("type", "The type of the leaderboard.")] LeaderboardType type,
             [Option(

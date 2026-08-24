@@ -5,12 +5,9 @@ using DSharpPlus.EventArgs;
 using DSharpPlus.SlashCommands;
 using DSharpPlus.SlashCommands.EventArgs;
 using LundBot.Config;
-using LundBot.Entities;
-using LundBot.Factories.MessageEntityFactories;
 using LundBot.Helpers;
 using LundBot.Interfaces.Services;
 using LundBot.Interfaces.Services.Discord;
-using LundBot.Repositories;
 using LundBot.Utils;
 using Microsoft.Extensions.Options;
 using Serilog;
@@ -75,20 +72,6 @@ namespace LundBot.Services
 
             DiscordClient = discordClient;
 
-            discordClient.GuildDownloadCompleted += OnGuildDownloadCompleted;
-            discordClient.GuildMemberUpdated += OnGuildMemberUpdated;
-            discordClient.ComponentInteractionCreated += OnComponentInteractionCreated;
-            discordClient.GuildMemberAdded += OnGuildMemberAdded;
-            discordClient.GuildCreated += OnGuildCreated;
-            discordClient.Ready += OnClientReady;
-
-            IServiceProvider services = _serviceProvider.CreateScope().ServiceProvider;
-
-            var slash = await _discordBotService.EnableSlashCommands(services);
-
-            slash.SlashCommandExecuted += OnSlashCommandExecuted;
-            slash.SlashCommandErrored += OnSlashCommandErrored;
-
             await _commandsService.RegisterCommandsAsync();
 
             await _discordBotService.ConnectBotAsync();
@@ -100,7 +83,7 @@ namespace LundBot.Services
 
         public async Task OnComponentInteractionCreated(
             DiscordClient sender,
-            ComponentInteractionCreateEventArgs e
+            ComponentInteractionCreatedEventArgs e
         )
         {
             _logger.Information(
@@ -128,11 +111,14 @@ namespace LundBot.Services
 
         private async Task SetBotStatusAsync()
         {
-            var activity = new DiscordActivity("Stuck in a movie theater", ActivityType.Playing);
+            var activity = new DiscordActivity(
+                "Stuck in a movie theater",
+                DiscordActivityType.Playing
+            );
             await _discordBotService.UpdateBotStatusAsync(activity);
         }
 
-        private async Task OnClientReady(DiscordClient sender, ReadyEventArgs e)
+        public async Task OnClientReady(DiscordClient sender, SessionCreatedEventArgs e)
         {
             _logger.Information("Ready fired, running BotService initialization...");
             await SetBotStatusAsync();
@@ -149,7 +135,7 @@ namespace LundBot.Services
             }
         }
 
-        private async Task OnSlashCommandExecuted(
+        public async Task OnSlashCommandExecuted(
             SlashCommandsExtension sender,
             SlashCommandExecutedEventArgs e
         )
@@ -162,7 +148,7 @@ namespace LundBot.Services
             );
         }
 
-        private async Task OnSlashCommandErrored(
+        public async Task OnSlashCommandErrored(
             SlashCommandsExtension sender,
             SlashCommandErrorEventArgs e
         )
@@ -193,7 +179,7 @@ namespace LundBot.Services
             catch { }
         }
 
-        private async Task OnGuildCreated(DiscordClient sender, GuildCreateEventArgs e)
+        public async Task OnGuildCreated(DiscordClient sender, GuildCreatedEventArgs e)
         {
             _logger.Information("Guild created: {GuildName} ({GuildId})", e.Guild.Name, e.Guild.Id);
 
@@ -208,7 +194,7 @@ namespace LundBot.Services
             }
         }
 
-        private async Task OnGuildMemberUpdated(DiscordClient sender, GuildMemberUpdateEventArgs e)
+        public async Task OnGuildMemberUpdated(DiscordClient sender, GuildMemberUpdatedEventArgs e)
         {
             DiscordGuild guild = e.Guild;
             DiscordMember member = e.Member;
@@ -246,7 +232,7 @@ namespace LundBot.Services
             }
         }
 
-        private async Task OnGuildDownloadCompleted(
+        public async Task OnGuildDownloadCompleted(
             DiscordClient sender,
             GuildDownloadCompletedEventArgs e
         )
@@ -267,7 +253,7 @@ namespace LundBot.Services
             }
         }
 
-        private async Task OnGuildMemberAdded(DiscordClient sender, GuildMemberAddEventArgs e)
+        public async Task OnGuildMemberAdded(DiscordClient sender, GuildMemberAddedEventArgs e)
         {
             using var scope = _serviceProvider.CreateScope();
             var welcomeMessageService =

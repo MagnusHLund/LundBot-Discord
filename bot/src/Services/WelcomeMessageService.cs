@@ -1,4 +1,3 @@
-using DSharpPlus;
 using DSharpPlus.Entities;
 using LundBot.Entities;
 using LundBot.Factories.MessageEntityFactories;
@@ -12,6 +11,7 @@ namespace LundBot.Services
 {
     public sealed class WelcomeMessageService : IWelcomeMessageService
     {
+        private readonly IDiscordChannelService _discordChannelService;
         private readonly IDiscordStickerService _discordStickerService;
         private readonly IMessageService<
             WelcomeMessageEntity,
@@ -29,12 +29,14 @@ namespace LundBot.Services
                 WelcomeMessageFactory
             > messageService,
             IWelcomeMessagesRepository welcomeMessagesRepository,
-            IDiscordStickerService discordStickerService
+            IDiscordStickerService discordStickerService,
+            IDiscordChannelService discordChannelService
         )
         {
             _messageService = messageService;
             _welcomeMessagesRepository = welcomeMessagesRepository;
             _discordStickerService = discordStickerService;
+            _discordChannelService = discordChannelService;
         }
 
         public async Task SendWelcomeMessageAsync(DiscordGuild guild, DiscordMember member)
@@ -45,7 +47,9 @@ namespace LundBot.Services
                 guild.Id
             );
 
-            DiscordChannel systemChannel = guild.SystemChannel;
+            DiscordChannel systemChannel = await _discordChannelService.GetSystemChannelAsync(
+                guild
+            );
 
             if (systemChannel is null)
             {
@@ -66,7 +70,11 @@ namespace LundBot.Services
                 systemChannel,
                 new List<DiscordComponent>
                 {
-                    new DiscordButtonComponent(ButtonStyle.Primary, "welcome_hi", "Say Hi 👋"),
+                    new DiscordButtonComponent(
+                        DiscordButtonStyle.Primary,
+                        "welcome_hi",
+                        "Say Hi 👋"
+                    ),
                 }
             );
 
@@ -85,7 +93,9 @@ namespace LundBot.Services
                 guild.Id
             );
 
-            DiscordChannel systemChannel = guild.SystemChannel;
+            DiscordChannel systemChannel = await _discordChannelService.GetSystemChannelAsync(
+                guild
+            );
 
             if (systemChannel is null)
             {
@@ -130,7 +140,7 @@ namespace LundBot.Services
             {
                 foreach (var sticker in pack.Stickers)
                 {
-                    if (uniqueTitles.Contains(sticker.Name))
+                    if (sticker.Name is not null && uniqueTitles.Contains(sticker.Name))
                     {
                         welcomeStickers.Add(sticker);
                     }

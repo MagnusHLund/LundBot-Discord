@@ -57,7 +57,7 @@ namespace LundBot.Services.Discord
             }
         }
 
-        public DiscordRole GetRoleById(DiscordGuild guild, ulong roleId)
+        public async Task<DiscordRole> GetRoleByIdAsync(DiscordGuild guild, ulong roleId)
         {
             _logger.Information(
                 "Fetching role with ID {RoleId} in guild {GuildId}...",
@@ -67,7 +67,7 @@ namespace LundBot.Services.Discord
 
             try
             {
-                return guild.GetRole(roleId);
+                return await guild.GetRoleAsync(roleId);
             }
             catch (Exception ex)
             {

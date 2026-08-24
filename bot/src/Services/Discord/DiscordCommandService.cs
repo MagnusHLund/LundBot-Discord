@@ -99,7 +99,9 @@ namespace LundBot.Services.Discord
 
             try
             {
-                return BotService.DiscordClient.GetSlashCommands();
+                // TODO: Figure this out in latest DSharpPlus version.
+                // return BotService.DiscordClient.GetSlashCommands();
+                throw new NotImplementedException("Idk how to do this yet");
             }
             catch (Exception ex)
             {
@@ -114,7 +116,8 @@ namespace LundBot.Services.Discord
 
             try
             {
-                await slashCommands.RefreshCommands();
+                // TODO: Figure this out in latest DSharpPlus version.
+                // await BotService.DiscordClient.RefreshCommands(slashCommands);
             }
             catch (Exception ex)
             {

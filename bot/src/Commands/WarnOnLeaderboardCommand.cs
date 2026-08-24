@@ -1,4 +1,3 @@
-using DSharpPlus;
 using DSharpPlus.Entities;
 using DSharpPlus.SlashCommands;
 using DSharpPlus.SlashCommands.Attributes;
@@ -21,7 +20,7 @@ namespace LundBot.Commands
             _leaderboardService = leaderboardService;
         }
 
-        [SlashRequirePermissions(Permissions.Administrator)]
+        [SlashRequirePermissions(true, DiscordPermission.Administrator)]
         [SlashCommand(
             "warn",
             "Register a warning for a user on the specified leaderboard. User will NOT be notified."
@@ -41,7 +40,7 @@ namespace LundBot.Commands
 
             if (
                 !ulong.TryParse(channelId, out var parsedId)
-                || context.Guild.GetChannel(parsedId) is not DiscordChannel channel
+                || await context.Guild.GetChannelAsync(parsedId) is not DiscordChannel channel
             )
             {
                 await SendResponseAsync(context, "The specified channel does not exist.");

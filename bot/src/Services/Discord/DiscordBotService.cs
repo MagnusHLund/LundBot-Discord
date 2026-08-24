@@ -29,30 +29,14 @@ namespace LundBot.Services.Discord
 
             try
             {
-                await BotService.DiscordClient.UpdateStatusAsync(activity, UserStatus.Online);
+                await BotService.DiscordClient.UpdateStatusAsync(
+                    activity,
+                    DiscordUserStatus.Online
+                );
             }
             catch (Exception ex)
             {
                 _logger.Error(ex, "Failed to update bot status.");
-            }
-        }
-
-        public async Task<SlashCommandsExtension> EnableSlashCommands(IServiceProvider services)
-        {
-            _logger.Information("Enabling slash commands for the bot...");
-
-            try
-            {
-                var slash = BotService.DiscordClient.UseSlashCommands(
-                    new SlashCommandsConfiguration { Services = services }
-                );
-
-                return slash;
-            }
-            catch (Exception ex)
-            {
-                _logger.Error(ex, "Failed to enable slash commands for the bot");
-                throw;
             }
         }
     }

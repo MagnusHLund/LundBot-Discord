@@ -1,4 +1,3 @@
-using DSharpPlus;
 using DSharpPlus.Entities;
 using DSharpPlus.SlashCommands;
 using DSharpPlus.SlashCommands.Attributes;
@@ -20,7 +19,7 @@ namespace LundBot.Commands
             _leaderboardService = leaderboardService;
         }
 
-        [SlashRequirePermissions(Permissions.Administrator)]
+        [SlashRequirePermissions(true, DiscordPermission.Administrator)]
         [SlashCommand("remove-leaderboard", "Removes an existing leaderboard.")]
         public async Task RemoveLeaderboardAsync(
             InteractionContext context,

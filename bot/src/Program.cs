@@ -1,4 +1,5 @@
 using DSharpPlus;
+using DSharpPlus.Commands;
 using LundBot.BackgroundServices;
 using LundBot.Config;
 using LundBot.Data;
@@ -177,20 +178,31 @@ namespace LundBot
         private static void RegisterBotConfiguration(WebApplicationBuilder builder)
         {
             string discordToken = builder.Configuration["Discord:Token"] ?? "";
+            DiscordIntents intents = DiscordIntents.AllUnprivileged | DiscordIntents.GuildMembers;
 
-            builder.Services.AddSingleton(provider =>
+            DiscordClientBuilder discordBotBuilder = DiscordClientBuilder.CreateDefault(
+                discordToken,
+                intents
+            );
+
+            builder.Services.AddCommandsExtension(
+                (serviceProvider, extension) => {
+                    // TODO: Use new command logic instead of SlashCommands, as it is now obsolete
+                    //  extension.AddCommands(new[] { typeof(MyCommands) });
+                }
+            );
+
+            // TODO: This doesnt seem right. idk.
+            discordBotBuilder.ConfigureEventHandlers(events =>
             {
-                var config = new DiscordConfiguration
-                {
-                    Token = discordToken,
-                    TokenType = TokenType.Bot,
-                    Intents = DiscordIntents.AllUnprivileged | DiscordIntents.GuildMembers,
-                    LoggerFactory = new LoggerFactory().AddSerilog(),
-                    AutoReconnect = true,
-                    ReconnectIndefinitely = true,
-                };
-
-                return new DiscordClient(config);
+                /*
+                events.HandleGuildDownloadCompleted(OnGuildDownloadCompleted);
+                events.HandleGuildMemberUpdated(OnGuildMemberUpdated);
+                events.HandleComponentInteractionCreated(OnComponentInteractionCreated);
+                events.HandleGuildMemberAdded(OnGuildMemberAdded);
+                events.HandleGuildCreated(OnGuildCreated);
+                events.HandleSessionCreated(OnSessionCreated);
+                */
             });
         }
 

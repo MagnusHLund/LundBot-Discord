@@ -64,9 +64,9 @@ namespace LundBot.Services.Discord
 
             try
             {
-                var builder = new DiscordMessageBuilder()
-                    .WithContent(content)
-                    .AddComponents(components.ToArray());
+                var builder = new DiscordMessageBuilder().WithContent(content);
+                // .AddComponents(components.ToArray());
+                // TODO: Make functionality to add any component type
 
                 return await channel.SendMessageAsync(builder);
             }
@@ -86,11 +86,16 @@ namespace LundBot.Services.Discord
             _logger.Information(
                 "Modifying message with ID {MessageId} in channel {ChannelId}...",
                 message.Id,
-                message.Channel.Id
+                message?.Channel?.Id
             );
 
             try
             {
+                if (message is null)
+                {
+                    throw new ArgumentNullException(nameof(message), "Message cannot be null.");
+                }
+
                 return await message.ModifyAsync(content);
             }
             catch (Exception ex)
@@ -98,8 +103,8 @@ namespace LundBot.Services.Discord
                 _logger.Error(
                     ex,
                     "Failed to modify message with ID {MessageId} in channel {ChannelId}.",
-                    message.Id,
-                    message.Channel.Id
+                    message?.Id,
+                    message?.Channel?.Id
                 );
                 throw;
             }

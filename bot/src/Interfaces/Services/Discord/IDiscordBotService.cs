@@ -8,6 +8,5 @@ namespace LundBot.Interfaces.Services.Discord
     {
         Task ConnectBotAsync();
         Task UpdateBotStatusAsync(DiscordActivity activity);
-        Task<SlashCommandsExtension> EnableSlashCommands(IServiceProvider services);
     }
 }
