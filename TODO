@@ -2,4 +2,4 @@
 
 1. Create formatting standards for the C# project and then format all the C# files.
 2. TODO fix migration script to actually check when MariaDb is ready, rather than failing for 20 seconds.
-3. "Hello" button does not work. DSharpPlus gets an exception when transforming the json response from discords api, into an object.
+3. "Hello" button click -> message mentions the wrong user.
