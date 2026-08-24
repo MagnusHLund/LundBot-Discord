@@ -8,9 +8,8 @@
   </PropertyGroup>
 
   <ItemGroup>
-   <!-- <PackageReference Include="DSharpPlus" Version="5.0.0" /> -->
-    <PackageReference Include="DSharpPlus.Interactivity" Version="5.0.0" />
-    <PackageReference Include="DSharpPlus.SlashCommands" Version="5.0.0" />
+   <PackageReference Include="DSharpPlus.Interactivity" Version="4.5.2" />
+   <PackageReference Include="DSharpPlus.SlashCommands" Version="4.5.2" />
     <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="10.0.10" />
     <PackageReference Include="Pomelo.EntityFrameworkCore.MySql" Version="9.0.0" />
     <PackageReference Include="Swashbuckle.AspNetCore.Newtonsoft" Version="10.2.3" />
@@ -28,7 +27,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\dsharpplus\DSharpPlus\DSharpPlus.csproj" />
+    <ProjectReference Include="..\DSharpPlus-Repo\DSharpPlus\DSharpPlus.csproj" />
   </ItemGroup>
 
 </Project>
