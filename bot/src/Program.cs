@@ -14,6 +14,7 @@ using LundBot.Queues;
 using LundBot.Repositories;
 using LundBot.Services;
 using LundBot.Services.Discord;
+using LundBot.Services.Discord.Events;
 using Microsoft.EntityFrameworkCore;
 using Serilog;
 
@@ -185,24 +186,14 @@ namespace LundBot
                 intents
             );
 
-            builder.Services.AddCommandsExtension(
-                (serviceProvider, extension) => {
-                    // TODO: Use new command logic instead of SlashCommands, as it is now obsolete
-                    //  extension.AddCommands(new[] { typeof(MyCommands) });
-                }
-            );
-
-            // TODO: This doesnt seem right. idk.
             discordBotBuilder.ConfigureEventHandlers(events =>
             {
-                /*
-                events.HandleGuildDownloadCompleted(OnGuildDownloadCompleted);
-                events.HandleGuildMemberUpdated(OnGuildMemberUpdated);
-                events.HandleComponentInteractionCreated(OnComponentInteractionCreated);
-                events.HandleGuildMemberAdded(OnGuildMemberAdded);
-                events.HandleGuildCreated(OnGuildCreated);
-                events.HandleSessionCreated(OnSessionCreated);
-                */
+                events.AddEventHandlers<ComponentInteractionCreatedHandler>();
+                events.AddEventHandlers<GuildDownloadCompletedHandler>();
+                events.AddEventHandlers<GuildMemberUpdatedHandler>();
+                events.AddEventHandlers<GuildMemberAddedHandler>();
+                events.AddEventHandlers<SessionCreatedHandler>();
+                events.AddEventHandlers<GuildCreatedHandler>();
             });
         }
 
