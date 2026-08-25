@@ -22,7 +22,7 @@ namespace LundBot.Commands
         }
 
         [Command("upvote")]
-        [Description("Upvotes a user on the specified leaderboard.")]
+        [Description("Upvote a user on a specified leaderboard.")]
         public async Task UpvoteUserAsync(
             CommandContext context,
             [SlashAutoCompleteProvider(typeof(UpvoteLeaderboardChannelsAutocomplete))]
