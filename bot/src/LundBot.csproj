@@ -8,11 +8,11 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="DSharpPlus" Version="4.5.3" />
-    <PackageReference Include="DSharpPlus.Commands" Version="4.5.3" />
-    <PackageReference Include="DSharpPlus.Interactivity" Version="4.5.3" />
+    <PackageReference Include="DSharpPlus" Version="5.0.0-nightly-02602" />
+    <PackageReference Include="DSharpPlus.Commands" Version="5.0.0-nightly-02602" />
+    <PackageReference Include="DSharpPlus.Interactivity" Version="5.0.0-nightly-02602" />
     <!-- TODO: Probably have to remove SlashCommands, if it is no longer used. Ensure it is not used first -->
-    <PackageReference Include="DSharpPlus.SlashCommands" Version="4.5.3" />
+    <PackageReference Include="DSharpPlus.SlashCommands" Version="5.0.0-nightly-02602" />
     <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="10.0.10" />
     <PackageReference Include="Pomelo.EntityFrameworkCore.MySql" Version="9.0.0" />
     <PackageReference Include="Swashbuckle.AspNetCore.Newtonsoft" Version="10.2.3" />
