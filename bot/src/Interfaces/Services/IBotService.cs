@@ -9,16 +9,5 @@ namespace LundBot.Interfaces.Services
     {
         static DiscordClient DiscordClient { get; set; } = null!;
         Task InitializeAsync(DiscordClient discordClient);
-        Task OnGuildDownloadCompleted(DiscordClient sender, GuildDownloadCompletedEventArgs e);
-        Task OnGuildMemberAdded(DiscordClient sender, GuildMemberAddedEventArgs e);
-        Task OnGuildMemberUpdated(DiscordClient sender, GuildMemberUpdatedEventArgs e);
-        Task OnGuildCreated(DiscordClient sender, GuildCreatedEventArgs e);
-        Task OnSlashCommandExecuted(CommandsExtension sender, CommandExecutedEventArgs e);
-        Task OnSlashCommandErrored(CommandsExtension sender, CommandErroredEventArgs e);
-        Task OnClientReady(DiscordClient sender, SessionCreatedEventArgs e);
-        Task OnComponentInteractionCreated(
-            DiscordClient sender,
-            ComponentInteractionCreatedEventArgs e
-        );
     }
 }

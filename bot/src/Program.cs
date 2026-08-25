@@ -186,9 +186,10 @@ namespace LundBot
                 intents
             );
 
-            // TODO: Finish implementing event handlers
             discordBotBuilder.ConfigureEventHandlers(events =>
             {
+                // TODO: Add command invoked and command errored
+
                 events.AddEventHandlers<ComponentInteractionCreatedHandler>();
                 events.AddEventHandlers<GuildDownloadCompletedHandler>();
                 events.AddEventHandlers<GuildMemberUpdatedHandler>();
