@@ -114,12 +114,17 @@ namespace LundBot.Services.Discord
         {
             _logger.Information(
                 "Deleting message with ID {MessageId} from channel {ChannelId}...",
-                message.Id,
-                message.Channel.Id
+                message?.Id,
+                message?.Channel?.Id
             );
 
             try
             {
+                if (message is null)
+                {
+                    throw new ArgumentNullException(nameof(message), "Message cannot be null.");
+                }
+
                 await message.DeleteAsync();
             }
             catch (Exception ex)
@@ -127,8 +132,8 @@ namespace LundBot.Services.Discord
                 _logger.Error(
                     ex,
                     "Failed to delete message with ID {MessageId} from channel {ChannelId}.",
-                    message.Id,
-                    message.Channel.Id
+                    message?.Id,
+                    message?.Channel?.Id
                 );
                 throw;
             }

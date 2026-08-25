@@ -24,7 +24,7 @@ public sealed class CommandControllerTests
 
         // Assert
         Assert.IsType<OkObjectResult>(result);
-        commandsService.Verify(s => s.RefreshCommands(), Times.Once);
+        commandsService.Verify(s => s.RefreshCommandsAsync(), Times.Once);
     }
 
     [Fact]

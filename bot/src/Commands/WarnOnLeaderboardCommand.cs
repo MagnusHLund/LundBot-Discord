@@ -1,6 +1,8 @@
+using System.ComponentModel;
+using DSharpPlus.Commands;
+using DSharpPlus.Commands.ContextChecks;
+using DSharpPlus.Commands.Processors.SlashCommands.ArgumentModifiers;
 using DSharpPlus.Entities;
-using DSharpPlus.SlashCommands;
-using DSharpPlus.SlashCommands.Attributes;
 using LundBot.AutocompleteProviders;
 using LundBot.Interfaces.Services;
 using LundBot.Interfaces.Services.Discord;
@@ -20,17 +22,20 @@ namespace LundBot.Commands
             _leaderboardService = leaderboardService;
         }
 
-        [SlashRequirePermissions(true, DiscordPermission.Administrator)]
-        [SlashCommand(
-            "warn",
+        [RequirePermissions(DiscordPermission.Administrator)]
+        [Command("warn")]
+        [Description(
             "Register a warning for a user on the specified leaderboard. User will NOT be notified."
         )]
         public async Task RegisterWarningAsync(
-            InteractionContext context,
-            [Autocomplete(typeof(WarningLeaderboardChannelsAutocomplete))]
-            [Option("channel", "The Channel that has the leaderboard")]
+            CommandContext context,
+            [SlashAutoCompleteProvider(typeof(WarningLeaderboardChannelsAutocomplete))]
+            [Parameter("channel")]
+            [Description("The Channel that has the leaderboard")]
                 string channelId,
-            [Option("user", "The user to register warning for")] DiscordUser userTarget
+            [Parameter("user")]
+            [Description("The user to register warning for")]
+                DiscordUser userTarget
         )
         {
             if (!await IsCommandSentFromServer(context))

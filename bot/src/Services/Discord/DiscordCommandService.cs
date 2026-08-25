@@ -1,5 +1,5 @@
+using DSharpPlus.Commands;
 using DSharpPlus.Entities;
-using DSharpPlus.SlashCommands;
 using LundBot.Interfaces.Services.Discord;
 using Serilog;
 
@@ -93,7 +93,7 @@ namespace LundBot.Services.Discord
             }
         }
 
-        public async Task<SlashCommandsExtension> GetSlashCommandsAsync()
+        public async Task<CommandsExtension> GetSlashCommandsAsync()
         {
             _logger.Information("Fetching slash commands...");
 
@@ -110,7 +110,7 @@ namespace LundBot.Services.Discord
             }
         }
 
-        public async Task RefreshCommandsAsync(SlashCommandsExtension slashCommands)
+        public async Task RefreshCommandsAsync(CommandsExtension slashCommands)
         {
             _logger.Information("Refreshing commands...");
 

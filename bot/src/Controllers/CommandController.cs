@@ -23,7 +23,7 @@ namespace LundBot.Controllers
         [HttpPost("sync")]
         public async Task<IActionResult> SyncCommands()
         {
-            await _commandService.RefreshCommands();
+            await _commandService.RefreshCommandsAsync();
             return Ok(new { message = "Commands synchronized successfully." });
         }
 

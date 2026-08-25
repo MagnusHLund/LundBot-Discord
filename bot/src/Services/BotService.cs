@@ -1,5 +1,6 @@
 using System.Reflection;
 using DSharpPlus;
+using DSharpPlus.Commands;
 using DSharpPlus.Entities;
 using DSharpPlus.EventArgs;
 using DSharpPlus.SlashCommands;
@@ -136,7 +137,7 @@ namespace LundBot.Services
         }
 
         public async Task OnSlashCommandExecuted(
-            SlashCommandsExtension sender,
+            CommandsExtension sender,
             SlashCommandExecutedEventArgs e
         )
         {
@@ -149,7 +150,7 @@ namespace LundBot.Services
         }
 
         public async Task OnSlashCommandErrored(
-            SlashCommandsExtension sender,
+            CommandsExtension sender,
             SlashCommandErrorEventArgs e
         )
         {
@@ -185,7 +186,7 @@ namespace LundBot.Services
 
             try
             {
-                await _commandsService.RefreshCommands();
+                await _commandsService.RefreshCommandsAsync();
                 _logger.Information("Registered commands for guild {GuildId}", e.Guild.Id);
             }
             catch (Exception ex)

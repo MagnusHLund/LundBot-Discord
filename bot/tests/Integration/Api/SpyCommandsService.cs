@@ -11,7 +11,7 @@ internal sealed class SpyCommandsService : ICommandsService
 
     public Task LogRegisteredCommandsForGuildsAsync() => Task.CompletedTask;
 
-    public Task RefreshCommands()
+    public Task RefreshCommandsAsync()
     {
         RefreshCommandsCalled = true;
         return Task.CompletedTask;

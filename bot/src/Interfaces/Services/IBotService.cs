@@ -1,7 +1,7 @@
 using DSharpPlus;
+using DSharpPlus.Commands;
+using DSharpPlus.Commands.EventArgs;
 using DSharpPlus.EventArgs;
-using DSharpPlus.SlashCommands;
-using DSharpPlus.SlashCommands.EventArgs;
 
 namespace LundBot.Interfaces.Services
 {
@@ -13,8 +13,8 @@ namespace LundBot.Interfaces.Services
         Task OnGuildMemberAdded(DiscordClient sender, GuildMemberAddedEventArgs e);
         Task OnGuildMemberUpdated(DiscordClient sender, GuildMemberUpdatedEventArgs e);
         Task OnGuildCreated(DiscordClient sender, GuildCreatedEventArgs e);
-        Task OnSlashCommandExecuted(SlashCommandsExtension sender, SlashCommandExecutedEventArgs e);
-        Task OnSlashCommandErrored(SlashCommandsExtension sender, SlashCommandErrorEventArgs e);
+        Task OnSlashCommandExecuted(CommandsExtension sender, CommandExecutedEventArgs e);
+        Task OnSlashCommandErrored(CommandsExtension sender, CommandErroredEventArgs e);
         Task OnClientReady(DiscordClient sender, SessionCreatedEventArgs e);
         Task OnComponentInteractionCreated(
             DiscordClient sender,

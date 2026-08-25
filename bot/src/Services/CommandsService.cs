@@ -1,3 +1,4 @@
+using DSharpPlus.Commands;
 using DSharpPlus.SlashCommands;
 using LundBot.Commands;
 using LundBot.Config;
@@ -28,7 +29,7 @@ namespace LundBot.Services
 
         public async Task RegisterCommandsAsync()
         {
-            SlashCommandsExtension slash = await _discordCommandService.GetSlashCommandsAsync();
+            CommandsExtension slash = await _discordCommandService.GetSlashCommandsAsync();
 
             List<ulong?> guildIds = GetFastUpdateGuildIds().Select(id => (ulong?)id).ToList();
 
@@ -44,12 +45,25 @@ namespace LundBot.Services
                     guildId == null ? "GLOBAL" : guildId.Value.ToString()
                 );
 
-                slash.RegisterCommands<CreateLeaderboardCommand>(guildId);
-                slash.RegisterCommands<PingCommand>(guildId);
-                slash.RegisterCommands<RandomMapCommand>(guildId);
-                slash.RegisterCommands<WarnOnLeaderboardCommand>(guildId);
-                slash.RegisterCommands<RemoveLeaderboardCommand>(guildId);
-                slash.RegisterCommands<UpvoteUserOnLeaderboardCommand>(guildId);
+                // TODO: This can probably be written better
+                if (guildId is null)
+                {
+                    slash.AddCommands<CreateLeaderboardCommand>();
+                    slash.AddCommands<PingCommand>();
+                    slash.AddCommands<RandomMapCommand>();
+                    slash.AddCommands<WarnOnLeaderboardCommand>();
+                    slash.AddCommands<RemoveLeaderboardCommand>();
+                    slash.AddCommands<UpvoteUserOnLeaderboardCommand>();
+                }
+                else
+                {
+                    slash.AddCommands<CreateLeaderboardCommand>(guildId.Value);
+                    slash.AddCommands<PingCommand>(guildId.Value);
+                    slash.AddCommands<RandomMapCommand>(guildId.Value);
+                    slash.AddCommands<WarnOnLeaderboardCommand>(guildId.Value);
+                    slash.AddCommands<RemoveLeaderboardCommand>(guildId.Value);
+                    slash.AddCommands<UpvoteUserOnLeaderboardCommand>(guildId.Value);
+                }
             }
         }
 
@@ -82,9 +96,9 @@ namespace LundBot.Services
             }
         }
 
-        public async Task RefreshCommands()
+        public async Task RefreshCommandsAsync()
         {
-            SlashCommandsExtension slash = await _discordCommandService.GetSlashCommandsAsync();
+            CommandsExtension slash = await _discordCommandService.GetSlashCommandsAsync();
 
             // TODO: Figure this out. Broken in the latest DSharpPlus version.
             // await slash.RefreshCommands();

@@ -1,5 +1,5 @@
+using DSharpPlus.Commands.Processors.SlashCommands;
 using DSharpPlus.Entities;
-using DSharpPlus.SlashCommands;
 using LundBot.Enums;
 using LundBot.Interfaces.Services;
 
@@ -10,10 +10,15 @@ namespace LundBot.AutocompleteProviders
         public UpvoteLeaderboardChannelsAutocomplete(ILeaderboardService leaderboardService)
             : base(leaderboardService) { }
 
-        public override async Task<IEnumerable<DiscordAutoCompleteChoice>> Provider(
-            AutocompleteContext context
+        public override async ValueTask<IEnumerable<DiscordAutoCompleteChoice>> AutoCompleteAsync(
+            AutoCompleteContext context
         )
         {
+            if (context.Guild is null)
+            {
+                return Enumerable.Empty<DiscordAutoCompleteChoice>();
+            }
+
             var upvoteLeaderboards = (
                 await GetLeaderboardChoicesForGuildAsync(context.Guild.Id, LeaderboardType.Upvote)
             );
