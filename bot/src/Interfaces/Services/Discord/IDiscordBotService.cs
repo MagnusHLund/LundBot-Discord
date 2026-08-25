@@ -1,6 +1,4 @@
-using DSharpPlus;
 using DSharpPlus.Entities;
-using DSharpPlus.SlashCommands;
 
 namespace LundBot.Interfaces.Services.Discord
 {

@@ -1,5 +1,4 @@
 using DSharpPlus.Commands;
-using DSharpPlus.SlashCommands;
 using LundBot.Commands;
 using LundBot.Config;
 using LundBot.Interfaces.Services;

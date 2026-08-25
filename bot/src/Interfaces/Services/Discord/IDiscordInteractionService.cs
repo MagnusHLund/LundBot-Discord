@@ -6,7 +6,7 @@ namespace LundBot.Interfaces.Services.Discord
 {
     public interface IDiscordInteractionService
     {
-        ValueTask<bool> IsCommandSentFromServer(DiscordInteraction context);
+        ValueTask<bool> IsCommandSentFromServer(CommandContext context);
         Task SendResponseAsync(CommandContext context, string content, bool showOnlyToUser = true);
 
         Task SendResponseAsync(

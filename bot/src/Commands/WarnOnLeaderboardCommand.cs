@@ -45,7 +45,7 @@ namespace LundBot.Commands
 
             if (
                 !ulong.TryParse(channelId, out var parsedId)
-                || await context.Guild.GetChannelAsync(parsedId) is not DiscordChannel channel
+                || await context.Guild!.GetChannelAsync(parsedId) is not DiscordChannel channel
             )
             {
                 await SendResponseAsync(context, "The specified channel does not exist.");

@@ -1,10 +1,9 @@
 using System.Reflection;
 using DSharpPlus;
 using DSharpPlus.Commands;
+using DSharpPlus.Commands.EventArgs;
 using DSharpPlus.Entities;
 using DSharpPlus.EventArgs;
-using DSharpPlus.SlashCommands;
-using DSharpPlus.SlashCommands.EventArgs;
 using LundBot.Config;
 using LundBot.Helpers;
 using LundBot.Interfaces.Services;
@@ -138,26 +137,23 @@ namespace LundBot.Services
 
         public async Task OnSlashCommandExecuted(
             CommandsExtension sender,
-            SlashCommandExecutedEventArgs e
+            CommandExecutedEventArgs e
         )
         {
             _logger.Information(
                 "Slash executed: {Cmd} by {User} in Guild={Guild}",
-                e.Context.CommandName,
+                e.Context.Command.Name,
                 e.Context.User?.Username,
                 e.Context.Guild?.Id ?? 0
             );
         }
 
-        public async Task OnSlashCommandErrored(
-            CommandsExtension sender,
-            SlashCommandErrorEventArgs e
-        )
+        public async Task OnSlashCommandErrored(CommandsExtension sender, CommandErroredEventArgs e)
         {
             _logger.Error(
                 e.Exception,
                 "Slash errored: {Cmd} by {User} in Guild={Guild}",
-                e.Context?.CommandName ?? "<unknown>",
+                e.Context?.Command.Name ?? "<unknown>",
                 e.Context?.User?.Username ?? "<unknown>",
                 e.Context?.Guild?.Id ?? 0
             );

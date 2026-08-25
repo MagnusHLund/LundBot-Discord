@@ -1,5 +1,4 @@
 using DSharpPlus.Entities;
-using DSharpPlus.SlashCommands;
 using LundBot.Interfaces.Services.Discord;
 using Serilog;
 

@@ -1,7 +1,7 @@
 using DSharpPlus;
+using DSharpPlus.Commands;
 using DSharpPlus.Entities;
 using DSharpPlus.EventArgs;
-using DSharpPlus.SlashCommands;
 using LundBot.Interfaces.Services;
 using LundBot.Interfaces.Services.Discord;
 using Serilog;
@@ -23,7 +23,7 @@ namespace LundBot.Services.Discord
             _discordMessageService = discordMessageService;
         }
 
-        public async ValueTask<bool> IsCommandSentFromServer(InteractionContext context)
+        public async ValueTask<bool> IsCommandSentFromServer(CommandContext context)
         {
             if (context.Guild is null)
             {
@@ -34,13 +34,12 @@ namespace LundBot.Services.Discord
         }
 
         public async Task SendResponseAsync(
-            InteractionContext context,
+            CommandContext context,
             string content,
             bool showOnlyToUser = true
         )
         {
-            await context.CreateResponseAsync(
-                DiscordInteractionResponseType.ChannelMessageWithSource,
+            await context.RespondAsync(
                 new DiscordInteractionResponseBuilder()
                     .WithContent(content)
                     .AsEphemeral(showOnlyToUser)
