@@ -1,4 +1,3 @@
-using DSharpPlus;
 using DSharpPlus.Entities;
 using LundBot.Interfaces.Services.Discord;
 using Serilog;
@@ -65,8 +64,7 @@ namespace LundBot.Services.Discord
             try
             {
                 var builder = new DiscordMessageBuilder().WithContent(content);
-                // .AddComponents(components.ToArray());
-                // TODO: Make functionality to add any component type
+                AddComponentsToBuilder(builder, components);
 
                 return await channel.SendMessageAsync(builder);
             }
@@ -136,6 +134,60 @@ namespace LundBot.Services.Discord
                     message?.Channel?.Id
                 );
                 throw;
+            }
+        }
+
+        private void AddComponentsToBuilder(
+            DiscordMessageBuilder builder,
+            IEnumerable<DiscordComponent> components
+        )
+        {
+            foreach (var component in components)
+            {
+                switch (component)
+                {
+                    // V1 components
+                    case DiscordButtonComponent button:
+                        builder.AddActionRowComponent(button);
+                        break;
+
+                    case BaseDiscordSelectComponent select:
+                        builder.AddActionRowComponent(select);
+                        break;
+
+                    // V2 components
+                    case DiscordContainerComponent container:
+                        builder.AddContainerComponent(container);
+                        break;
+
+                    case DiscordFileComponent file:
+                        builder.AddFileComponent(file);
+                        break;
+
+                    // Is this a DSharpPlus bug? One would think that builder.AddMediaGalleryComponent would accept a DiscordMediaGalleryComponent, instead of a list of MediaGalleryItems.
+                    case DiscordMediaGalleryComponent mediaGallery:
+                        builder.AddMediaGalleryComponent(mediaGallery.Items);
+                        break;
+
+                    case DiscordSectionComponent section:
+                        builder.AddSectionComponent(section);
+                        break;
+
+                    case DiscordSeparatorComponent separator:
+                        builder.AddSeparatorComponent(separator);
+                        break;
+
+                    case DiscordTextDisplayComponent textDisplay:
+                        builder.AddTextDisplayComponent(textDisplay);
+                        break;
+
+                    default:
+                        _logger.Warning(
+                            "Unsupported component type: {ComponentType}. Component will not be added.",
+                            component.GetType().Name
+                        );
+                        break;
+                }
             }
         }
     }
