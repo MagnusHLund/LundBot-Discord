@@ -186,6 +186,7 @@ namespace LundBot
                 intents
             );
 
+            // TODO: Finish implementing event handlers
             discordBotBuilder.ConfigureEventHandlers(events =>
             {
                 events.AddEventHandlers<ComponentInteractionCreatedHandler>();
