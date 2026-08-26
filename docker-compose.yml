@@ -14,7 +14,6 @@ services:
       - LundBotDiscordNetwork
     env_file:
       - .env
-
     profiles: ['Production']
 
   bot-dev:
@@ -34,7 +33,6 @@ services:
       - LundBotDiscordNetwork
     env_file:
       - .env
-
     profiles: ['Development']
 
   mariadb-dev:
@@ -50,6 +48,12 @@ services:
       - '3306:3306'
     networks:
       - LundBotDiscordNetwork
+    healthcheck:
+      test: ['CMD', 'healthcheck.sh', '--connect', '--innodb_initialized']
+      interval: 2s
+      timeout: 5s
+      retries: 10
+      start_period: 5s
     profiles: ['Development']
 
 networks:
