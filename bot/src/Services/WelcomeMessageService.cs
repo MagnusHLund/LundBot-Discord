@@ -65,6 +65,7 @@ namespace LundBot.Services
 
             _messageService.MessageFactory.SetJoinedUserId(member.Id.ToString());
 
+            string interactionId = $"welcome_hi:{member.Id}";
             await _messageService.CreateMessageWithComponentsAsync(
                 welcomeMessage,
                 systemChannel,
@@ -72,7 +73,7 @@ namespace LundBot.Services
                 {
                     new DiscordButtonComponent(
                         DiscordButtonStyle.Primary,
-                        "welcome_hi",
+                        interactionId,
                         "Say Hi 👋"
                     ),
                 }

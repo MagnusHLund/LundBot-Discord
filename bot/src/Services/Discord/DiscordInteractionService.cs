@@ -74,16 +74,26 @@ namespace LundBot.Services.Discord
 
         public async Task HandleComponentInteractionAsync(ComponentInteractionCreatedEventArgs e)
         {
-            string eventId = e.Id;
+            string[] interactionParts = e.Id.Split(':');
 
-            switch (eventId)
+            string interactionName = interactionParts[0];
+            ulong userId = ulong.Parse(interactionParts[1]);
+
+            DiscordMember discordMember = await e.Guild.GetMemberAsync(userId);
+
+            switch (interactionName)
             {
                 case "welcome_hi":
+                    if (await NotifyUserUnauthorizedForOwnAction(e.User, userId, e.Interaction))
+                    {
+                        return;
+                    }
+
                     // Acknowledge the button press (required)
                     await e.Interaction.CreateResponseAsync(
                         DiscordInteractionResponseType.DeferredMessageUpdate
                     );
-                    await HandleWelcomeInteractionAsync(e.User, e.Channel);
+                    await HandleWelcomeInteractionAsync(discordMember, e.Channel);
                     break;
                 default:
                     await SendResponseAsync(e.Interaction, "Unknown interaction.", true);
@@ -91,7 +101,7 @@ namespace LundBot.Services.Discord
             }
         }
 
-        private async Task HandleWelcomeInteractionAsync(DiscordUser user, DiscordChannel channel)
+        private async Task HandleWelcomeInteractionAsync(DiscordMember user, DiscordChannel channel)
         {
             using var scope = _scopeFactory.CreateScope();
             var welcomeMessageService =
@@ -101,16 +111,29 @@ namespace LundBot.Services.Discord
             short randomIndex = (short)new Random().Next(welcomeStickers.Count);
             var randomSticker = welcomeStickers[randomIndex];
 
-            // TODO: The mention is to the wrong user. Also make this message be a response to the interaction.
             var message = new DiscordMessageBuilder().WithContent($"{user.Mention} says hi!");
 
             if (randomSticker is not null)
             {
-                // TODO: This is now broken due to DSharpPlus changes. Need to find a new way to send stickers with messages.
-                // message.WithSticker(randomSticker);
+                message.WithStickers([randomSticker]);
             }
 
             await _discordMessageService.SendMessageAsync(channel, message);
+        }
+
+        private async Task<bool> NotifyUserUnauthorizedForOwnAction(
+            DiscordUser user,
+            ulong targetUserId,
+            DiscordInteraction interaction
+        )
+        {
+            if (user.Id != targetUserId)
+            {
+                return false;
+            }
+
+            await SendResponseAsync(interaction, "You are not authorized to use this interaction.");
+            return true;
         }
     }
 }

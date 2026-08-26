@@ -13,7 +13,7 @@ namespace LundBot.Services.Discord.Events
         )
         {
             _logger.Information(
-                "Slash invoked: {Cmd} by {User} in Guild={Guild}",
+                "Command invoked: {Cmd} by {User} in Guild={Guild}",
                 e.Id,
                 e.User?.Username,
                 e.Guild?.Id ?? 0

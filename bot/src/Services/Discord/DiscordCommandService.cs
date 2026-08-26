@@ -99,18 +99,17 @@ namespace LundBot.Services.Discord
             }
         }
 
-        public async Task<CommandsExtension> GetSlashCommandsAsync()
+        public async Task<CommandsExtension> GetCommandsAsync()
         {
-            _logger.Information("Fetching slash commands...");
+            _logger.Information("Fetching commands...");
 
             try
             {
-                _commandsExtension = BotService.DiscordClient.GetSlashCommands();
                 return _commandsExtension;
             }
             catch (Exception ex)
             {
-                _logger.Error(ex, "Failed to fetch slash commands");
+                _logger.Error(ex, "Failed to fetch commands");
                 throw;
             }
         }

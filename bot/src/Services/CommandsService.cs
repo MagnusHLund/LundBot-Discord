@@ -28,7 +28,7 @@ namespace LundBot.Services
 
         public async Task RegisterCommandsAsync()
         {
-            CommandsExtension slash = await _discordCommandService.GetSlashCommandsAsync();
+            CommandsExtension commands = await _discordCommandService.GetCommandsAsync();
 
             List<ulong?> guildIds = GetFastUpdateGuildIds().Select(id => (ulong?)id).ToList();
 
@@ -44,25 +44,7 @@ namespace LundBot.Services
                     guildId == null ? "GLOBAL" : guildId.Value.ToString()
                 );
 
-                // TODO: This can probably be written better
-                if (guildId is null)
-                {
-                    slash.AddCommands<CreateLeaderboardCommand>();
-                    slash.AddCommands<PingCommand>();
-                    slash.AddCommands<RandomMapCommand>();
-                    slash.AddCommands<WarnOnLeaderboardCommand>();
-                    slash.AddCommands<RemoveLeaderboardCommand>();
-                    slash.AddCommands<UpvoteUserOnLeaderboardCommand>();
-                }
-                else
-                {
-                    slash.AddCommands<CreateLeaderboardCommand>(guildId.Value);
-                    slash.AddCommands<PingCommand>(guildId.Value);
-                    slash.AddCommands<RandomMapCommand>(guildId.Value);
-                    slash.AddCommands<WarnOnLeaderboardCommand>(guildId.Value);
-                    slash.AddCommands<RemoveLeaderboardCommand>(guildId.Value);
-                    slash.AddCommands<UpvoteUserOnLeaderboardCommand>(guildId.Value);
-                }
+                AddCommands(commands, guildId);
             }
         }
 
@@ -182,6 +164,28 @@ namespace LundBot.Services
             }
 
             return true;
+        }
+
+        private static void AddCommands(CommandsExtension commands, ulong? guildId = null)
+        {
+            if (guildId is null)
+            {
+                commands.AddCommands<CreateLeaderboardCommand>();
+                commands.AddCommands<PingCommand>();
+                commands.AddCommands<RandomMapCommand>();
+                commands.AddCommands<WarnOnLeaderboardCommand>();
+                commands.AddCommands<RemoveLeaderboardCommand>();
+                commands.AddCommands<UpvoteUserOnLeaderboardCommand>();
+
+                return;
+            }
+
+            commands.AddCommands<CreateLeaderboardCommand>(guildId.Value);
+            commands.AddCommands<PingCommand>(guildId.Value);
+            commands.AddCommands<RandomMapCommand>(guildId.Value);
+            commands.AddCommands<WarnOnLeaderboardCommand>(guildId.Value);
+            commands.AddCommands<RemoveLeaderboardCommand>(guildId.Value);
+            commands.AddCommands<UpvoteUserOnLeaderboardCommand>(guildId.Value);
         }
 
         private List<ulong> GetFastUpdateGuildIds()

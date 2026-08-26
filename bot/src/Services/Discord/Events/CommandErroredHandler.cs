@@ -18,7 +18,7 @@ namespace LundBot.Services.Discord.Events
         {
             _logger.Error(
                 e.Exception,
-                "Slash errored: {Cmd} by {User} in Guild={Guild}",
+                "Command errored: {Cmd} by {User} in Guild={Guild}",
                 e.Context?.Command.Name ?? "<unknown>",
                 e.Context?.User?.Username ?? "<unknown>",
                 e.Context?.Guild?.Id ?? 0

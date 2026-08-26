@@ -11,7 +11,7 @@ namespace LundBot.Interfaces.Services.Discord
         );
         Task DeleteGlobalApplicationCommandAsync(ulong commandId);
         Task DeleteGuildApplicationCommandAsync(ulong guildId, ulong commandId);
-        Task<CommandsExtension> GetSlashCommandsAsync();
+        Task<CommandsExtension> GetCommandsAsync();
         Task RefreshCommandsAsync();
     }
 }
