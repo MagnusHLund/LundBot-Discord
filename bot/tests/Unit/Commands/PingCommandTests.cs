@@ -1,4 +1,3 @@
-using DSharpPlus.SlashCommands;
 using LundBot.Commands;
 using LundBot.Tests.Mocks.Services.Discord;
 

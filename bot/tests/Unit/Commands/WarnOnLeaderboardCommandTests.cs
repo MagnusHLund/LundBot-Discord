@@ -73,7 +73,7 @@ public sealed class WarnOnLeaderboardCommandTests
         var command = new WarnOnLeaderboardCommand(leaderboardService.Object, interactionService);
         var user = DiscordTestHelper.TestUser(1, "Admin");
         var emptyGuild = DiscordObjectFactory.CreateUninitializedGuild(99);
-        var context = DiscordObjectFactory.CreateInteractionContext(user, emptyGuild);
+        var context = DiscordObjectFactory.CreateCommandContext(user, emptyGuild);
         var target = DiscordTestHelper.TestUser(200, "Target");
 
         // Act
@@ -106,7 +106,7 @@ public sealed class WarnOnLeaderboardCommandTests
         var guild = DiscordObjectFactory.CreateGuildWithChannel(10, channel);
         var user = DiscordTestHelper.TestUser(1, "Admin");
         var userTarget = DiscordTestHelper.TestUser(300, "Target");
-        var context = DiscordObjectFactory.CreateInteractionContext(user, guild);
+        var context = DiscordObjectFactory.CreateCommandContext(user, guild);
 
         // Act
         await command.RegisterWarningAsync(context, "12345", userTarget);

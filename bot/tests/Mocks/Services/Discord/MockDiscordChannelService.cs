@@ -10,4 +10,7 @@ internal sealed class MockDiscordChannelService : IDiscordChannelService
         DiscordTestHelper.TestChannel(123456789012345678);
 
     public Task<DiscordChannel> GetChannelAsync(ulong channelId) => Task.FromResult(Channel);
+
+    public Task<DiscordChannel> GetSystemChannelAsync(DiscordGuild guild) =>
+        Task.FromResult(Channel);
 }

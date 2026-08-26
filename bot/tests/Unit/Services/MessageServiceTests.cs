@@ -1,4 +1,3 @@
-using DSharpPlus;
 using DSharpPlus.Entities;
 using LundBot.Entities;
 using LundBot.Tests.Mocks.Repositories;
@@ -131,7 +130,7 @@ public sealed class MessageServiceTests
 
         var components = new List<DiscordComponent>
         {
-            new DiscordButtonComponent(ButtonStyle.Primary, "test_id", "Test"),
+            new DiscordButtonComponent(DiscordButtonStyle.Primary, "test_id", "Test"),
         };
 
         var service = MessageServiceTestFactory.Create(discord, channelService, repo);
