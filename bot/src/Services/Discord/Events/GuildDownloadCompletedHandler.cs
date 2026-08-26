@@ -2,6 +2,7 @@ using DSharpPlus;
 using DSharpPlus.EventArgs;
 using LundBot.Helpers;
 using LundBot.Interfaces.Services;
+using LundBot.Interfaces.Services.Discord;
 using Serilog;
 
 namespace LundBot.Services.Discord.Events
@@ -9,12 +10,12 @@ namespace LundBot.Services.Discord.Events
     public sealed class GuildDownloadCompletedHandler
         : IEventHandler<GuildDownloadCompletedEventArgs>
     {
-        private readonly DiscordGuildService _discordGuildService;
+        private readonly IDiscordGuildService _discordGuildService;
         private readonly ICacheService _cacheService;
         private readonly Serilog.ILogger _logger = Log.ForContext<GuildDownloadCompletedHandler>();
 
         public GuildDownloadCompletedHandler(
-            DiscordGuildService discordGuildService,
+            IDiscordGuildService discordGuildService,
             ICacheService cacheService
         )
         {

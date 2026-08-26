@@ -21,12 +21,14 @@ namespace LundBot.Services
         public BotService(
             IOptions<ServerConfig> serverConfig,
             ICommandsService commandsService,
-            IDiscordBotService discordBotService
+            IDiscordBotService discordBotService,
+            DiscordClient discordClient
         )
         {
             _serverConfig = serverConfig.Value;
             _commandsService = commandsService;
             _discordBotService = discordBotService;
+            DiscordClient = discordClient;
         }
 
         public async Task InitializeAsync(DiscordClient discordClient)
@@ -43,8 +45,6 @@ namespace LundBot.Services
                 EnvironmentUtils.GetEnvironment(),
                 dSharpPlusVersion
             );
-
-            DiscordClient = discordClient;
 
             await _commandsService.RegisterCommandsAsync();
 

@@ -1,5 +1,8 @@
 using DSharpPlus;
+using DSharpPlus.Commands;
+using DSharpPlus.Extensions;
 using LundBot.BackgroundServices;
+using LundBot.Commands;
 using LundBot.Config;
 using LundBot.Data;
 using LundBot.Entities;
@@ -180,12 +183,9 @@ namespace LundBot
             string discordToken = builder.Configuration["Discord:Token"] ?? "";
             DiscordIntents intents = DiscordIntents.AllUnprivileged | DiscordIntents.GuildMembers;
 
-            DiscordClientBuilder discordBotBuilder = DiscordClientBuilder.CreateDefault(
-                discordToken,
-                intents
-            );
+            builder.Services.AddDiscordClient(discordToken, intents);
 
-            discordBotBuilder.ConfigureEventHandlers(events =>
+            builder.Services.ConfigureEventHandlers(events =>
             {
                 events.AddEventHandlers<ComponentInteractionCreatedHandler>();
                 events.AddEventHandlers<GuildDownloadCompletedHandler>();
@@ -196,6 +196,8 @@ namespace LundBot
                 events.AddEventHandlers<CommandErroredHandler>();
                 events.AddEventHandlers<GuildCreatedHandler>();
             });
+
+            builder.Services.AddCommandsExtension((ServiceProvider, extension) => { });
         }
 
         private static void RegisterLogger(WebApplicationBuilder builder)
