@@ -1,4 +1,4 @@
 # TODOs
 
 1. Create formatting standards for the C# project and then format all the C# files.
-2. Resolve TODO comments in code, relating to the new version switch of DSharpPlus
+2. Fix automated testing after refactors
