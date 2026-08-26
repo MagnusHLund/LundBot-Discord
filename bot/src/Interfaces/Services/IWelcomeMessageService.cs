@@ -6,6 +6,10 @@ namespace LundBot.Interfaces.Services
     {
         Task SendWelcomeMessageAsync(DiscordGuild guild, DiscordMember member);
         Task RemoveWelcomeMessageAsync(DiscordGuild guild, ulong discordMemberId);
-        Task<List<DiscordMessageSticker>> GetWelcomeStickersAsync();
+        Task HandleWelcomeInteractionAsync(
+            DiscordUser senderUser,
+            DiscordMember targetUser,
+            DiscordChannel channel
+        );
     }
 }

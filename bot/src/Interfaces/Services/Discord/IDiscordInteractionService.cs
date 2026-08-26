@@ -20,6 +20,5 @@ namespace LundBot.Interfaces.Services.Discord
             DiscordInteractionResponseBuilder responseBuilder,
             bool showOnlyToUser = true
         );
-        Task HandleComponentInteractionAsync(ComponentInteractionCreatedEventArgs e);
     }
 }

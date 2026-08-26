@@ -30,5 +30,11 @@ namespace LundBot.Interfaces.Services
             DiscordChannel channel,
             List<DiscordComponent> components
         );
+
+        Task CreateMessageFromDiscordMessageBuilderAsync(
+            DiscordMessageBuilder messageBuilder,
+            DiscordChannel channel,
+            bool shouldSaveMessageInDatabase = false
+        );
     }
 }

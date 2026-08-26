@@ -18,7 +18,7 @@ namespace LundBot.Services
             WelcomeMessagesRepository,
             WelcomeMessageFactory
         > _messageService;
-
+        private readonly IServiceScopeFactory _scopeFactory;
         private readonly IWelcomeMessagesRepository _welcomeMessagesRepository;
         private readonly Serilog.ILogger _logger = Serilog.Log.ForContext<WelcomeMessageService>();
 
@@ -28,6 +28,7 @@ namespace LundBot.Services
                 WelcomeMessagesRepository,
                 WelcomeMessageFactory
             > messageService,
+            IServiceScopeFactory scopeFactory,
             IWelcomeMessagesRepository welcomeMessagesRepository,
             IDiscordStickerService discordStickerService,
             IDiscordChannelService discordChannelService
@@ -35,6 +36,7 @@ namespace LundBot.Services
         {
             _messageService = messageService;
             _welcomeMessagesRepository = welcomeMessagesRepository;
+            _scopeFactory = scopeFactory;
             _discordStickerService = discordStickerService;
             _discordChannelService = discordChannelService;
         }
@@ -86,6 +88,39 @@ namespace LundBot.Services
             );
         }
 
+        public async Task HandleWelcomeInteractionAsync(
+            DiscordUser senderUser,
+            DiscordMember targetUser,
+            DiscordChannel channel
+        )
+        {
+            var message = new DiscordMessageBuilder().WithContent(
+                $"{senderUser.Mention} says hi to {targetUser.Mention}"
+            );
+
+            using var scope = _scopeFactory.CreateScope();
+            var welcomeMessageService =
+                scope.ServiceProvider.GetRequiredService<IWelcomeMessageService>();
+
+            var welcomeStickers = await GetWelcomeStickersAsync();
+            short randomIndex = (short)new Random().Next(welcomeStickers.Count);
+            var randomSticker = welcomeStickers[randomIndex];
+
+            if (randomSticker is not null)
+            {
+                message.WithStickers(new List<DiscordMessageSticker> { randomSticker });
+            }
+
+            var welcomeMessage = await _welcomeMessagesRepository.GetByJoinedUserIdAsync(
+                targetUser.Id.ToString()
+            );
+
+            ulong replyMessageId = ulong.Parse(welcomeMessage.DiscordMessageId);
+            message.WithReply(replyMessageId);
+
+            await _messageService.CreateMessageFromDiscordMessageBuilderAsync(message, channel);
+        }
+
         public async Task RemoveWelcomeMessageAsync(DiscordGuild guild, ulong discordMemberId)
         {
             _logger.Information(
@@ -130,7 +165,7 @@ namespace LundBot.Services
             );
         }
 
-        public async Task<List<DiscordMessageSticker>> GetWelcomeStickersAsync()
+        private async Task<List<DiscordMessageSticker>> GetWelcomeStickersAsync()
         {
             List<string> uniqueTitles = new List<string>() { "Wave", "Heya", "Sup", "Hello" };
 
