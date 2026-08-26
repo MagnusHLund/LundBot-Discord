@@ -1,5 +1,4 @@
 using DSharpPlus;
-using DSharpPlus.Commands;
 using LundBot.BackgroundServices;
 using LundBot.Config;
 using LundBot.Data;
@@ -188,13 +187,13 @@ namespace LundBot
 
             discordBotBuilder.ConfigureEventHandlers(events =>
             {
-                // TODO: Add command invoked and command errored
-
                 events.AddEventHandlers<ComponentInteractionCreatedHandler>();
                 events.AddEventHandlers<GuildDownloadCompletedHandler>();
                 events.AddEventHandlers<GuildMemberUpdatedHandler>();
                 events.AddEventHandlers<GuildMemberAddedHandler>();
                 events.AddEventHandlers<SessionCreatedHandler>();
+                events.AddEventHandlers<CommandInvokedHandler>();
+                events.AddEventHandlers<CommandErroredHandler>();
                 events.AddEventHandlers<GuildCreatedHandler>();
             });
         }
