@@ -7,7 +7,13 @@ namespace LundBot.Services.Discord
 {
     public sealed class DiscordCommandService : IDiscordCommandService
     {
+        private readonly CommandsExtension _commandsExtension;
         private readonly Serilog.ILogger _logger = Log.ForContext<DiscordCommandService>();
+
+        public DiscordCommandService(CommandsExtension commandsExtension)
+        {
+            _commandsExtension = commandsExtension;
+        }
 
         public async Task DeleteGlobalApplicationCommandAsync(ulong commandId)
         {
@@ -99,9 +105,8 @@ namespace LundBot.Services.Discord
 
             try
             {
-                // TODO: Figure this out in latest DSharpPlus version.
-                // return BotService.DiscordClient.GetSlashCommands();
-                throw new NotImplementedException("Idk how to do this yet");
+                _commandsExtension = BotService.DiscordClient.GetSlashCommands();
+                return _commandsExtension;
             }
             catch (Exception ex)
             {
@@ -110,14 +115,13 @@ namespace LundBot.Services.Discord
             }
         }
 
-        public async Task RefreshCommandsAsync(CommandsExtension slashCommands)
+        public async Task RefreshCommandsAsync()
         {
             _logger.Information("Refreshing commands...");
 
             try
             {
-                // TODO: Figure this out in latest DSharpPlus version.
-                // await BotService.DiscordClient.RefreshCommands(slashCommands);
+                await _commandsExtension.RefreshAsync();
             }
             catch (Exception ex)
             {

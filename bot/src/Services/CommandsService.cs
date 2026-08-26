@@ -97,10 +97,7 @@ namespace LundBot.Services
 
         public async Task RefreshCommandsAsync()
         {
-            CommandsExtension slash = await _discordCommandService.GetSlashCommandsAsync();
-
-            // TODO: Figure this out. Broken in the latest DSharpPlus version.
-            // await slash.RefreshCommands();
+            await _discordCommandService.RefreshCommandsAsync();
         }
 
         public async Task<bool> UnregisterCommand(string commandId, bool global = false)

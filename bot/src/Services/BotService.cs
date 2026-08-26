@@ -16,20 +16,17 @@ namespace LundBot.Services
 
         private readonly ICommandsService _commandsService;
         private readonly IDiscordBotService _discordBotService;
-        private readonly IDiscordInteractionService _discordInteractionService;
         private readonly ServerConfig _serverConfig;
 
         public BotService(
             IOptions<ServerConfig> serverConfig,
             ICommandsService commandsService,
-            IDiscordBotService discordBotService,
-            IDiscordInteractionService discordInteractionService
+            IDiscordBotService discordBotService
         )
         {
             _serverConfig = serverConfig.Value;
             _commandsService = commandsService;
             _discordBotService = discordBotService;
-            _discordInteractionService = discordInteractionService;
         }
 
         public async Task InitializeAsync(DiscordClient discordClient)
