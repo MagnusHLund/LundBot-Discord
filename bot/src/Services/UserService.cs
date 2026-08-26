@@ -1,4 +1,3 @@
-using DSharpPlus;
 using DSharpPlus.Entities;
 using LundBot.Config;
 using LundBot.Enums;

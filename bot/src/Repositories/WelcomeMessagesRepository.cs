@@ -2,7 +2,6 @@ using LundBot.Data;
 using LundBot.Entities;
 using LundBot.Interfaces.Repositories;
 using Microsoft.EntityFrameworkCore;
-using MySqlConnector;
 
 namespace LundBot.Repositories
 {

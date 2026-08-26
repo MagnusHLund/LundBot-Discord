@@ -1,7 +1,4 @@
 using DSharpPlus;
-using DSharpPlus.Commands;
-using DSharpPlus.Commands.EventArgs;
-using DSharpPlus.EventArgs;
 
 namespace LundBot.Interfaces.Services
 {
