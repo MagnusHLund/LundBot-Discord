@@ -19,6 +19,7 @@ using LundBot.Services.Discord;
 using LundBot.Services.Discord.Events;
 using Microsoft.EntityFrameworkCore;
 using Serilog;
+using Serilog.Events;
 
 namespace LundBot
 {
@@ -203,6 +204,7 @@ namespace LundBot
         private static void RegisterLogger(WebApplicationBuilder builder)
         {
             Log.Logger = new LoggerConfiguration()
+                .MinimumLevel.Override("DSharpPlus", LogEventLevel.Warning)
                 .ReadFrom.Configuration(builder.Configuration)
                 .Enrich.FromLogContext()
                 .CreateLogger();
