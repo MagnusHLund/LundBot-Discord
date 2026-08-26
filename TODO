@@ -1,3 +1,4 @@
 # TODOs
 
 1. Create formatting standards for the C# project and then format all the C# files.
+2 Add some basic authentication for the HTTP endpoints
