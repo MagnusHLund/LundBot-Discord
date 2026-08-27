@@ -58,6 +58,11 @@ namespace LundBot.Controllers
 
             string apiKey = authorization.Substring("Bearer ".Length).Trim();
 
+            if (string.IsNullOrEmpty(apiKey))
+            {
+                return false;
+            }
+
             return apiKey == _serverConfig.ApiKey;
         }
     }
