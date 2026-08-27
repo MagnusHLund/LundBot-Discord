@@ -43,7 +43,7 @@ internal static class DiscordObjectFactory
     {
         DiscordGuild guild = CreateUninitialized<DiscordGuild>();
         SetMemberValue(guild, "Id", id);
-        SetMemberValue(guild, "_channels", new ConcurrentDictionary<ulong, DiscordChannel>());
+        SetMemberValue(guild, "channels", new ConcurrentDictionary<ulong, DiscordChannel>());
         return guild;
     }
 
@@ -54,7 +54,7 @@ internal static class DiscordObjectFactory
 
         DiscordGuild guild = CreateUninitialized<DiscordGuild>();
         SetMemberValue(guild, "Id", guildId);
-        SetMemberValue(guild, "_channels", channels);
+        SetMemberValue(guild, "channels", channels);
         return guild;
     }
 
@@ -68,7 +68,7 @@ internal static class DiscordObjectFactory
 
         DiscordGuild guild = CreateUninitialized<DiscordGuild>();
         SetMemberValue(guild, "Id", guildId);
-        SetMemberValue(guild, "_channels", channels);
+        SetMemberValue(guild, "channels", channels);
         // DSharpPlus stores this as a property named _systemChannelId (Nullable<ulong>)
         SetMemberValue(guild, "_systemChannelId", (ulong?)systemChannel.Id);
         return guild;
@@ -112,6 +112,13 @@ internal static class DiscordObjectFactory
         FieldInfo? backingField = null;
         while (current is not null && backingField is null)
         {
+            var test = typeof(DiscordGuild).GetFields(
+                BindingFlags.Instance
+                    | BindingFlags.Public
+                    | BindingFlags.NonPublic
+                    | BindingFlags.DeclaredOnly
+            );
+
             backingField =
                 current.GetField(
                     $"<{memberName}>k__BackingField",
