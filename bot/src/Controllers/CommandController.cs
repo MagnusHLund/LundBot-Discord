@@ -13,9 +13,10 @@ namespace LundBot.Controllers
 
         public CommandController(
             IOptions<DeveloperEnvironmentConfig> devConfig,
+            IOptions<ServerConfig> serverConfig,
             ICommandsService commandService
         )
-            : base(devConfig)
+            : base(devConfig, serverConfig)
         {
             _commandService = commandService;
         }
@@ -23,6 +24,11 @@ namespace LundBot.Controllers
         [HttpPost("sync")]
         public async Task<IActionResult> SyncCommands()
         {
+            if (!HasApiKey())
+            {
+                return Unauthorized();
+            }
+
             await _commandService.RefreshCommandsAsync();
             return Ok(new { message = "Commands synchronized successfully." });
         }
@@ -30,6 +36,11 @@ namespace LundBot.Controllers
         [HttpDelete("unregister/all")]
         public async Task<IActionResult> UnregisterAllCommands([FromQuery] bool global = false)
         {
+            if (!HasApiKey())
+            {
+                return Unauthorized();
+            }
+
             bool success = await _commandService.UnregisterAllCommands(global);
 
             if (!success)
@@ -49,6 +60,11 @@ namespace LundBot.Controllers
             [FromQuery] bool global = false
         )
         {
+            if (!HasApiKey())
+            {
+                return Unauthorized();
+            }
+
             bool success = await _commandService.UnregisterCommand(id, global);
 
             if (!success)

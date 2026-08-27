@@ -2,7 +2,6 @@ using DSharpPlus;
 using DSharpPlus.Commands;
 using DSharpPlus.Extensions;
 using LundBot.BackgroundServices;
-using LundBot.Commands;
 using LundBot.Config;
 using LundBot.Data;
 using LundBot.Entities;
