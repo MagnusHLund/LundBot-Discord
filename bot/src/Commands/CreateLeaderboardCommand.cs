@@ -37,7 +37,7 @@ namespace LundBot.Commands
             [Description(
                 "The title of the leaderboard. eg 'Top Upvoted Users'. Max 64 characters."
             )]
-            [MinMaxValue(1, 64)]
+            [MinMaxLength(1, 64)]
                 string title,
             [Parameter("message")]
             [Description(
