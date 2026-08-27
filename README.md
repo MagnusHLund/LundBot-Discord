@@ -71,4 +71,4 @@ Note that you must have jq installed.
 `https://jqlang.org/download/`
 
 And obviously also dotnet-ef
-`dotnet tool install --global dotnet-ef`
+`dotnet tool install dotnet-ef` or `dotnet tool install --global dotnet-ef`

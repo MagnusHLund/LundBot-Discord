@@ -2,3 +2,5 @@
 
 1. Create formatting standards for the C# project and then format all the C# files.
 2. Fix automated testing after refactors
+3. Add basic text chat monitoring, for automatic warnings and message deletion
+4. Create new table for warns, which has the warn reasons
