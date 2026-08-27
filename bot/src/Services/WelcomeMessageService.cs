@@ -18,7 +18,6 @@ namespace LundBot.Services
             WelcomeMessagesRepository,
             WelcomeMessageFactory
         > _messageService;
-        private readonly IServiceScopeFactory _scopeFactory;
         private readonly IWelcomeMessagesRepository _welcomeMessagesRepository;
         private readonly Serilog.ILogger _logger = Serilog.Log.ForContext<WelcomeMessageService>();
 
@@ -28,7 +27,6 @@ namespace LundBot.Services
                 WelcomeMessagesRepository,
                 WelcomeMessageFactory
             > messageService,
-            IServiceScopeFactory scopeFactory,
             IWelcomeMessagesRepository welcomeMessagesRepository,
             IDiscordStickerService discordStickerService,
             IDiscordChannelService discordChannelService
@@ -36,7 +34,6 @@ namespace LundBot.Services
         {
             _messageService = messageService;
             _welcomeMessagesRepository = welcomeMessagesRepository;
-            _scopeFactory = scopeFactory;
             _discordStickerService = discordStickerService;
             _discordChannelService = discordChannelService;
         }
@@ -97,10 +94,6 @@ namespace LundBot.Services
             var message = new DiscordMessageBuilder().WithContent(
                 $"{senderUser.Mention} says hi to {targetUser.Mention}"
             );
-
-            using var scope = _scopeFactory.CreateScope();
-            var welcomeMessageService =
-                scope.ServiceProvider.GetRequiredService<IWelcomeMessageService>();
 
             var welcomeStickers = await GetWelcomeStickersAsync();
             short randomIndex = (short)new Random().Next(welcomeStickers.Count);
