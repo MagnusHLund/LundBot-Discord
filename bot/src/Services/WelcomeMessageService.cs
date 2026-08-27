@@ -96,11 +96,9 @@ namespace LundBot.Services
             );
 
             var welcomeStickers = await GetWelcomeStickersAsync();
-            short randomIndex = (short)new Random().Next(welcomeStickers.Count);
-            var randomSticker = welcomeStickers[randomIndex];
-
-            if (randomSticker is not null)
+            if (welcomeStickers.Count > 0)
             {
+                var randomSticker = welcomeStickers[Random.Shared.Next(welcomeStickers.Count)];
                 message.WithStickers(new List<DiscordMessageSticker> { randomSticker });
             }
 
