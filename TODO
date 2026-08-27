@@ -3,3 +3,4 @@
 1. Create formatting standards for the C# project and then format all the C# files.
 2. Add some basic authentication for the HTTP endpoints
 3. Add basic text chat monitoring, for automatic warnings and message deletion
+4. Create new table for warns, which has the warn reasons
