@@ -1,74 +1,26 @@
 using DSharpPlus.Entities;
 using LundBot.Entities;
-using LundBot.Factories.MessageEntityFactories;
-using LundBot.Interfaces.Repositories;
-using LundBot.Interfaces.Services;
-using LundBot.Interfaces.Services.Discord;
-using LundBot.Repositories;
-using LundBot.Services;
 using LundBot.Tests.TestHelpers;
+using LundBot.Tests.Unit.Services.Contexts;
 using Moq;
 
 namespace LundBot.Tests.Unit.Services;
 
 public sealed class WelcomeMessageServiceTests
 {
-    private static (
-        WelcomeMessageService Service,
-        Mock<
-            IMessageService<WelcomeMessageEntity, WelcomeMessagesRepository, WelcomeMessageFactory>
-        > MessageService,
-        WelcomeMessageFactory Factory,
-        Mock<IWelcomeMessagesRepository> Repository,
-        Mock<IDiscordStickerService> StickerService,
-        Mock<IDiscordChannelService> DiscordChannelService
-    ) CreateContext()
-    {
-        var mockMessageService =
-            new Mock<
-                IMessageService<
-                    WelcomeMessageEntity,
-                    WelcomeMessagesRepository,
-                    WelcomeMessageFactory
-                >
-            >();
-        var factory = new WelcomeMessageFactory();
-        mockMessageService.SetupGet(m => m.MessageFactory).Returns(factory);
-
-        var mockRepository = new Mock<IWelcomeMessagesRepository>();
-        var mockStickerService = new Mock<IDiscordStickerService>();
-        var mockDiscordChannelService = new Mock<IDiscordChannelService>();
-
-        var service = new WelcomeMessageService(
-            mockMessageService.Object,
-            mockRepository.Object,
-            mockStickerService.Object,
-            mockDiscordChannelService.Object
-        );
-
-        return (
-            service,
-            mockMessageService,
-            factory,
-            mockRepository,
-            mockStickerService,
-            mockDiscordChannelService
-        );
-    }
-
     [Fact]
     internal async Task SendWelcomeMessageAsync_WhenSystemChannelIsNull_DoesNotSendMessage()
     {
         // Arrange
-        var (service, mockMessageService, _, _, _, _) = CreateContext();
+        var context = WelcomeMessageServiceTestContextFactory.Create();
         var guild = DiscordObjectFactory.CreateUninitializedGuild(1);
         var member = DiscordObjectFactory.CreateMember(100);
 
         // Act
-        await service.SendWelcomeMessageAsync(guild, member);
+        await context.Service.SendWelcomeMessageAsync(guild, member);
 
         // Assert
-        mockMessageService.Verify(
+        context.MessageService.Verify(
             m =>
                 m.CreateMessageWithComponentsAsync(
                     It.IsAny<string>(),
@@ -83,13 +35,13 @@ public sealed class WelcomeMessageServiceTests
     internal async Task SendWelcomeMessageAsync_WhenSystemChannelExists_SendsMessageWithButton()
     {
         // Arrange
-        var (service, mockMessageService, factory, _, _, _) = CreateContext();
+        var context = WelcomeMessageServiceTestContextFactory.Create();
         var systemChannel = DiscordObjectFactory.CreateChannel(999);
         var guild = DiscordObjectFactory.CreateGuildWithSystemChannel(1, systemChannel);
         var member = DiscordObjectFactory.CreateMember(100);
 
-        mockMessageService
-            .Setup(m =>
+        context
+            .MessageService.Setup(m =>
                 m.CreateMessageWithComponentsAsync(
                     It.IsAny<string>(),
                     It.IsAny<DiscordChannel>(),
@@ -99,10 +51,10 @@ public sealed class WelcomeMessageServiceTests
             .Returns(Task.CompletedTask);
 
         // Act
-        await service.SendWelcomeMessageAsync(guild, member);
+        await context.Service.SendWelcomeMessageAsync(guild, member);
 
         // Assert
-        mockMessageService.Verify(
+        context.MessageService.Verify(
             m =>
                 m.CreateMessageWithComponentsAsync(
                     It.IsAny<string>(),
@@ -111,21 +63,21 @@ public sealed class WelcomeMessageServiceTests
                 ),
             Times.Once
         );
-        Assert.Equal("100", factory.Create("any").DiscordUserId);
+        Assert.Equal("100", context.Factory.Create("any").DiscordUserId);
     }
 
     [Fact]
     internal async Task RemoveWelcomeMessageAsync_WhenSystemChannelIsNull_DoesNotDeleteMessage()
     {
         // Arrange
-        var (service, mockMessageService, _, _, _, _) = CreateContext();
+        var context = WelcomeMessageServiceTestContextFactory.Create();
         var guild = DiscordObjectFactory.CreateUninitializedGuild(1);
 
         // Act
-        await service.RemoveWelcomeMessageAsync(guild, discordMemberId: 100);
+        await context.Service.RemoveWelcomeMessageAsync(guild, discordMemberId: 100);
 
         // Assert
-        mockMessageService.Verify(
+        context.MessageService.Verify(
             m =>
                 m.DeleteMessageByIdAsync(
                     It.IsAny<WelcomeMessageEntity>(),
@@ -139,7 +91,7 @@ public sealed class WelcomeMessageServiceTests
     internal async Task RemoveWelcomeMessageAsync_WhenWelcomeMessageExists_DeletesMessageAndRemovesFromRepository()
     {
         // Arrange
-        var (service, mockMessageService, _, mockRepository, _, _) = CreateContext();
+        var context = WelcomeMessageServiceTestContextFactory.Create();
         var systemChannel = DiscordObjectFactory.CreateChannel(999);
         var guild = DiscordObjectFactory.CreateGuildWithSystemChannel(1, systemChannel);
         var welcomeEntity = new WelcomeMessageEntity
@@ -149,16 +101,18 @@ public sealed class WelcomeMessageServiceTests
             DiscordUserId = "100",
         };
 
-        mockRepository.Setup(r => r.GetByJoinedUserIdAsync("100")).ReturnsAsync(welcomeEntity);
-        mockMessageService
-            .Setup(m => m.DeleteMessageByIdAsync(welcomeEntity, It.IsAny<DiscordChannel>()))
+        context.Repository.Setup(r => r.GetByJoinedUserIdAsync("100")).ReturnsAsync(welcomeEntity);
+        context
+            .MessageService.Setup(m =>
+                m.DeleteMessageByIdAsync(welcomeEntity, It.IsAny<DiscordChannel>())
+            )
             .Returns(Task.CompletedTask);
 
         // Act
-        await service.RemoveWelcomeMessageAsync(guild, discordMemberId: 100);
+        await context.Service.RemoveWelcomeMessageAsync(guild, discordMemberId: 100);
 
         // Assert
-        mockMessageService.Verify(
+        context.MessageService.Verify(
             m => m.DeleteMessageByIdAsync(welcomeEntity, It.IsAny<DiscordChannel>()),
             Times.Once
         );
@@ -168,7 +122,7 @@ public sealed class WelcomeMessageServiceTests
     internal async Task GetWelcomeStickersAsync_ReturnsOnlyStickersMatchingWelcomeTitles()
     {
         // Arrange
-        var (service, _, _, _, mockStickerService, _) = CreateContext();
+        var context = WelcomeMessageServiceTestContextFactory.Create();
 
         var waveSticker = CreateSticker(1, "Wave");
         var heyaSticker = CreateSticker(2, "Heya");
@@ -187,12 +141,12 @@ public sealed class WelcomeMessageServiceTests
             }
         );
 
-        mockStickerService
-            .Setup(s => s.GetStickerPacksAsync())
+        context
+            .StickerService.Setup(s => s.GetStickerPacksAsync())
             .ReturnsAsync(new List<DiscordMessageStickerPack> { pack });
 
         // Act
-        List<DiscordMessageSticker> result = await service.GetWelcomeStickersAsync();
+        List<DiscordMessageSticker> result = await context.Service.GetWelcomeStickersAsync();
 
         // Assert
         Assert.Equal(4, result.Count);
@@ -207,7 +161,7 @@ public sealed class WelcomeMessageServiceTests
     internal async Task GetWelcomeStickersAsync_WhenNoMatchingStickers_ReturnsEmptyList()
     {
         // Arrange
-        var (service, _, _, _, mockStickerService, _) = CreateContext();
+        var context = WelcomeMessageServiceTestContextFactory.Create();
 
         var pack = CreateStickerPack(
             new Dictionary<ulong, DiscordMessageSticker>
@@ -217,12 +171,12 @@ public sealed class WelcomeMessageServiceTests
             }
         );
 
-        mockStickerService
-            .Setup(s => s.GetStickerPacksAsync())
+        context
+            .StickerService.Setup(s => s.GetStickerPacksAsync())
             .ReturnsAsync(new List<DiscordMessageStickerPack> { pack });
 
         // Act
-        List<DiscordMessageSticker> result = await service.GetWelcomeStickersAsync();
+        List<DiscordMessageSticker> result = await context.Service.GetWelcomeStickersAsync();
 
         // Assert
         Assert.Empty(result);
