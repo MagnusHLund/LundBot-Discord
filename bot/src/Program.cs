@@ -205,6 +205,7 @@ namespace LundBot
         {
             Log.Logger = new LoggerConfiguration()
                 .MinimumLevel.Override("DSharpPlus", LogEventLevel.Warning)
+                .MinimumLevel.Override("System.Net.Http.HttpClient", LogEventLevel.Warning)
                 .ReadFrom.Configuration(builder.Configuration)
                 .Enrich.FromLogContext()
                 .CreateLogger();
