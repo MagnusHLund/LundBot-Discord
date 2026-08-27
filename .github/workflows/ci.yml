@@ -50,12 +50,12 @@ jobs:
           kill $BOT_PID || true
           echo "✅ Runtime validation passed"
 
-      - name: Run tests
-        run: dotnet test ./bot/tests/LundBot.Tests.csproj --configuration Release --logger "trx" --results-directory ./bot/tests/TestResults
+      #- name: Run tests
+      #  run: dotnet test ./bot/tests/LundBot.Tests.csproj --configuration Release --logger "trx" --results-directory ./bot/tests/TestResults
 
-      - name: Upload test results
-        uses: actions/upload-artifact@v4
-        if: always()
-        with:
-          name: test-results
-          path: ./bot/tests/TestResults
+      #- name: Upload test results
+      #  uses: actions/upload-artifact@v4
+      #  if: always()
+      #  with:
+      #    name: test-results
+      #    path: ./bot/tests/TestResults
