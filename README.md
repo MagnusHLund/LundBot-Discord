@@ -72,3 +72,68 @@ Note that you must have jq installed.
 
 And obviously also dotnet-ef
 `dotnet tool install dotnet-ef` or `dotnet tool install --global dotnet-ef`
+
+## Features
+
+### Leaderboards
+
+Creates a leaderboard of the specific type.
+There can only be one leaderboard per channel.
+
+Minimum permission: Administrator
+
+Command: `/create_leaderboard`
+
+Parameters:
+
+1. **Text channel** that that he leaderboard will be in.
+2. **Type** of leaderboard. For example **Upvote** leaderboard.
+3. **Title** of the leaderboard. Max 64 characters.
+4. **Message** displayed above the title. Used to be more descriptive of what the leaderboard is for. Max 256 characters.
+
+
+
+#### Upvote leaderboard
+
+The upvote leaderboard allows people to upvote other server members.
+The upvoter member can only upvote the same target member once.
+
+To upvote, you have to use the upvote command.
+
+#### Upvote command
+
+Minimum permission: Anyone
+
+Command: `/upvote`
+
+Parameters:
+
+1. **Channel** that the leaderboard is located within.
+2. **User** to upvote on the leaderboard.
+
+#### Invite leaderboard
+
+The invite leaderboard keeps track of who has invited the most users, that have ended up joining.
+So its not purely invites. Its invite and then join from that invite.
+
+The bot has to be active to track the leaderboard, as the data can not be directly pulled from Discord.
+It gets tracked by the bot itself.
+
+#### Warning leaderboard
+
+The warn leaderboard is closely related to the upvote leaderboard.
+The main difference is that you can warn the user multiple times.
+
+A future feature would be that the warnings leaderboard would also show warn reasons.
+Bot that has not yet been implemented and requires a new database table.
+
+#### Warn command
+
+Minimum permission: Administrator
+
+Command: `/warn`
+
+Parameters:
+
+1. **Channel** that the leaderboard is located within.
+2. **User** to warn on the leaderboard.
