@@ -34,9 +34,6 @@ namespace LundBot.Services.Discord
                 if (channel is null)
                 {
                     _logger.Warning("No system channel found for guild {GuildId}.", guild.Id);
-                    throw new InvalidOperationException(
-                        $"No system channel found for guild {guild.Id}."
-                    );
                 }
 
                 return channel;
