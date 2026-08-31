@@ -229,6 +229,25 @@ namespace LundBot
             {
                 options.UseMySql(connectionString, ServerVersion.AutoDetect(connectionString));
             });
+
+            using var scope = builder.Services.BuildServiceProvider().CreateScope();
+
+            var logger = scope.ServiceProvider.GetRequiredService<ILogger<Program>>();
+            var dbContext = scope.ServiceProvider.GetRequiredService<LundBotDiscordDbContext>();
+
+            try
+            {
+                logger.LogInformation("Checking for pending database migrations...");
+
+                dbContext.Database.Migrate();
+
+                logger.LogInformation("Database migrations applied successfully.");
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(ex, "An error occurred while applying database migrations.");
+                throw;
+            }
         }
     }
 }
