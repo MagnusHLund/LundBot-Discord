@@ -106,6 +106,25 @@ namespace LundBot.Services
             );
         }
 
+        public async Task CreateMessageFromDiscordMessageBuilderAsync(
+            DiscordMessageBuilder messageBuilder,
+            DiscordChannel channel,
+            bool shouldSaveMessage = false
+        )
+        {
+            DiscordMessage discordMessage = await _discordMessageService.SendMessageAsync(
+                channel,
+                messageBuilder
+            );
+
+            if (shouldSaveMessage)
+            {
+                await _messageRepository.CreateAsync(
+                    _messageFactory.Create(discordMessage.Id.ToString())
+                );
+            }
+        }
+
         private async Task UpdateMessagesAsync(
             int sharedLength,
             List<TEntity> existing,

@@ -1,5 +1,5 @@
+using DSharpPlus.Commands;
 using DSharpPlus.Entities;
-using DSharpPlus.SlashCommands;
 using LundBot.Interfaces.Services.Discord;
 using Serilog;
 
@@ -7,7 +7,13 @@ namespace LundBot.Services.Discord
 {
     public sealed class DiscordCommandService : IDiscordCommandService
     {
+        private readonly CommandsExtension _commandsExtension;
         private readonly Serilog.ILogger _logger = Log.ForContext<DiscordCommandService>();
+
+        public DiscordCommandService(CommandsExtension commandsExtension)
+        {
+            _commandsExtension = commandsExtension;
+        }
 
         public async Task DeleteGlobalApplicationCommandAsync(ulong commandId)
         {
@@ -93,28 +99,28 @@ namespace LundBot.Services.Discord
             }
         }
 
-        public async Task<SlashCommandsExtension> GetSlashCommandsAsync()
+        public async Task<CommandsExtension> GetCommandsAsync()
         {
-            _logger.Information("Fetching slash commands...");
+            _logger.Information("Fetching commands...");
 
             try
             {
-                return BotService.DiscordClient.GetSlashCommands();
+                return _commandsExtension;
             }
             catch (Exception ex)
             {
-                _logger.Error(ex, "Failed to fetch slash commands");
+                _logger.Error(ex, "Failed to fetch commands");
                 throw;
             }
         }
 
-        public async Task RefreshCommandsAsync(SlashCommandsExtension slashCommands)
+        public async Task RefreshCommandsAsync()
         {
             _logger.Information("Refreshing commands...");
 
             try
             {
-                await slashCommands.RefreshCommands();
+                await _commandsExtension.RefreshAsync();
             }
             catch (Exception ex)
             {

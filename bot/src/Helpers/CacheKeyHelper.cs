@@ -1,6 +1,6 @@
 namespace LundBot.Helpers
 {
-    public class CacheKeyHelper
+    public static class CacheKeyHelper
     {
         public static string LeaderboardsPerGuild(string guildId) =>
             $"guild_leaderboards_{guildId}";

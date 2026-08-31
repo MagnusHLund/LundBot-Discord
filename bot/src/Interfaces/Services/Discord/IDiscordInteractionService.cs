@@ -1,17 +1,13 @@
+using DSharpPlus.Commands;
 using DSharpPlus.Entities;
 using DSharpPlus.EventArgs;
-using DSharpPlus.SlashCommands;
 
 namespace LundBot.Interfaces.Services.Discord
 {
     public interface IDiscordInteractionService
     {
-        ValueTask<bool> IsCommandSentFromServer(InteractionContext context);
-        Task SendResponseAsync(
-            InteractionContext context,
-            string content,
-            bool showOnlyToUser = true
-        );
+        ValueTask<bool> IsCommandSentFromServer(CommandContext context);
+        Task SendResponseAsync(CommandContext context, string content, bool showOnlyToUser = true);
 
         Task SendResponseAsync(
             DiscordInteraction interaction,
@@ -24,6 +20,5 @@ namespace LundBot.Interfaces.Services.Discord
             DiscordInteractionResponseBuilder responseBuilder,
             bool showOnlyToUser = true
         );
-        Task HandleComponentInteractionAsync(ComponentInteractionCreateEventArgs e);
     }
 }

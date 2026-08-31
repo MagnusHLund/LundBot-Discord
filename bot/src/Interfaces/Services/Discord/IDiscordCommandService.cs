@@ -1,5 +1,5 @@
+using DSharpPlus.Commands;
 using DSharpPlus.Entities;
-using DSharpPlus.SlashCommands;
 
 namespace LundBot.Interfaces.Services.Discord
 {
@@ -11,7 +11,7 @@ namespace LundBot.Interfaces.Services.Discord
         );
         Task DeleteGlobalApplicationCommandAsync(ulong commandId);
         Task DeleteGuildApplicationCommandAsync(ulong guildId, ulong commandId);
-        Task<SlashCommandsExtension> GetSlashCommandsAsync();
-        Task RefreshCommandsAsync(SlashCommandsExtension slashCommands);
+        Task<CommandsExtension> GetCommandsAsync();
+        Task RefreshCommandsAsync();
     }
 }

@@ -1,4 +1,3 @@
-using DSharpPlus;
 using DSharpPlus.Entities;
 using LundBot.Interfaces.Services.Discord;
 using Serilog;
@@ -82,7 +81,10 @@ namespace LundBot.Services.Discord
             }
         }
 
-        public async Task<bool> MemberHasPermission(DiscordMember member, Permissions permission)
+        public async Task<bool> MemberHasPermission(
+            DiscordMember member,
+            DiscordPermission permission
+        )
         {
             _logger.Information(
                 "Checking if member with ID {MemberId} has permission {Permission}...",
@@ -117,7 +119,7 @@ namespace LundBot.Services.Discord
             try
             {
                 var adminRoles = guild
-                    .Roles.Values.Where(r => r.Permissions.HasFlag(Permissions.Administrator))
+                    .Roles.Values.Where(r => r.Permissions.HasFlag(DiscordPermission.Administrator))
                     .ToList();
 
                 if (!adminRoles.Any())

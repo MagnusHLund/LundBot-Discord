@@ -18,7 +18,10 @@ public sealed class UpvoteUserOnLeaderboardCommandTests
             IsCommandSentFromServerResult = false,
         };
         var leaderboardService = new Mock<ILeaderboardService>();
-        var command = new UpvoteUserOnLeaderboardCommand(leaderboardService.Object, interactionService);
+        var command = new UpvoteUserOnLeaderboardCommand(
+            leaderboardService.Object,
+            interactionService
+        );
         var target = DiscordTestHelper.TestUser(100, "Target");
 
         // Act
@@ -43,7 +46,10 @@ public sealed class UpvoteUserOnLeaderboardCommandTests
         // Arrange
         var interactionService = new MockDiscordInteractionService();
         var leaderboardService = new Mock<ILeaderboardService>();
-        var command = new UpvoteUserOnLeaderboardCommand(leaderboardService.Object, interactionService);
+        var command = new UpvoteUserOnLeaderboardCommand(
+            leaderboardService.Object,
+            interactionService
+        );
         var target = DiscordTestHelper.TestUser(100, "Target");
 
         // Act
@@ -72,10 +78,13 @@ public sealed class UpvoteUserOnLeaderboardCommandTests
         // Arrange
         var interactionService = new MockDiscordInteractionService();
         var leaderboardService = new Mock<ILeaderboardService>();
-        var command = new UpvoteUserOnLeaderboardCommand(leaderboardService.Object, interactionService);
+        var command = new UpvoteUserOnLeaderboardCommand(
+            leaderboardService.Object,
+            interactionService
+        );
         var user = DiscordTestHelper.TestUser(1, "User");
         var emptyGuild = DiscordObjectFactory.CreateUninitializedGuild(99);
-        var context = DiscordObjectFactory.CreateInteractionContext(user, emptyGuild);
+        var context = DiscordObjectFactory.CreateCommandContext(user, emptyGuild);
         var target = DiscordTestHelper.TestUser(200, "Target");
 
         // Act
@@ -104,11 +113,14 @@ public sealed class UpvoteUserOnLeaderboardCommandTests
         // Arrange
         var interactionService = new MockDiscordInteractionService();
         var leaderboardService = new Mock<ILeaderboardService>();
-        var command = new UpvoteUserOnLeaderboardCommand(leaderboardService.Object, interactionService);
+        var command = new UpvoteUserOnLeaderboardCommand(
+            leaderboardService.Object,
+            interactionService
+        );
         var channel = DiscordTestHelper.TestChannel(12345);
         var guild = DiscordObjectFactory.CreateGuildWithChannel(10, channel);
         var user = DiscordTestHelper.TestUser(100, "User");
-        var context = DiscordObjectFactory.CreateInteractionContext(user, guild);
+        var context = DiscordObjectFactory.CreateCommandContext(user, guild);
 
         // Act
         await command.UpvoteUserAsync(context, "12345", user);
@@ -136,12 +148,15 @@ public sealed class UpvoteUserOnLeaderboardCommandTests
         // Arrange
         var interactionService = new MockDiscordInteractionService();
         var leaderboardService = new Mock<ILeaderboardService>();
-        var command = new UpvoteUserOnLeaderboardCommand(leaderboardService.Object, interactionService);
+        var command = new UpvoteUserOnLeaderboardCommand(
+            leaderboardService.Object,
+            interactionService
+        );
         var channel = DiscordTestHelper.TestChannel(12345);
         var guild = DiscordObjectFactory.CreateGuildWithChannel(10, channel);
         var userUpvoting = DiscordTestHelper.TestUser(200, "Upvoter");
         var userTarget = DiscordTestHelper.TestUser(300, "Target");
-        var context = DiscordObjectFactory.CreateInteractionContext(userUpvoting, guild);
+        var context = DiscordObjectFactory.CreateCommandContext(userUpvoting, guild);
 
         // Act
         await command.UpvoteUserAsync(context, "12345", userTarget);

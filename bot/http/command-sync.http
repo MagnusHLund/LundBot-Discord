@@ -1,4 +1,7 @@
 @LundBot_HostAddress = http://localhost:3000
+@api_key = test
 
 POST {{LundBot_HostAddress}}/api/command/sync
 Accept: application/json
+Authorization: Bearer {{api_key}}
+    

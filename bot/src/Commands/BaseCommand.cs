@@ -1,10 +1,10 @@
-using DSharpPlus.SlashCommands;
+using DSharpPlus.Commands;
 using LundBot.Exceptions;
 using LundBot.Interfaces.Services.Discord;
 
 namespace LundBot.Commands
 {
-    public abstract class BaseCommand : ApplicationCommandModule
+    public abstract class BaseCommand
     {
         private readonly IDiscordInteractionService _discordInteractionService;
 
@@ -16,13 +16,13 @@ namespace LundBot.Commands
         public const string GENERIC_ERROR_MESSAGE =
             "An error occurred while processing your command. Please try again later.";
 
-        private protected async Task<bool> IsCommandSentFromServer(InteractionContext context)
+        private protected async Task<bool> IsCommandSentFromServer(CommandContext context)
         {
             return await _discordInteractionService.IsCommandSentFromServer(context);
         }
 
         private protected async Task SendResponseAsync(
-            InteractionContext context,
+            CommandContext context,
             string content,
             bool showOnlyToUser = true
         )
@@ -31,7 +31,7 @@ namespace LundBot.Commands
         }
 
         private protected async Task TaskWithErrorHandlingAsync(
-            InteractionContext context,
+            CommandContext context,
             Func<Task> action,
             string successMessage = "Command executed successfully."
         )

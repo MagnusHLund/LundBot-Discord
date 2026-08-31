@@ -1,6 +1,7 @@
-using DSharpPlus;
+using System.ComponentModel;
+using DSharpPlus.Commands;
+using DSharpPlus.Commands.Processors.SlashCommands.ArgumentModifiers;
 using DSharpPlus.Entities;
-using DSharpPlus.SlashCommands;
 using LundBot.AutocompleteProviders;
 using LundBot.Interfaces.Services;
 using LundBot.Interfaces.Services.Discord;
@@ -20,13 +21,15 @@ namespace LundBot.Commands
             _leaderboardService = leaderboardService;
         }
 
-        [SlashCommand("upvote", "Upvotes a user on the specified leaderboard.")]
+        [Command("upvote")]
+        [Description("Upvote a user on a specified leaderboard.")]
         public async Task UpvoteUserAsync(
-            InteractionContext context,
-            [Autocomplete(typeof(UpvoteLeaderboardChannelsAutocomplete))]
-            [Option("channel", "The Channel that has the leaderboard")]
+            CommandContext context,
+            [SlashAutoCompleteProvider(typeof(UpvoteLeaderboardChannelsAutocomplete))]
+            [Parameter("channel")]
+            [Description("The Channel that has the leaderboard")]
                 string channelId,
-            [Option("user", "The user to upvote")] DiscordUser userTarget
+            [Parameter("user")] [Description("The user to upvote.")] DiscordUser userTarget
         )
         {
             if (!await IsCommandSentFromServer(context))
@@ -36,7 +39,7 @@ namespace LundBot.Commands
 
             if (
                 !ulong.TryParse(channelId, out var parsedId)
-                || context.Guild.GetChannel(parsedId) is not DiscordChannel channel
+                || await context.Guild!.GetChannelAsync(parsedId) is not DiscordChannel channel
             )
             {
                 await SendResponseAsync(context, "The specified channel does not exist.");

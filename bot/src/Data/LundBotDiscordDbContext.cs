@@ -226,7 +226,6 @@ namespace LundBot.Data
                     e.DiscordUserIdActor,
                     e.DiscordUserIdTarget,
                 })
-                .IsUnique()
                 .HasDatabaseName("LeaderboardScoreSources_index_2");
 
             entity

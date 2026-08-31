@@ -5,6 +5,8 @@ namespace LundBot.Services.Discord
 {
     public class DiscordStickerService : IDiscordStickerService
     {
+        private readonly Serilog.ILogger _logger = Serilog.Log.ForContext<DiscordStickerService>();
+
         public Task<IReadOnlyList<DiscordMessageStickerPack>> GetStickerPacksAsync()
         {
             return BotService.DiscordClient.GetStickerPacksAsync();

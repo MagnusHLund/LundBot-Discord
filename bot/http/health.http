@@ -1,4 +1,6 @@
 @LundBot_HostAddress = http://localhost:3000
+@api_key = test
 
 GET {{LundBot_HostAddress}}/api/health
 Accept: application/json
+Authorization: Bearer {{api_key}}

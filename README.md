@@ -42,12 +42,18 @@
   },
   "DeveloperEnvironment": {
     "GenerateIpAddresses": false
+  },
+  "Server": {
+    "ApiKey": ""
   }
 }
 ```
 
 Note that configs under the `DeveloperEnvironment` object is only available when using `ASPNETCORE_ENVIRONMENT=Development` in the .env file. It can be safely removed from the `appsettings.Production.json` file.
 The Database connection string is setup to work with the development docker compose profile.
+
+The `ApiKey` is a value that you decide.
+It is a basic layer of security, to prevent anyone from calling the protected HTTP endpoints.
 
 ## Run project
 

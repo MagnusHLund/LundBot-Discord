@@ -9,10 +9,15 @@ namespace LundBot.Controllers
     public abstract class BaseController : ControllerBase
     {
         private readonly DeveloperEnvironmentConfig _devConfig;
+        private readonly ServerConfig _serverConfig;
 
-        public BaseController(IOptions<DeveloperEnvironmentConfig> devConfig)
+        public BaseController(
+            IOptions<DeveloperEnvironmentConfig> devConfig,
+            IOptions<ServerConfig> serverConfig
+        )
         {
             _devConfig = devConfig.Value;
+            _serverConfig = serverConfig.Value;
         }
 
         private protected string GetRequestorIpAddress(HttpRequest request)
@@ -40,6 +45,25 @@ namespace LundBot.Controllers
             }
 
             return "0.0.0.0";
+        }
+
+        private protected bool HasApiKey()
+        {
+            string? authorization = Request.Headers.Authorization;
+
+            if (string.IsNullOrEmpty(authorization) || !authorization.StartsWith("Bearer "))
+            {
+                return false;
+            }
+
+            string apiKey = authorization.Substring("Bearer ".Length).Trim();
+
+            if (string.IsNullOrEmpty(apiKey))
+            {
+                return false;
+            }
+
+            return apiKey == _serverConfig.ApiKey;
         }
     }
 }

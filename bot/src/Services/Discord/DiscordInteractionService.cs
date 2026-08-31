@@ -1,8 +1,5 @@
-using DSharpPlus;
+using DSharpPlus.Commands;
 using DSharpPlus.Entities;
-using DSharpPlus.EventArgs;
-using DSharpPlus.SlashCommands;
-using LundBot.Interfaces.Services;
 using LundBot.Interfaces.Services.Discord;
 using Serilog;
 
@@ -10,20 +7,9 @@ namespace LundBot.Services.Discord
 {
     public sealed class DiscordInteractionService : IDiscordInteractionService
     {
-        private readonly Microsoft.Extensions.DependencyInjection.IServiceScopeFactory _scopeFactory;
-        private readonly IDiscordMessageService _discordMessageService;
         private readonly Serilog.ILogger _logger = Log.ForContext<DiscordInteractionService>();
 
-        public DiscordInteractionService(
-            Microsoft.Extensions.DependencyInjection.IServiceScopeFactory scopeFactory,
-            IDiscordMessageService discordMessageService
-        )
-        {
-            _scopeFactory = scopeFactory;
-            _discordMessageService = discordMessageService;
-        }
-
-        public async ValueTask<bool> IsCommandSentFromServer(InteractionContext context)
+        public async ValueTask<bool> IsCommandSentFromServer(CommandContext context)
         {
             if (context.Guild is null)
             {
@@ -34,13 +20,12 @@ namespace LundBot.Services.Discord
         }
 
         public async Task SendResponseAsync(
-            InteractionContext context,
+            CommandContext context,
             string content,
             bool showOnlyToUser = true
         )
         {
-            await context.CreateResponseAsync(
-                InteractionResponseType.ChannelMessageWithSource,
+            await context.RespondAsync(
                 new DiscordInteractionResponseBuilder()
                     .WithContent(content)
                     .AsEphemeral(showOnlyToUser)
@@ -54,7 +39,7 @@ namespace LundBot.Services.Discord
         )
         {
             await interaction.CreateResponseAsync(
-                InteractionResponseType.ChannelMessageWithSource,
+                DiscordInteractionResponseType.ChannelMessageWithSource,
                 new DiscordInteractionResponseBuilder()
                     .WithContent(content)
                     .AsEphemeral(showOnlyToUser)
@@ -68,48 +53,9 @@ namespace LundBot.Services.Discord
         )
         {
             await interaction.CreateResponseAsync(
-                InteractionResponseType.ChannelMessageWithSource,
+                DiscordInteractionResponseType.ChannelMessageWithSource,
                 responseBuilder.AsEphemeral(showOnlyToUser)
             );
-        }
-
-        public async Task HandleComponentInteractionAsync(ComponentInteractionCreateEventArgs e)
-        {
-            string eventId = e.Id;
-
-            switch (eventId)
-            {
-                case "welcome_hi":
-                    // Acknowledge the button press (required)
-                    await e.Interaction.CreateResponseAsync(
-                        InteractionResponseType.DeferredMessageUpdate
-                    );
-                    await HandleWelcomeInteractionAsync(e.User, e.Channel);
-                    break;
-                default:
-                    await SendResponseAsync(e.Interaction, "Unknown interaction.", true);
-                    break;
-            }
-        }
-
-        private async Task HandleWelcomeInteractionAsync(DiscordUser user, DiscordChannel channel)
-        {
-            using var scope = _scopeFactory.CreateScope();
-            var welcomeMessageService =
-                scope.ServiceProvider.GetRequiredService<IWelcomeMessageService>();
-
-            var welcomeStickers = await welcomeMessageService.GetWelcomeStickersAsync();
-            short randomIndex = (short)new Random().Next(welcomeStickers.Count);
-            var randomSticker = welcomeStickers[randomIndex];
-
-            var message = new DiscordMessageBuilder().WithContent($"{user.Mention} says hi!");
-
-            if (randomSticker is not null)
-            {
-                message.WithSticker(randomSticker);
-            }
-
-            await _discordMessageService.SendMessageAsync(channel, message);
         }
     }
 }

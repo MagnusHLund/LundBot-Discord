@@ -13,9 +13,10 @@ namespace LundBot.Controllers
 
         public TrafficController(
             IWebsiteTrafficService websiteTrafficService,
+            IOptions<ServerConfig> serverConfig,
             IOptions<DeveloperEnvironmentConfig> devConfig
         )
-            : base(devConfig)
+            : base(devConfig, serverConfig)
         {
             _websiteTrafficService = websiteTrafficService;
         }

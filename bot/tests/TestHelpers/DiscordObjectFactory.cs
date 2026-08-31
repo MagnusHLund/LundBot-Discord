@@ -1,8 +1,8 @@
 using System.Collections.Concurrent;
 using System.Reflection;
 using System.Runtime.CompilerServices;
+using DSharpPlus.Commands;
 using DSharpPlus.Entities;
-using DSharpPlus.SlashCommands;
 
 namespace LundBot.Tests.TestHelpers;
 
@@ -43,7 +43,7 @@ internal static class DiscordObjectFactory
     {
         DiscordGuild guild = CreateUninitialized<DiscordGuild>();
         SetMemberValue(guild, "Id", id);
-        SetMemberValue(guild, "_channels", new ConcurrentDictionary<ulong, DiscordChannel>());
+        SetMemberValue(guild, "channels", new ConcurrentDictionary<ulong, DiscordChannel>());
         return guild;
     }
 
@@ -54,26 +54,29 @@ internal static class DiscordObjectFactory
 
         DiscordGuild guild = CreateUninitialized<DiscordGuild>();
         SetMemberValue(guild, "Id", guildId);
-        SetMemberValue(guild, "_channels", channels);
+        SetMemberValue(guild, "channels", channels);
         return guild;
     }
 
-    internal static DiscordGuild CreateGuildWithSystemChannel(ulong guildId, DiscordChannel systemChannel)
+    internal static DiscordGuild CreateGuildWithSystemChannel(
+        ulong guildId,
+        DiscordChannel systemChannel
+    )
     {
         var channels = new ConcurrentDictionary<ulong, DiscordChannel>();
         channels[systemChannel.Id] = systemChannel;
 
         DiscordGuild guild = CreateUninitialized<DiscordGuild>();
         SetMemberValue(guild, "Id", guildId);
-        SetMemberValue(guild, "_channels", channels);
+        SetMemberValue(guild, "channels", channels);
         // DSharpPlus stores this as a property named _systemChannelId (Nullable<ulong>)
         SetMemberValue(guild, "_systemChannelId", (ulong?)systemChannel.Id);
         return guild;
     }
 
-    internal static InteractionContext CreateInteractionContext(DiscordUser user, DiscordGuild guild)
+    internal static CommandContext CreateCommandContext(DiscordUser user, DiscordGuild guild)
     {
-        InteractionContext context = CreateUninitialized<InteractionContext>();
+        CommandContext context = CreateUninitialized<CommandContext>();
         SetMemberValue(context, "User", user);
         SetMemberValue(context, "Guild", guild);
         return context;
@@ -109,6 +112,13 @@ internal static class DiscordObjectFactory
         FieldInfo? backingField = null;
         while (current is not null && backingField is null)
         {
+            var test = typeof(DiscordGuild).GetFields(
+                BindingFlags.Instance
+                    | BindingFlags.Public
+                    | BindingFlags.NonPublic
+                    | BindingFlags.DeclaredOnly
+            );
+
             backingField =
                 current.GetField(
                     $"<{memberName}>k__BackingField",

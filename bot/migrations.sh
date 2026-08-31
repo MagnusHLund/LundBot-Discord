@@ -4,6 +4,7 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 ENVIRONMENT=""
 MIGRATION_NAME=""
+UPDATE_DB=""
 SETTINGS_FILE=""
 DB_CONTAINER=""
 PROFILE=""
@@ -34,6 +35,9 @@ read_input() {
 
     echo "Migration name: "
     read MIGRATION_NAME
+
+    echo "Should update database with migration? (y/n): "
+    read UPDATE_DB
 }
 
 
@@ -138,6 +142,11 @@ run_migrations() {
     if [ $? -ne 0 ]; then
         echo "ERROR: Failed to add migration."
         exit 1
+    fi
+
+    if [ "$UPDATE_DB" != "y" ]; then
+        echo "Skipping database update"
+        return
     fi
 
     echo "Updating database..."

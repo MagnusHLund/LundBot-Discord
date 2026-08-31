@@ -1,4 +1,3 @@
-using DSharpPlus;
 using DSharpPlus.Entities;
 
 namespace LundBot.Interfaces.Services.Discord
@@ -9,7 +8,7 @@ namespace LundBot.Interfaces.Services.Discord
         bool MemberHasRole(DiscordMember member, DiscordRole role);
         Task KickMemberAsync(DiscordMember member, string reason);
         Task<bool> IsMemberAdminInGuildAsync(DiscordMember member, DiscordGuild guild);
-        Task<bool> MemberHasPermission(DiscordMember member, Permissions permission);
+        Task<bool> MemberHasPermission(DiscordMember member, DiscordPermission permission);
         Task<bool> IsMemberOwnerInGuildAsync(DiscordMember member, DiscordGuild guild);
         Task PreloadMembersAsync(DiscordGuild guild);
     }

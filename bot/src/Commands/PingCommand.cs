@@ -1,6 +1,7 @@
-using DSharpPlus;
-using DSharpPlus.SlashCommands;
-using DSharpPlus.SlashCommands.Attributes;
+using System.ComponentModel;
+using DSharpPlus.Commands;
+using DSharpPlus.Commands.ContextChecks;
+using DSharpPlus.Entities;
 using LundBot.Interfaces.Services.Discord;
 
 namespace LundBot.Commands
@@ -10,9 +11,10 @@ namespace LundBot.Commands
         public PingCommand(IDiscordInteractionService discordInteractionService)
             : base(discordInteractionService) { }
 
-        [SlashRequirePermissions(Permissions.Administrator)]
-        [SlashCommand("ping", "Pings the bot.")]
-        public async Task PingAsync(InteractionContext context)
+        [Command("ping")]
+        [Description("Pings the bot.")]
+        [RequirePermissions(DiscordPermission.Administrator)]
+        public async Task PingAsync(CommandContext context)
         {
             await SendResponseAsync(context, "Pong!");
         }

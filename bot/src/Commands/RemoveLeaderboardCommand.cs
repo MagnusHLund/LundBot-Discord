@@ -1,7 +1,7 @@
-using DSharpPlus;
+using System.ComponentModel;
+using DSharpPlus.Commands;
+using DSharpPlus.Commands.ContextChecks;
 using DSharpPlus.Entities;
-using DSharpPlus.SlashCommands;
-using DSharpPlus.SlashCommands.Attributes;
 using LundBot.Interfaces.Services;
 using LundBot.Interfaces.Services.Discord;
 
@@ -20,12 +20,17 @@ namespace LundBot.Commands
             _leaderboardService = leaderboardService;
         }
 
-        [SlashRequirePermissions(Permissions.Administrator)]
-        [SlashCommand("remove-leaderboard", "Removes an existing leaderboard.")]
+        [RequirePermissions(DiscordPermission.Administrator)]
+        [Command("remove-leaderboard")]
+        [Description("Removes an existing leaderboard.")]
         public async Task RemoveLeaderboardAsync(
-            InteractionContext context,
-            [Option("channel", "The Channel that the leaderboard is in")] DiscordChannel channel,
-            [Option("confirm", "Confirm the removal of the leaderboard")] bool confirm
+            CommandContext context,
+            [Parameter("channel")]
+            [Description("The Channel that the leaderboard is in.")]
+                DiscordChannel channel,
+            [Parameter("confirm")]
+            [Description("Confirm the removal of the leaderboard.")]
+                bool confirm
         )
         {
             if (!await IsCommandSentFromServer(context))

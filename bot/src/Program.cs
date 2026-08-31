@@ -1,4 +1,6 @@
 using DSharpPlus;
+using DSharpPlus.Commands;
+using DSharpPlus.Extensions;
 using LundBot.BackgroundServices;
 using LundBot.Config;
 using LundBot.Data;
@@ -13,8 +15,10 @@ using LundBot.Queues;
 using LundBot.Repositories;
 using LundBot.Services;
 using LundBot.Services.Discord;
+using LundBot.Services.Discord.Events;
 using Microsoft.EntityFrameworkCore;
 using Serilog;
+using Serilog.Events;
 
 namespace LundBot
 {
@@ -177,26 +181,30 @@ namespace LundBot
         private static void RegisterBotConfiguration(WebApplicationBuilder builder)
         {
             string discordToken = builder.Configuration["Discord:Token"] ?? "";
+            DiscordIntents intents = DiscordIntents.AllUnprivileged | DiscordIntents.GuildMembers;
 
-            builder.Services.AddSingleton(provider =>
+            builder.Services.AddDiscordClient(discordToken, intents);
+
+            builder.Services.ConfigureEventHandlers(events =>
             {
-                var config = new DiscordConfiguration
-                {
-                    Token = discordToken,
-                    TokenType = TokenType.Bot,
-                    Intents = DiscordIntents.AllUnprivileged | DiscordIntents.GuildMembers,
-                    LoggerFactory = new LoggerFactory().AddSerilog(),
-                    AutoReconnect = true,
-                    ReconnectIndefinitely = true,
-                };
-
-                return new DiscordClient(config);
+                events.AddEventHandlers<ComponentInteractionCreatedHandler>();
+                events.AddEventHandlers<GuildDownloadCompletedHandler>();
+                events.AddEventHandlers<GuildMemberUpdatedHandler>();
+                events.AddEventHandlers<GuildMemberAddedHandler>();
+                events.AddEventHandlers<SessionCreatedHandler>();
+                events.AddEventHandlers<CommandInvokedHandler>();
+                events.AddEventHandlers<CommandErroredHandler>();
+                events.AddEventHandlers<GuildCreatedHandler>();
             });
+
+            builder.Services.AddCommandsExtension((ServiceProvider, extension) => { });
         }
 
         private static void RegisterLogger(WebApplicationBuilder builder)
         {
             Log.Logger = new LoggerConfiguration()
+                .MinimumLevel.Override("DSharpPlus", LogEventLevel.Warning)
+                .MinimumLevel.Override("System.Net.Http.HttpClient", LogEventLevel.Warning)
                 .ReadFrom.Configuration(builder.Configuration)
                 .Enrich.FromLogContext()
                 .CreateLogger();
@@ -221,6 +229,25 @@ namespace LundBot
             {
                 options.UseMySql(connectionString, ServerVersion.AutoDetect(connectionString));
             });
+
+            using var scope = builder.Services.BuildServiceProvider().CreateScope();
+
+            var logger = scope.ServiceProvider.GetRequiredService<ILogger<Program>>();
+            var dbContext = scope.ServiceProvider.GetRequiredService<LundBotDiscordDbContext>();
+
+            try
+            {
+                logger.LogInformation("Checking for pending database migrations...");
+
+                dbContext.Database.Migrate();
+
+                logger.LogInformation("Database migrations applied successfully.");
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(ex, "An error occurred while applying database migrations.");
+                throw;
+            }
         }
     }
 }

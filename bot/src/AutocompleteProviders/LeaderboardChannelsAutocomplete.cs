@@ -1,12 +1,13 @@
+using DSharpPlus.Commands.Processors.SlashCommands;
+using DSharpPlus.Commands.Processors.SlashCommands.ArgumentModifiers;
 using DSharpPlus.Entities;
-using DSharpPlus.SlashCommands;
 using LundBot.Entities;
 using LundBot.Enums;
 using LundBot.Interfaces.Services;
 
 namespace LundBot.AutocompleteProviders
 {
-    public abstract class LeaderboardChannelsAutocomplete : IAutocompleteProvider
+    public abstract class LeaderboardChannelsAutocomplete : IAutoCompleteProvider
     {
         private protected readonly ILeaderboardService _leaderboardService;
 
@@ -15,8 +16,8 @@ namespace LundBot.AutocompleteProviders
             _leaderboardService = leaderboardService;
         }
 
-        public abstract Task<IEnumerable<DiscordAutoCompleteChoice>> Provider(
-            AutocompleteContext context
+        public abstract ValueTask<IEnumerable<DiscordAutoCompleteChoice>> AutoCompleteAsync(
+            AutoCompleteContext context
         );
 
         private protected async Task<List<LeaderboardsEntity>> GetLeaderboardChoicesForGuildAsync(

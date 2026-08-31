@@ -13,9 +13,10 @@ namespace LundBot.Controllers
 
         public LeaderboardController(
             IOptions<DeveloperEnvironmentConfig> devConfig,
+            IOptions<ServerConfig> serverConfig,
             ILeaderboardService leaderboardService
         )
-            : base(devConfig)
+            : base(devConfig, serverConfig)
         {
             _leaderboardService = leaderboardService;
         }
@@ -26,6 +27,11 @@ namespace LundBot.Controllers
             [FromQuery] ulong guildId
         )
         {
+            if (!HasApiKey())
+            {
+                return Unauthorized();
+            }
+
             try
             {
                 await _leaderboardService.RefreshLeaderboardAsync(channelId, guildId);

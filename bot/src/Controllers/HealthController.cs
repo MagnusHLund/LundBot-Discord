@@ -14,7 +14,7 @@ namespace LundBot.Controllers
             IOptions<DeveloperEnvironmentConfig> devConfig,
             IOptions<ServerConfig> serverConfig
         )
-            : base(devConfig)
+            : base(devConfig, serverConfig)
         {
             _serverConfig = serverConfig.Value;
         }
@@ -22,6 +22,11 @@ namespace LundBot.Controllers
         [HttpGet]
         public IActionResult Get()
         {
+            if (!HasApiKey())
+            {
+                return Unauthorized();
+            }
+
             string version = _serverConfig.Version;
 
             return Ok(new { status = "Healthy", version });

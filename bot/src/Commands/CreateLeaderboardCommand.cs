@@ -1,7 +1,8 @@
-using DSharpPlus;
+using System.ComponentModel;
+using DSharpPlus.Commands;
+using DSharpPlus.Commands.ArgumentModifiers;
+using DSharpPlus.Commands.ContextChecks;
 using DSharpPlus.Entities;
-using DSharpPlus.SlashCommands;
-using DSharpPlus.SlashCommands.Attributes;
 using LundBot.Enums;
 using LundBot.Interfaces.Services;
 using LundBot.Interfaces.Services.Discord;
@@ -22,26 +23,27 @@ namespace LundBot.Commands
             _leaderboardService = leaderboardService;
         }
 
-        [SlashRequirePermissions(Permissions.Administrator)]
-        [SlashCommand("create-leaderboard", "Creates a new leaderboard.")]
+        [Command("create-leaderboard")]
+        [Description("Creates a new leaderboard.")]
+        [RequirePermissions(DiscordPermission.Administrator)]
         public async Task CreateLeaderboardAsync(
-            InteractionContext context,
-            [Option("Channel", "The Channel that the leaderboard will use")]
-            [ChannelTypes(ChannelType.Text)]
+            CommandContext context,
+            [Parameter("Channel")]
+            [Description("The Channel that the leaderboard will use")]
+            [ChannelTypes(DiscordChannelType.Text)]
                 DiscordChannel Channel,
-            [Option("type", "The type of the leaderboard.")] LeaderboardType type,
-            [Option(
-                "title",
+            [Parameter("type")] [Description("The type of the leaderboard.")] LeaderboardType type,
+            [Parameter("title")]
+            [Description(
                 "The title of the leaderboard. eg 'Top Upvoted Users'. Max 64 characters."
             )]
-            [MinimumLength(1)]
-            [MaximumLength(64)]
+            [MinMaxLength(1, 64)]
                 string title,
-            [Option(
-                "message",
+            [Parameter("message")]
+            [Description(
                 "Message to prepend above the leaderboard data and title. Max 256 characters."
             )]
-            [MaximumLength(256)]
+            [MinMaxLength(0, 256)]
                 string? message
         )
         {

@@ -1,6 +1,4 @@
-using DSharpPlus;
 using DSharpPlus.Entities;
-using DSharpPlus.SlashCommands;
 
 namespace LundBot.Interfaces.Services.Discord
 {
@@ -8,6 +6,5 @@ namespace LundBot.Interfaces.Services.Discord
     {
         Task ConnectBotAsync();
         Task UpdateBotStatusAsync(DiscordActivity activity);
-        Task<SlashCommandsExtension> EnableSlashCommands(IServiceProvider services);
     }
 }

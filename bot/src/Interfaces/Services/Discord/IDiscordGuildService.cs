@@ -7,6 +7,6 @@ namespace LundBot.Interfaces.Services.Discord
         Task<DiscordGuild> GetGuildAsync(ulong guildId);
         Task<IReadOnlyList<DiscordInvite>> GetGuildInvitesAsync(DiscordGuild guild);
         bool BotIsInGuild(ulong guildId);
-        DiscordRole GetRoleById(DiscordGuild guild, ulong roleId);
+        Task<DiscordRole> GetRoleByIdAsync(DiscordGuild guild, ulong roleId);
     }
 }
