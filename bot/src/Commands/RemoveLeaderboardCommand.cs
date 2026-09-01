@@ -1,7 +1,9 @@
 using System.ComponentModel;
 using DSharpPlus.Commands;
 using DSharpPlus.Commands.ContextChecks;
+using DSharpPlus.Commands.Processors.SlashCommands.ArgumentModifiers;
 using DSharpPlus.Entities;
+using LundBot.AutocompleteProviders;
 using LundBot.Interfaces.Services;
 using LundBot.Interfaces.Services.Discord;
 
@@ -26,6 +28,7 @@ namespace LundBot.Commands
         public async Task RemoveLeaderboardAsync(
             CommandContext context,
             [Parameter("channel")]
+            [SlashAutoCompleteProvider(typeof(LeaderboardChannelsAutocomplete))]
             [Description("The Channel that the leaderboard is in.")]
                 DiscordChannel channel,
             [Parameter("confirm")]

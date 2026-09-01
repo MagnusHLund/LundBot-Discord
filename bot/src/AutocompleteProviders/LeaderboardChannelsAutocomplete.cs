@@ -7,7 +7,7 @@ using LundBot.Interfaces.Services;
 
 namespace LundBot.AutocompleteProviders
 {
-    public abstract class LeaderboardChannelsAutocomplete : IAutoCompleteProvider
+    public class LeaderboardChannelsAutocomplete : IAutoCompleteProvider
     {
         private protected readonly ILeaderboardService _leaderboardService;
 
@@ -16,21 +16,37 @@ namespace LundBot.AutocompleteProviders
             _leaderboardService = leaderboardService;
         }
 
-        public abstract ValueTask<IEnumerable<DiscordAutoCompleteChoice>> AutoCompleteAsync(
+        public virtual async ValueTask<IEnumerable<DiscordAutoCompleteChoice>> AutoCompleteAsync(
             AutoCompleteContext context
-        );
-
-        private protected async Task<List<LeaderboardsEntity>> GetLeaderboardChoicesForGuildAsync(
-            ulong guildId,
-            LeaderboardType? type = null
         )
         {
-            List<LeaderboardsEntity> leaderboards =
+            ulong? guildId = context.Guild?.Id;
+
+            if (guildId is null)
+            {
+                return Enumerable.Empty<DiscordAutoCompleteChoice>();
+            }
+
+            var leaderboards = await _leaderboardService.GetLeaderboardsForGuildAsync(
+                guildId.Value.ToString()
+            );
+
+            return leaderboards.Select(l => new DiscordAutoCompleteChoice(
+                l.Title,
+                l.DiscordChannelId
+            ));
+        }
+
+        private protected async Task<
+            IEnumerable<LeaderboardsEntity>
+        > GetLeaderboardChoicesForGuildAsync(ulong guildId, LeaderboardType? type = null)
+        {
+            IEnumerable<LeaderboardsEntity> leaderboards =
                 await _leaderboardService.GetLeaderboardsForGuildAsync(guildId.ToString());
 
             if (type.HasValue)
             {
-                leaderboards = leaderboards.Where(l => l.LeaderboardType == type.Value).ToList();
+                leaderboards = leaderboards.Where(l => l.LeaderboardType == type.Value);
             }
 
             return leaderboards;
