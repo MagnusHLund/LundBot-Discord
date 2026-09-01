@@ -1,6 +1,6 @@
 @LundBot_HostAddress = http://localhost:3000
-@command_id = 1234567890
 @api_key = test
+@command_id = 1234567890
 
 ### Unregister single command for global scope
 
