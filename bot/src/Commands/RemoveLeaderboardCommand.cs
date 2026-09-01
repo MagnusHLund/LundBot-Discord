@@ -30,7 +30,7 @@ namespace LundBot.Commands
             [Parameter("channel")]
             [SlashAutoCompleteProvider(typeof(LeaderboardChannelsAutocomplete))]
             [Description("The Channel that the leaderboard is in.")]
-                DiscordChannel channel,
+                string channelId,
             [Parameter("confirm")]
             [Description("Confirm the removal of the leaderboard.")]
                 bool confirm
@@ -47,6 +47,15 @@ namespace LundBot.Commands
                     context,
                     "You must confirm the removal of the leaderboard by setting the 'Confirm' option to true."
                 );
+                return;
+            }
+
+            if (
+                !ulong.TryParse(channelId, out var parsedId)
+                || await context.Guild!.GetChannelAsync(parsedId) is not DiscordChannel channel
+            )
+            {
+                await SendResponseAsync(context, "The specified channel does not exist.");
                 return;
             }
 
