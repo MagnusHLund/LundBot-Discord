@@ -46,7 +46,7 @@ namespace LundBot.Services
                 guild.Id
             );
 
-            DiscordChannel systemChannel = await _discordChannelService.GetSystemChannelAsync(
+            DiscordChannel? systemChannel = await _discordChannelService.GetSystemChannelAsync(
                 guild
             );
 
@@ -120,7 +120,7 @@ namespace LundBot.Services
                 guild.Id
             );
 
-            DiscordChannel systemChannel = await _discordChannelService.GetSystemChannelAsync(
+            DiscordChannel? systemChannel = await _discordChannelService.GetSystemChannelAsync(
                 guild
             );
 
