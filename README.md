@@ -2,7 +2,7 @@
 
 ## Introduction
 
-This bot is written for the [Infinite Warfare PC](https://discord.gg/FycARMT2YR) discord server.<br>
+This bot is written for the [Infinite Warfare PC](https://discord.gg/FycARMT2YR) (IWPC) discord server.<br>
 The functionality of this bot is therefore focused on that server's needs.<br>
 However the functionality is mostly generic enough, to be used on any discord server.
 
@@ -80,6 +80,18 @@ Note that you must have jq installed.
 
 And obviously also dotnet-ef
 `dotnet tool install dotnet-ef` or `dotnet tool install --global dotnet-ef`
+
+## Features
+
+1. Upvote leaderboard so members can upvote members of their choosing, depending on the purpose of the leaderboard
+2. Invite leaderboards, tracks who has brought in the most new members
+3. Warnings leaderboard, track who has had warnings.
+4. Custom IW inspired join messages, when new members join the discord server.
+5. Possibility to kick users if they get a specific role (Useful in the onboarding flow, for filtering specific users)
+6. Remove welcome message for new user, if they were kicked in the onboarding flow
+7. Get random IW zombies map
+8. Basic telemetry for website navigation, through endpoints
+9. Protected endpoints for administration purposes of commands, leaderboards and server info.
 
 ## Commands
 
