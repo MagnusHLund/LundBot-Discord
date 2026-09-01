@@ -10,6 +10,19 @@ on:
 jobs:
   build-and-test:
     runs-on: ubuntu-latest
+    services:
+      mariadb:
+        image: mariadb:11
+        env:
+          MYSQL_ROOT_PASSWORD: password
+          MYSQL_DATABASE: LundBotDiscord
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd "healthcheck.sh --connect --innodb_initialized"
+          --health-interval 2s
+          --health-timeout 5s
+          --health-retries 10
 
     steps:
       - name: Checkout code
@@ -34,8 +47,10 @@ jobs:
       - name: Build solution
         run: dotnet build ./bot/src --configuration Release --no-restore
 
-      - name: Set dummy Discord token
-        run: echo "Discord__Token=dummy" >> $GITHUB_ENV
+      - name: Set runtime validation configuration
+        run: |
+          echo "Discord__Token=dummy" >> $GITHUB_ENV
+          echo "Database__ConnectionString=Server=127.0.0.1;Port=3306;Database=LundBotDiscord;User=root;******" >> $GITHUB_ENV
 
       - name: Runtime DI validation
         run: |
