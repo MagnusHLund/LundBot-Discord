@@ -3,10 +3,10 @@
 ## Introduction
 
 This bot is written for the [Infinite Warfare PC](https://discord.gg/FycARMT2YR) discord server.<br>
-You can read more about the discord server on our [website](https://infinitewarfarecommunity.com).
-
 The functionality of this bot is therefore focused on that server's needs.<br>
 However the functionality is mostly generic enough, to be used on any discord server.
+
+You can read more about the discord server on our [website](https://infinitewarfarecommunity.com).
 
 ## Setup
 
