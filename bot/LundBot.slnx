@@ -1,0 +1,9 @@
+<Solution>
+</Solution>
+
+
+TODO: Write these commands when the csproj files are actually configured and not just used as a template:
+dotnet sln add src/LundBot.Domain/LundBot.Domain.csproj
+dotnet sln add src/LundBot.Application/LundBot.Application.csproj
+dotnet sln add src/LundBot.Infrastructure/LundBot.Infrastructure.csproj
+dotnet sln add src/LundBot.Presentation/LundBot.Presentation.csproj
