@@ -242,3 +242,9 @@ _Pvt_Extensions
 
 # MariaDB files for dev profile
 /mariadb/**
+
+# Class diagram
+*.liveclass
+
+# Production http files
+**/http/*.prod.http
