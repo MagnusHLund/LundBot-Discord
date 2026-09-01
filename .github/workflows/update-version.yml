@@ -7,6 +7,7 @@ on:
 
 permissions:
   contents: write
+  pull-requests: write
 
 jobs:
   update-version:
@@ -28,6 +29,8 @@ jobs:
           mv bot/src/appsettings.tmp bot/src/appsettings.json
 
       - name: Commit and push updated file
+        env:
+          GH_TOKEN: ${{ github.token }}
         run: |
           git config user.name "github-actions"
           git config user.email "github-actions@github.com"
@@ -37,5 +40,16 @@ jobs:
           # Update the tag
           git push --force origin HEAD:refs/tags/${{ steps.tag.outputs.TAG }}
 
-          # update main branch
-          git push origin HEAD:main
+          # main is protected and requires changes via pull request, so push to a
+          # dedicated branch and open a PR instead of pushing directly to main
+          BRANCH="update-version/${{ steps.tag.outputs.TAG }}"
+          git push origin HEAD:refs/heads/$BRANCH
+
+          gh pr create \
+            --base main \
+            --head "$BRANCH" \
+            --title "Update server.version to ${{ steps.tag.outputs.TAG }}" \
+            --body "Automated version bump to ${{ steps.tag.outputs.TAG }}." \
+            || echo "Pull request already exists for $BRANCH"
+
+          gh pr merge "$BRANCH" --auto --squash || echo "Could not enable auto-merge for $BRANCH"
