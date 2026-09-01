@@ -18,11 +18,6 @@ jobs:
           MYSQL_DATABASE: LundBotDiscord
         ports:
           - 3306:3306
-        options: >-
-          --health-cmd "healthcheck.sh --connect --innodb_initialized"
-          --health-interval 2s
-          --health-timeout 5s
-          --health-retries 10
 
     steps:
       - name: Checkout code
@@ -50,7 +45,7 @@ jobs:
       - name: Set runtime validation configuration
         run: |
           echo "Discord__Token=dummy" >> $GITHUB_ENV
-          echo "Database__ConnectionString=Server=127.0.0.1;Port=3306;Database=LundBotDiscord;User=root;******" >> $GITHUB_ENV
+          echo "Database__ConnectionString=Server=127.0.0.1;Port=3306;Database=LundBotDiscord;User=root;Password=password;" >> $GITHUB_ENV
 
       - name: Runtime DI validation
         run: |
