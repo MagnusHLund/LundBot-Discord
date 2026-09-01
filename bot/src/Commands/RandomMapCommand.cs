@@ -14,7 +14,6 @@ namespace LundBot.Commands
 
         [Command("random-map")]
         [Description("Selects a random map from the list of maps.")]
-        [RequirePermissions(DiscordPermission.Administrator)]
         public async Task RandomMapAsync(CommandContext context)
         {
             var maps = Enum.GetNames(typeof(Enums.InfiniteWarfareZombiesMaps)).ToList();
