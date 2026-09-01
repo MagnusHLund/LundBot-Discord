@@ -231,6 +231,13 @@ namespace LundBot.Services
                 || await _userService.IsUserABot(userInvitedBy.Id, guild.Id)
             )
             {
+                _logger.Information(
+                    "User {UserInvitedById} is either the owner or a bot in guild {GuildId}, skipping registration of user {UserJoinedId}",
+                    userInvitedBy.Id,
+                    guild.Id,
+                    userJoined.Id
+                );
+
                 return;
             }
 

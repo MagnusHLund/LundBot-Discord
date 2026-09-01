@@ -22,9 +22,19 @@ namespace LundBot.Repositories
         {
             try
             {
+                var existingEntity = await _context.WelcomeMessages.SingleOrDefaultAsync(wm =>
+                    wm.DiscordUserId == entity.DiscordUserId
+                );
+
+                if (existingEntity is not null)
+                {
+                    existingEntity.DiscordMessageId = entity.DiscordMessageId;
+                    await _context.SaveChangesAsync();
+                    return;
+                }
+
                 _context.WelcomeMessages.Add(entity);
                 await _context.SaveChangesAsync();
-                return;
             }
             catch (Exception ex)
             {
