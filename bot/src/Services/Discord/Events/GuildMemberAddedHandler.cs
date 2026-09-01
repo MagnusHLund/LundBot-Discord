@@ -48,49 +48,62 @@ namespace LundBot.Services.Discord.Events
                     CacheKeyHelper.GuildInvites(guild.Id.ToString())
                 ) ?? new List<DiscordInvite>();
 
-            var usedInvite = newInvites.FirstOrDefault(newInvite =>
-            {
-                var oldInvite = oldInvites.FirstOrDefault(i => i.Code == newInvite.Code);
-                return oldInvite != null && newInvite.Uses > oldInvite.Uses;
-            });
-
-            if (usedInvite != null && usedInvite.Inviter is not null)
-            {
-                _logger.Information(
-                    "User {UserName} ({UserId}) joined guild {GuildName} ({GuildId}) using invite code {InviteCode} created by {InviterName} ({InviterId})",
-                    member.Username,
-                    member.Id,
-                    guild.Name,
-                    guild.Id,
-                    usedInvite.Code,
-                    usedInvite.Inviter.Username,
-                    usedInvite.Inviter.Id
-                );
-
-                DiscordUser inviter = usedInvite.Inviter;
-
-                using var scope = _serviceProvider.CreateScope();
-                var leaderboardService =
-                    scope.ServiceProvider.GetRequiredService<ILeaderboardService>();
-
-                await leaderboardService.RegisterUserJoinedWithInviteAsync(guild, member, inviter);
-            }
-            else
-            {
-                _logger.Information(
-                    "User {UserName} ({UserId}) joined guild {GuildName} ({GuildId}) but no invite was used or the inviter is unknown.",
-                    member.Username,
-                    member.Id,
-                    guild.Name,
-                    guild.Id
-                );
-            }
+            DiscordInvite? usedInvite = newInvites.FirstOrDefault(newInvite =>
+                oldInvites.Any(oldInvite =>
+                    oldInvite.Code == newInvite.Code && newInvite.Uses > oldInvite.Uses
+                )
+            );
 
             // Update cache
             _cacheService.Set(
                 CacheKeyHelper.GuildInvites(guild.Id.ToString()),
                 newInvites.ToList()
             );
+
+            if (usedInvite is null)
+            {
+                _logger.Information(
+                    "User {UserName} ({UserId}) joined guild {GuildName} ({GuildId}) but no invite was used.",
+                    member.Username,
+                    member.Id,
+                    guild.Name,
+                    guild.Id
+                );
+
+                return;
+            }
+            if (usedInvite.Inviter is null)
+            {
+                _logger.Information(
+                    "User {UserName} ({UserId}) joined guild {GuildName} ({GuildId}) using invite code {InviteCode} but the inviter is unknown.",
+                    member.Username,
+                    member.Id,
+                    guild.Name,
+                    guild.Id,
+                    usedInvite.Code
+                );
+
+                return;
+            }
+
+            _logger.Information(
+                "User {UserName} ({UserId}) joined guild {GuildName} ({GuildId}) using invite code {InviteCode} created by {InviterName} ({InviterId})",
+                member.Username,
+                member.Id,
+                guild.Name,
+                guild.Id,
+                usedInvite.Code,
+                usedInvite.Inviter.Username,
+                usedInvite.Inviter.Id
+            );
+
+            DiscordUser inviter = usedInvite.Inviter;
+
+            using var scope = _serviceProvider.CreateScope();
+            var leaderboardService =
+                scope.ServiceProvider.GetRequiredService<ILeaderboardService>();
+
+            await leaderboardService.RegisterUserJoinedWithInviteAsync(guild, member, inviter);
         }
     }
 }
