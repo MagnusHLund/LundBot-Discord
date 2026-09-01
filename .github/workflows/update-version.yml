@@ -49,7 +49,7 @@ jobs:
             --base main \
             --head "$BRANCH" \
             --title "Update server.version to ${{ steps.tag.outputs.TAG }}" \
-            --body "Automated version bump to ${{ steps.tag.outputs.TAG }} for tag ${{ steps.tag.outputs.TAG }}." \
+            --body "Automated version bump to ${{ steps.tag.outputs.TAG }}." \
             || echo "Pull request already exists for $BRANCH"
 
           gh pr merge "$BRANCH" --auto --squash || echo "Could not enable auto-merge for $BRANCH"
