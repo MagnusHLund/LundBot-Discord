@@ -1,5 +1,13 @@
 # LundBot Discord
 
+## Introduction
+
+This bot is written for the [Infinite Warfare PC](https://discord.gg/FycARMT2YR) discord server.<br>
+You can read more about the discord server on our [website](https://infinitewarfarecommunity.com).
+
+The functionality of this bot is therefore focused on that server's needs.<br>
+However the functionality is mostly generic enough, to be used on any discord server.
+
 ## Setup
 
 ### Env
@@ -49,7 +57,7 @@
 }
 ```
 
-Note that configs under the `DeveloperEnvironment` object is only available when using `ASPNETCORE_ENVIRONMENT=Development` in the .env file. It can be safely removed from the `appsettings.Production.json` file.
+Note that configs under the `DeveloperEnvironment` object is only available when using `ASPNETCORE_ENVIRONMENT=Development` in the .env file. It can be safely removed from the `appsettings.Production.json` file.<br>
 The Database connection string is setup to work with the development docker compose profile.
 
 The `ApiKey` is a value that you decide.
@@ -62,10 +70,10 @@ It is a basic layer of security, to prevent anyone from calling the protected HT
 
 ## EF Core migrations
 
-To run migrations, run `bot/migrations.sh` from the root directory.
-You will be prompted for the environment, which is either `dev` or `prod`.
-Then you will be prompted for a migration name.
-The script will then create a migration.
+To run migrations, run `bot/migrations.sh` from the root directory.<br>
+You will be prompted for the environment, which is either `dev` or `prod`.<br>
+Then you will be prompted for a migration name.<br>
+The script will then create a migration.<br>
 
 Note that you must have jq installed.
 `https://jqlang.org/download/`
