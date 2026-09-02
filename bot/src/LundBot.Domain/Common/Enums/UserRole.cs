@@ -1,0 +1,7 @@
+namespace LundBot.Domain.Common.Enums
+{
+    public enum UserRole
+    {
+        
+    }
+}

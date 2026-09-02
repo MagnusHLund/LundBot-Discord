@@ -1,9 +1,8 @@
 <Solution>
+  <Folder Name="/src/">
+    <Project Path="src/LundBot.Application/LundBot.Application.csproj" />
+    <Project Path="src/LundBot.Domain/LundBot.Domain.csproj" />
+    <Project Path="src/LundBot.Infrastructure/LundBot.Infrastructure.csproj" />
+    <Project Path="src/LundBot.Presentation/LundBot.Presentation.csproj" />
+  </Folder>
 </Solution>
-
-
-TODO: Write these commands when the csproj files are actually configured and not just used as a template:
-dotnet sln add src/LundBot.Domain/LundBot.Domain.csproj
-dotnet sln add src/LundBot.Application/LundBot.Application.csproj
-dotnet sln add src/LundBot.Infrastructure/LundBot.Infrastructure.csproj
-dotnet sln add src/LundBot.Presentation/LundBot.Presentation.csproj

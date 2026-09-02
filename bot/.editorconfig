@@ -47,7 +47,6 @@ csharp_wrap_before_binary_operators = false
 # Documentation settings
 csharp_style_var_for_built_in_types = false:warning
 csharp_style_var_when_type_is_apparent = false:warning
-csharp_style_var_elsewhere = false:warning
 csharp_style_inlined_variable_declaration = true:warning
 
 # Naming settings

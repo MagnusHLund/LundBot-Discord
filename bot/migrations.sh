@@ -11,10 +11,19 @@ PROFILE=""
 CONNECTION_STRING=""
 STARTED_BY_SCRIPT=false
 
+# Project paths
+INFRASTRUCTURE_PROJECT="$SCRIPT_DIR/src/LundBot.Infrastructure"
+PRESENTATION_PROJECT="$SCRIPT_DIR/src/LundBot.Presentation"
+MIGRATION_OUTPUT_DIRECTORY="Persistence/Migrations" # Inside of the Infrastructure project
 
 check_dependencies() {
     if ! command -v jq >/dev/null 2>&1; then
         echo "ERROR: jq is not installed. Install jq to continue."
+        exit 1
+    fi
+
+    if ! command -v dotnet >/dev/null 2>&1; then
+        echo "ERROR: dotnet is not installed."
         exit 1
     fi
 
@@ -26,6 +35,18 @@ check_dependencies() {
         echo "  dotnet tool install dotnet-ef"
         exit 1
     fi
+
+    if [ ! -d "$INFRASTRUCTURE_PROJECT" ]; then
+        echo "ERROR: Infrastructure project not found:"
+        echo "  $INFRASTRUCTURE_PROJECT"
+        exit 1
+    fi
+
+    if [ ! -d "$PRESENTATION_PROJECT" ]; then
+        echo "ERROR: Presentation project not found:"
+        echo "  $PRESENTATION_PROJECT"
+        exit 1
+    fi
 }
 
 
@@ -33,22 +54,43 @@ read_input() {
     echo "Choose environment (dev/prod): "
     read ENVIRONMENT
 
+    if [ "$ENVIRONMENT" != "dev" ] && [ "$ENVIRONMENT" != "prod" ]; then
+        echo "ERROR: Environment must be 'dev' or 'prod'."
+        exit 1
+    fi
+
     echo "Migration name: "
     read MIGRATION_NAME
 
+    if [ -z "$MIGRATION_NAME" ]; then
+        echo "ERROR: Migration name cannot be empty."
+        exit 1
+    fi
+
     echo "Should update database with migration? (y/n): "
     read UPDATE_DB
+
+    if [ "$UPDATE_DB" != "y" ] && [ "$UPDATE_DB" != "n" ]; then
+        echo "ERROR: Please answer 'y' or 'n'."
+        exit 1
+    fi
 }
 
 
 configure_environment() {
     if [ "$ENVIRONMENT" = "dev" ]; then
-        SETTINGS_FILE="$SCRIPT_DIR/src/appsettings.Development.json"
+        SETTINGS_FILE="$PRESENTATION_PROJECT/appsettings.Development.json"
         DB_CONTAINER="lundbot-mariadb-dev"
         PROFILE="Development"
     else
-        SETTINGS_FILE="$SCRIPT_DIR/src/appsettings.Production.json"
+        SETTINGS_FILE="$PRESENTATION_PROJECT/appsettings.Production.json"
         PROFILE="Production"
+    fi
+
+    if [ ! -f "$SETTINGS_FILE" ]; then
+        echo "ERROR: Settings file not found:"
+        echo "  $SETTINGS_FILE"
+        exit 1
     fi
 }
 
@@ -57,7 +99,8 @@ load_connection_string() {
     CONNECTION_STRING=$(jq -r '.Database.ConnectionString' "$SETTINGS_FILE")
 
     if [ -z "$CONNECTION_STRING" ] || [ "$CONNECTION_STRING" = "null" ]; then
-        echo "ERROR: Connection string is missing or empty in $SETTINGS_FILE"
+        echo "ERROR: Connection string is missing or empty in:"
+        echo "  $SETTINGS_FILE"
         exit 1
     fi
 
@@ -88,6 +131,11 @@ start_mariadb() {
 
     echo "Starting MariaDB dev container..."
     docker compose --profile "$PROFILE" up -d mariadb-dev
+
+    if [ $? -ne 0 ]; then
+        echo "ERROR: Failed to start MariaDB dev container."
+        exit 1
+    fi
 
     STARTED_BY_SCRIPT=true
 }
@@ -136,8 +184,9 @@ run_migrations() {
 
     echo "Adding migration..."
     dotnet ef migrations add "$MIGRATION_NAME" \
-        --project "$SCRIPT_DIR/src" \
-        --startup-project "$SCRIPT_DIR/src"
+        --project "$INFRASTRUCTURE_PROJECT" \
+        --startup-project "$PRESENTATION_PROJECT" \
+        --output-dir "$MIGRATION_OUTPUT_DIRECTORY"
 
     if [ $? -ne 0 ]; then
         echo "ERROR: Failed to add migration."
@@ -145,14 +194,14 @@ run_migrations() {
     fi
 
     if [ "$UPDATE_DB" != "y" ]; then
-        echo "Skipping database update"
+        echo "Skipping database update."
         return
     fi
 
     echo "Updating database..."
     dotnet ef database update \
-        --project "$SCRIPT_DIR/src" \
-        --startup-project "$SCRIPT_DIR/src" \
+        --project "$INFRASTRUCTURE_PROJECT" \
+        --startup-project "$PRESENTATION_PROJECT" \
         --connection "$CONNECTION_STRING"
 
     if [ $? -ne 0 ]; then
@@ -171,6 +220,8 @@ cleanup() {
 
 
 main() {
+    trap cleanup EXIT
+
     check_dependencies
     read_input
     configure_environment
@@ -182,6 +233,5 @@ main() {
 
     echo "Done."
 }
-
 
 main
