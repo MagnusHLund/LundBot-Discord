@@ -1,0 +1,84 @@
+# EditorConfig is awesome: https://editorconfig.org
+
+# Top-most EditorConfig file
+root = true
+
+# General settings
+[*]
+indent_style = space
+indent_size = 2
+end_of_line = lf
+charset = utf-8
+trim_trailing_whitespace = true
+insert_final_newline = true
+
+# C# specific settings
+[*.cs]
+# Indentation settings
+indent_style = space
+indent_size = 4
+max_line_length = 120
+
+# New lines settings
+csharp_new_line_before_open_brace = all
+csharp_new_line_between_query_expression_clauses = true
+csharp_new_line_before_members_in_object_initializers = true
+csharp_new_line_before_members_in_anonymous_types = true
+
+# Using directives settings
+dotnet_sort_system_directives_first = true
+csharp_using_directive_placement = outside_namespace
+
+# Spacing settings
+csharp_space_after_cast = true
+csharp_space_after_keywords_in_control_flow_statements = true
+csharp_space_between_method_declaration_parameter_list_parentheses = false
+csharp_space_between_method_call_parameter_list_parentheses = false
+csharp_space_after_comma = true
+csharp_space_after_dot = false
+csharp_space_after_semicolon_in_for_statement = true
+csharp_space_before_open_square_brackets = false
+
+# Wrapping settings
+csharp_wrap_preserve_single_line_statements = false
+csharp_wrap_preserve_single_line_blocks = false
+csharp_wrap_before_binary_operators = false
+
+# Documentation settings
+csharp_style_var_for_built_in_types = false:warning
+csharp_style_var_when_type_is_apparent = false:warning
+csharp_style_var_elsewhere = false:warning
+csharp_style_inlined_variable_declaration = true:warning
+
+# Naming settings
+dotnet_naming_rule.private_fields_should_have_prefix.severity = error
+dotnet_naming_rule.private_fields_should_have_prefix.symbols = private_fields
+dotnet_naming_rule.private_fields_should_have_prefix.style = prefix_underscore
+
+dotnet_naming_symbols.private_members.applicable_kinds = field
+dotnet_naming_symbols.private_members.applicable_accessibilities = private
+dotnet_naming_symbols.private_members.required_modifiers = readonly
+
+dotnet_naming_style.camel_case.capitalization = camel_case
+
+# File and code layout settings
+csharp_prefer_braces = true:suggestion
+csharp_prefer_simple_default_expression = false:suggestion
+csharp_prefer_switch_expression = false:suggestion
+csharp_style_expression_bodied_methods = never:suggestion
+csharp_style_expression_bodied_operators = never:suggestion
+csharp_style_expression_bodied_constructors = when_on_single_line:suggestion
+csharp_style_expression_bodied_properties = when_on_single_line:suggestion
+csharp_style_expression_bodied_indexers = when_on_single_line:suggestion
+csharp_style_expression_bodied_accessors = when_on_single_line:suggestion
+csharp_prefer_static_local_function = true:suggestion
+
+# Comment settings
+file_header_template = "File header template goes here"
+
+# Modifier settings
+csharp_prefer_readonly_structs = true:suggestion
+csharp_prefer_readonly_parameters = true:suggestion
+
+# Access modifiers settings
+dotnet_diagnostic.IDE0040.severity = error
