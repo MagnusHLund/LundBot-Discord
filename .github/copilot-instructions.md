@@ -1,3 +1,8 @@
+---
+description: This file describes the general instructions for Copilot in this repository.
+applyTo: '**'
+---
+
 # Repository - Copilot instructions
 
 ## General personality
