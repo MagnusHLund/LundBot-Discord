@@ -20,25 +20,57 @@ Prefer using the built-in .NET libraries and features over third-party libraries
 
 ## Priorities
 
-TODO for human: Expand this section. (AI ignore this line)
+## Priorities
 
-List of priorities for the project, in order of importance:
+The following priorities are ordered from highest to lowest importance. When two priorities conflict, prefer the higher-priority one.
 
-1. Readability and maintainability of the code.
-2. Performance and efficiency of the code.
+1. Correctness and functional behavior.
+2. Security and protection of data.
+3. Reliability and resilience.
+4. Readability and maintainability of the code.
+5. Performance and efficiency.
+6. Testability and observability.
+7. Consistency with the existing architecture and conventions.
+8. Developer experience and ease of use.
+9. Minimizing unnecessary complexity and dependencies.
+10. Minimizing the size and scope of changes.
 
-## Architecture, Patterns & design principles
+Higher priorities take precedence over lower priorities. However, do not unnecessarily sacrifice a lower priority when doing so provides no meaningful benefit to a higher priority.
 
-TODO for human: Expand this section. (AI ignore this line)
-Ignore this section for now, as it is work in progress. It will be updated in the future.
+## Architecture, Patterns & Design Principles
 
-The project uses the following patterns and design principles:
+The project follows the following architectural principles, patterns, and organizational conventions:
 
 1. [SOLID](https://en.wikipedia.org/wiki/SOLID) principles.
-2. [Dependency Injection](https://en.wikipedia.org/wiki/Dependency_injection) pattern.
-3. [Clean Architecture](https://prepstack.co.in/blog/clean-architecture-csharp-complete-guide) pattern.
+   - Prefer clear separation of responsibilities.
+   - Favor composition over inheritance where appropriate.
+   - Keep abstractions focused and meaningful.
+   - Do not introduce abstractions solely to satisfy a principle when they provide no practical benefit.
+
+2. [Dependency Injection](https://en.wikipedia.org/wiki/Dependency_injection).
+   - Use the built-in .NET dependency injection container.
+   - Dependencies should generally be provided through constructors.
+   - Avoid service locator patterns and manually resolving dependencies from `IServiceProvider` outside of appropriate composition-root scenarios.
+
+3. [Clean Architecture](https://prepstack.co.in/blog/clean-architecture-csharp-complete-guide).
+   - Keep business and application logic independent of infrastructure and presentation concerns.
+   - Dependencies should point toward the appropriate inner layers.
+   - Infrastructure-specific concerns such as databases, HTTP clients, and Discord APIs should not leak into domain logic.
+   - Follow the existing project boundaries rather than introducing new architectural layers for individual features.
+
 4. [Repository](https://martinfowler.com/eaaCatalog/repository.html) pattern.
-5. [Arrange-Act-Assert](https://docs.microsoft.com/en-us/dotnet/core/testing/unit-testing-best-practices#arrange-act-assert) pattern for automated tests.
+   - Repositories are responsible for persistence and data-access concerns.
+   - Business logic should remain outside repositories.
+   - Do not place Discord, HTTP, or presentation concerns in repositories.
+
+5. [Arrange-Act-Assert](https://learn.microsoft.com/en-us/dotnet/core/testing/unit-testing-best-practices#arrange-act-assert) pattern for automated tests.
+   - Structure tests into clear Arrange, Act, and Assert phases.
+   - Keep tests deterministic and focused on observable behavior.
+
+6. [Feature Folders](https://milanjovanovic.tech/blog/feature-folders-dotnet) for organizing code by feature rather than by technical layer.
+   - Prefer locating related code close together within its feature.
+   - Do not reorganize code into separate global folders such as `Controllers`, `Services`, and `Repositories` when the existing feature-oriented structure provides a better organization.
+   - Follow the existing feature structure when adding new functionality.
 
 ## Classes & Methods
 
@@ -208,12 +240,12 @@ Do not introduce caching without understanding cache invalidation and consistenc
 
 ## Testing
 
-The project uses xUnit for unit testing.
-Unit tests should be isolated and independent of external systems.
+The project uses xUnit for automated testing.
 Tests must be repeatable and deterministic.
 The test project should follow the same coding standards as the main project.
 Remember to test edge cases and error conditions, not just the happy path.
 Consider the SOLID principles when designing testable code.
+This project prefers integration tests over unit tests and end-to-end tests, as it makes the code more maintainable and easier to refactor.
 
 ## Documentation & comments
 
@@ -227,8 +259,13 @@ The code should be clear enough to be understood without comments.
 
 ## Code style
 
-TODO for human: Expand this section. (AI ignore this line)
-Ignore this section for now, as it is work in progress. It will be updated in the future.
+Code style should prioritize readability, consistency, and maintainability.
+
+The project's `.editorconfig` file is the authoritative source for formatting and analyzer rules. Follow the rules defined by `.editorconfig` rather than introducing separate formatting conventions.
+
+Do not make formatting-only changes to unrelated code.
+
+When modifying existing code, preserve the surrounding code style unless it conflicts with `.editorconfig` or there is a clear technical reason to change it.
 
 ## Anti-patterns
 
