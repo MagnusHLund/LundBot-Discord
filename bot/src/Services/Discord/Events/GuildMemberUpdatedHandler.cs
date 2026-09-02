@@ -12,7 +12,8 @@ namespace LundBot.Services.Discord.Events
         private readonly IModerationActionsService _moderationActionsService;
         private readonly IServiceProvider _serviceProvider;
         private readonly DiscordConfig _discordConfig;
-        private readonly Serilog.ILogger _logger = Serilog.Log.ForContext<GuildMemberUpdatedHandler>();
+        private readonly Serilog.ILogger _logger =
+            Serilog.Log.ForContext<GuildMemberUpdatedHandler>();
 
         public GuildMemberUpdatedHandler(
             IModerationActionsService moderationActionsService,
@@ -30,6 +31,14 @@ namespace LundBot.Services.Discord.Events
             GuildMemberUpdatedEventArgs eventArgs
         )
         {
+            _logger.Information(
+                "Member updated: {UserName} ({UserId}) in guild {GuildName} ({GuildId})",
+                eventArgs.Member.Username,
+                eventArgs.Member.Id,
+                eventArgs.Guild.Name,
+                eventArgs.Guild.Id
+            );
+
             await AutoKickUserIfRoleAssigned(eventArgs.Guild, eventArgs.Member);
         }
 

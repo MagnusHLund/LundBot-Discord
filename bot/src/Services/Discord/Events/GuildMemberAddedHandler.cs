@@ -31,6 +31,14 @@ namespace LundBot.Services.Discord.Events
             GuildMemberAddedEventArgs eventArgs
         )
         {
+            _logger.Information(
+                "Member added: {UserName} ({UserId}) to guild {GuildName} ({GuildId})",
+                eventArgs.Member.Username,
+                eventArgs.Member.Id,
+                eventArgs.Guild.Name,
+                eventArgs.Guild.Id
+            );
+
             using var scope = _serviceProvider.CreateScope();
             var welcomeMessageService =
                 scope.ServiceProvider.GetRequiredService<IWelcomeMessageService>();
