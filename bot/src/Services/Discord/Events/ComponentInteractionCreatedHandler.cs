@@ -60,12 +60,12 @@ namespace LundBot.Services.Discord.Events
             string[] interactionParts = e.Id.Split(':');
 
             string interactionName = interactionParts[0] ?? e.Id;
-            DiscordMember? discordMember = null;
+            DiscordMember? targetMember = null;
 
             if (interactionParts.Length > 1)
             {
                 ulong userId = ulong.Parse(interactionParts[1]);
-                discordMember = await e.Guild.GetMemberAsync(userId);
+                targetMember = await e.Guild.GetMemberAsync(userId);
             }
 
             switch (interactionName)
@@ -74,7 +74,7 @@ namespace LundBot.Services.Discord.Events
                     if (
                         await NotifyUserUnauthorizedForOwnAction(
                             e.User,
-                            discordMember!.Id,
+                            targetMember!.Id,
                             e.Interaction
                         )
                     )
@@ -87,15 +87,10 @@ namespace LundBot.Services.Discord.Events
                         DiscordInteractionResponseType.DeferredMessageUpdate
                     );
 
-                    List<Task<DiscordMember>> tasks = new List<Task<DiscordMember>>
-                    {
-                        _discordMemberService.GetMemberAsync(e.Guild, e.User.Id),
-                        _discordMemberService.GetMemberAsync(e.Guild, discordMember!.Id),
-                    };
-
-                    DiscordMember[] members = await Task.WhenAll(tasks);
-                    DiscordMember senderMember = members[0];
-                    DiscordMember targetMember = members[1];
+                    var senderMember = await _discordMemberService.GetMemberAsync(
+                        e.Guild,
+                        e.User.Id
+                    );
 
                     await _welcomeMessageService.HandleWelcomeInteractionAsync(
                         senderMember,

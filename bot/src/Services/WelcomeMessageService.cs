@@ -59,12 +59,28 @@ namespace LundBot.Services
                 return;
             }
 
-            var fetchedMember = await _discordMemberService.GetMemberAsync(guild, member.Id);
+            DiscordMember newMember;
+
+            try
+            {
+                newMember = await _discordMemberService.GetMemberAsync(guild, member.Id);
+            }
+            catch (Exception ex)
+            {
+                _logger.Error(
+                    ex,
+                    "Error fetching member {UserId} in guild {GuildId}: {ErrorMessage}",
+                    member.Id,
+                    guild.Id,
+                    ex.Message
+                );
+                newMember = member; // Fallback to the provided member if fetching fails
+            }
 
             short randomIndex = (short)new Random().Next(WelcomeMessages.Messages.Count);
             string welcomeMessage = string.Format(
                 WelcomeMessages.Messages[randomIndex],
-                fetchedMember.Mention
+                newMember.Mention
             );
 
             _messageService.MessageFactory.SetJoinedUserId(member.Id.ToString());
