@@ -13,6 +13,7 @@ namespace LundBot.Services
     {
         private readonly IDiscordChannelService _discordChannelService;
         private readonly IDiscordStickerService _discordStickerService;
+        private readonly IDiscordMemberService _discordMemberService;
         private readonly IMessageService<
             WelcomeMessageEntity,
             WelcomeMessagesRepository,
@@ -29,13 +30,15 @@ namespace LundBot.Services
             > messageService,
             IWelcomeMessagesRepository welcomeMessagesRepository,
             IDiscordStickerService discordStickerService,
-            IDiscordChannelService discordChannelService
+            IDiscordChannelService discordChannelService,
+            IDiscordMemberService discordMemberService
         )
         {
             _messageService = messageService;
             _welcomeMessagesRepository = welcomeMessagesRepository;
             _discordStickerService = discordStickerService;
             _discordChannelService = discordChannelService;
+            _discordMemberService = discordMemberService;
         }
 
         public async Task SendWelcomeMessageAsync(DiscordGuild guild, DiscordMember member)
@@ -56,10 +59,28 @@ namespace LundBot.Services
                 return;
             }
 
+            DiscordMember newMember;
+
+            try
+            {
+                newMember = await _discordMemberService.GetMemberAsync(guild, member.Id);
+            }
+            catch (Exception ex)
+            {
+                _logger.Error(
+                    ex,
+                    "Error fetching member {UserId} in guild {GuildId}: {ErrorMessage}",
+                    member.Id,
+                    guild.Id,
+                    ex.Message
+                );
+                newMember = member; // Fallback to the provided member if fetching fails
+            }
+
             short randomIndex = (short)new Random().Next(WelcomeMessages.Messages.Count);
             string welcomeMessage = string.Format(
                 WelcomeMessages.Messages[randomIndex],
-                member.Mention
+                newMember.Mention
             );
 
             _messageService.MessageFactory.SetJoinedUserId(member.Id.ToString());
@@ -86,7 +107,7 @@ namespace LundBot.Services
         }
 
         public async Task HandleWelcomeInteractionAsync(
-            DiscordUser senderUser,
+            DiscordMember senderUser,
             DiscordMember targetUser,
             DiscordChannel channel
         )
