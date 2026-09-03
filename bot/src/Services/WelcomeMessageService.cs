@@ -59,8 +59,20 @@ namespace LundBot.Services
                 return;
             }
 
-            // Populates the cache and gets rid of "Unknown user", as long as that user is still in the guild
-            await _discordMemberService.PreloadMembersAsync(guild);
+            try
+            {
+                // Populates the cache and gets rid of "Unknown user", as long as that user is still in the guild
+                await _discordMemberService.PreloadMembersAsync(guild);
+            }
+            catch (Exception ex)
+            {
+                _logger.Error(
+                    ex,
+                    "Error preloading members for guild {GuildId}: {ErrorMessage}",
+                    guild.Id,
+                    ex.Message
+                );
+            }
 
             DiscordMember newMember;
 
