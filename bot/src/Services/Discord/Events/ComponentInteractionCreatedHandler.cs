@@ -11,17 +11,20 @@ namespace LundBot.Services.Discord.Events
     {
         private readonly IWelcomeMessageService _welcomeMessageService;
         private readonly IDiscordInteractionService _discordInteractionService;
+        private readonly IDiscordMemberService _discordMemberService;
 
         private readonly Serilog.ILogger _logger =
             Serilog.Log.ForContext<ComponentInteractionCreatedHandler>();
 
         public ComponentInteractionCreatedHandler(
             IWelcomeMessageService welcomeMessageService,
-            IDiscordInteractionService discordInteractionService
+            IDiscordInteractionService discordInteractionService,
+            IDiscordMemberService discordMemberService
         )
         {
             _welcomeMessageService = welcomeMessageService;
             _discordInteractionService = discordInteractionService;
+            _discordMemberService = discordMemberService;
         }
 
         public async Task HandleEventAsync(
@@ -83,9 +86,20 @@ namespace LundBot.Services.Discord.Events
                     await e.Interaction.CreateResponseAsync(
                         DiscordInteractionResponseType.DeferredMessageUpdate
                     );
+
+                    List<Task<DiscordMember>> tasks = new List<Task<DiscordMember>>
+                    {
+                        _discordMemberService.GetMemberAsync(e.Guild, e.User.Id),
+                        _discordMemberService.GetMemberAsync(e.Guild, discordMember!.Id),
+                    };
+
+                    DiscordMember[] members = await Task.WhenAll(tasks);
+                    DiscordMember senderMember = members[0];
+                    DiscordMember targetMember = members[1];
+
                     await _welcomeMessageService.HandleWelcomeInteractionAsync(
-                        e.User,
-                        discordMember,
+                        senderMember,
+                        targetMember,
                         e.Channel
                     );
                     break;
