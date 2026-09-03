@@ -59,6 +59,9 @@ namespace LundBot.Services
                 return;
             }
 
+            // Populates the cache and gets rid of "Unknown user", as long as that user is still in the guild
+            await _discordMemberService.PreloadMembersAsync(guild);
+
             DiscordMember newMember;
 
             try
