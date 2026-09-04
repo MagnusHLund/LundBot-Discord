@@ -1,12 +1,7 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-
 namespace LundBot.Application.Common.Discord
 {
     public interface IDiscordInteractionService
     {
-        
+        // TODO: This is all interaction, so maybe it fits better in Presentation layer?
     }
 }

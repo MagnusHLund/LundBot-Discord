@@ -1,6 +1,32 @@
+using DSharpPlus.Commands;
 using LundBot.Application.Common.Discord;
+using Serilog;
 
 namespace LundBot.Infrastructure.Discord.Services
 {
-    public sealed class DiscordCommandService : IDiscordCommandService { }
+    public sealed class DiscordCommandService : IDiscordCommandService
+    {
+        private readonly CommandsExtension _commands;
+
+        private readonly ILogger _logger = Log.ForContext<DiscordCommandService>();
+
+        public DiscordCommandService(CommandsExtension commands)
+        {
+            _commands = commands;
+        }
+
+        public async Task RefreshCommandsAsync()
+        {
+            _logger.Information("Refreshing commands...");
+
+            try
+            {
+                await _commands.RefreshAsync();
+            }
+            catch (Exception ex)
+            {
+                _logger.Error(ex, "Failed to refresh commands");
+            }
+        }
+    }
 }

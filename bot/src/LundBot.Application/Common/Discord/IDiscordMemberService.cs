@@ -1,12 +1,9 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-
 namespace LundBot.Application.Common.Discord
 {
     public interface IDiscordMemberService
     {
-        
+        Task<DiscordMemberDto?> GetMemberAsync(ulong memberId, ulong guildId);
+        Task<bool> DoesMemberHavePermissionAsync(ulong memberId, ulong guildId, DiscordPermissionEnum permission);
+        Task<bool> PreloadMembersAsync(ulong guildId);
     }
 }
