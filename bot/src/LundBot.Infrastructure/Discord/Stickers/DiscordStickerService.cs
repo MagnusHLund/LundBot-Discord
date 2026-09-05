@@ -20,8 +20,16 @@ namespace LundBot.Infrastructure.Discord.Stickers
         {
             _logger.Information("Fetching all sticker packs...");
 
-            var stickers = await _discordClient.GetStickerPacksAsync();
-            return stickers.Select(DiscordStickerMapper.Map).ToList();
+            try
+            {
+                var stickers = await _discordClient.GetStickerPacksAsync();
+                return stickers.Select(DiscordStickerMapper.Map).ToList();
+            }
+            catch (Exception ex)
+            {
+                _logger.Error(ex, "Failed to fetch sticker packs.");
+                return Enumerable.Empty<DiscordStickerPackDto>().ToList();
+            }
         }
     }
 }

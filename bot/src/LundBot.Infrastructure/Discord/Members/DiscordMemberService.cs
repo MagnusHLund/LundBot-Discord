@@ -2,6 +2,8 @@ using DSharpPlus;
 using DSharpPlus.Entities;
 using LundBot.Application.Discord.Members;
 using LundBot.Application.Discord.Permissions;
+using LundBot.Infrastructure.Discord.Members.Mappings;
+using LundBot.Infrastructure.Discord.Permissions.Mappings;
 using Serilog;
 
 namespace LundBot.Infrastructure.Discord.Members
@@ -26,7 +28,7 @@ namespace LundBot.Infrastructure.Discord.Members
                 DiscordGuild guild = await _discordClient.GetGuildAsync(guildId);
                 DiscordMember member = await guild.GetMemberAsync(memberId);
 
-                return new DiscordMemberDto(member.Id, member.Username, member.DisplayName);
+                return DiscordMemberMapper.Map(member);
             }
             catch (Exception ex)
             {
@@ -53,7 +55,7 @@ namespace LundBot.Infrastructure.Discord.Members
                 DiscordGuild guild = await _discordClient.GetGuildAsync(guildId);
                 DiscordMember member = await guild.GetMemberAsync(memberId);
 
-                return member.Permissions.HasFlag((DiscordPermission)(int)permission);
+                return member.Permissions.HasFlag(DiscordPermissionMapper.Map(permission));
             }
             catch (Exception ex)
             {

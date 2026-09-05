@@ -1,7 +1,7 @@
 using DSharpPlus;
 using DSharpPlus.Entities;
 using LundBot.Application.Discord.Guilds;
-using LundBot.Application.Discord.Members;
+using LundBot.Infrastructure.Discord.Guilds.Mappings;
 using Serilog;
 
 namespace LundBot.Infrastructure.Discord.Guilds
@@ -24,7 +24,7 @@ namespace LundBot.Infrastructure.Discord.Guilds
             try
             {
                 DiscordGuild guild = await _discordClient.GetGuildAsync(guildId);
-                return new DiscordGuildDto(guild.Id);
+                return DiscordGuildMapper.Map(guild);
             }
             catch (Exception ex)
             {
@@ -42,17 +42,7 @@ namespace LundBot.Infrastructure.Discord.Guilds
                 DiscordGuild guild = await _discordClient.GetGuildAsync(guildId);
                 IReadOnlyList<DiscordInvite> invites = await guild.GetInvitesAsync();
 
-                return invites
-                    .Select(invite => new DiscordInviteDto(
-                        invite.Code,
-                        (ushort)invite.Uses,
-                        new DiscordMemberDto(
-                            userId: invite.Inviter?.Id ?? 0,
-                            username: invite.Inviter?.Username ?? "",
-                            displayName: invite.Inviter?.GlobalName ?? ""
-                        )
-                    ))
-                    .ToList();
+                return DiscordInviteMapper.Map(invites);
             }
             catch (Exception ex)
             {

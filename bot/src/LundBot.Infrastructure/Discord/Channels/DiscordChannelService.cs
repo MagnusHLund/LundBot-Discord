@@ -1,6 +1,7 @@
 using DSharpPlus;
 using DSharpPlus.Entities;
 using LundBot.Application.Discord.Channels;
+using LundBot.Infrastructure.Discord.Channels.Mappings;
 using Serilog;
 
 namespace LundBot.Infrastructure.Discord.Channels
@@ -23,7 +24,7 @@ namespace LundBot.Infrastructure.Discord.Channels
             try
             {
                 DiscordChannel channel = await _discordClient.GetChannelAsync(channelId);
-                return new DiscordChannelDto(channel.Id);
+                return DiscordChannelMapper.Map(channel);
             }
             catch (Exception ex)
             {
@@ -46,7 +47,7 @@ namespace LundBot.Infrastructure.Discord.Channels
                     return null;
                 }
 
-                return new DiscordChannelDto(systemChannel.Id);
+                return DiscordChannelMapper.Map(systemChannel);
             }
             catch (Exception ex)
             {

@@ -1,4 +1,4 @@
-using LundBot.Application.Discord.Members;
+using LundBot.Application.Discord.Users;
 
 namespace LundBot.Application.Discord.Guilds
 {
@@ -6,9 +6,9 @@ namespace LundBot.Application.Discord.Guilds
     {
         public string InviteCode { get; }
         public ushort Uses { get; }
-        public DiscordMemberDto Inviter { get; }
+        public DiscordUserDto Inviter { get; }
 
-        public DiscordInviteDto(string inviteCode, ushort uses, DiscordMemberDto inviter)
+        public DiscordInviteDto(string inviteCode, ushort uses, DiscordUserDto inviter)
         {
             InviteCode = inviteCode;
             Uses = uses;

@@ -1,7 +1,7 @@
 using DSharpPlus.Entities;
 using LundBot.Application.Discord.Permissions;
 
-namespace LundBot.Presentation.Discord.Mappings
+namespace LundBot.Infrastructure.Discord.Permissions.Mappings
 {
     public static class DiscordPermissionMapper
     {
@@ -16,3 +16,5 @@ namespace LundBot.Presentation.Discord.Mappings
         }
     }
 }
+
+// TODO: Use the "this" keyword on all mappers and adjust usage.

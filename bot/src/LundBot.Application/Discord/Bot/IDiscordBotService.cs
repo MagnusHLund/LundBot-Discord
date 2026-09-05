@@ -2,7 +2,7 @@ namespace LundBot.Application.Discord.Bot
 {
     public interface IDiscordBotService
     {
-        Task ConnectToDiscordAsync();
-        Task UpdateBotStatusAsync();
+        Task<bool> ConnectToDiscordAsync();
+        Task<bool> UpdateBotStatusAsync();
     }
 }
