@@ -2,7 +2,7 @@ using DSharpPlus;
 using LundBot.Application.Discord.Moderation;
 using Serilog;
 
-namespace LundBot.Infrastructure.Discord.Services
+namespace LundBot.Infrastructure.Discord.Moderation
 {
     public class DiscordModerationService : IDiscordModerationService
     {

@@ -2,7 +2,7 @@ using DSharpPlus.Commands;
 using LundBot.Application.Discord.Commands;
 using Serilog;
 
-namespace LundBot.Infrastructure.Discord.Services
+namespace LundBot.Infrastructure.Discord.Commands
 {
     public sealed class DiscordCommandService : IDiscordCommandService
     {

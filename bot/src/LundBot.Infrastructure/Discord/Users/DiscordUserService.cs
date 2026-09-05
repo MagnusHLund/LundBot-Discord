@@ -1,9 +1,10 @@
 using DSharpPlus;
 using DSharpPlus.Entities;
 using LundBot.Application.Discord.Users;
+using LundBot.Infrastructure.Discord.Users.Mappings;
 using Serilog;
 
-namespace LundBot.Infrastructure.Discord.Services
+namespace LundBot.Infrastructure.Discord.Users
 {
     public sealed class DiscordUserService : IDiscordUserService
     {
@@ -23,7 +24,7 @@ namespace LundBot.Infrastructure.Discord.Services
             try
             {
                 DiscordUser user = await _discordClient.GetUserAsync(userId);
-                return new DiscordUserDto(userId: user.Id, username: user.Username);
+                return DiscordUserMapper.Map(user);
             }
             catch (Exception ex)
             {

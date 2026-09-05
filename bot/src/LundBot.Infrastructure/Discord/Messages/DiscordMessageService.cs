@@ -2,9 +2,10 @@ using DSharpPlus;
 using DSharpPlus.Entities;
 using LundBot.Application.Discord.Interactions;
 using LundBot.Application.Discord.Messages;
+using LundBot.Infrastructure.Discord.Messages.Mappings;
 using Serilog;
 
-namespace LundBot.Infrastructure.Discord.Services
+namespace LundBot.Infrastructure.Discord.Messages
 {
     public sealed class DiscordMessageService : IDiscordMessageService
     {
@@ -35,12 +36,7 @@ namespace LundBot.Infrastructure.Discord.Services
                     return null;
                 }
 
-                return new DiscordMessageDto(
-                    messageId: message.Id,
-                    channelId: message.Channel.Id,
-                    authorId: message.Author.Id,
-                    content: message.Content
-                );
+                return DiscordMessageMapper.Map(message);
             }
             catch (Exception ex)
             {
@@ -63,12 +59,7 @@ namespace LundBot.Infrastructure.Discord.Services
                 DiscordChannel channel = await _discordClient.GetChannelAsync(channelId);
                 DiscordMessage message = await channel.SendMessageAsync(content);
 
-                return new DiscordMessageDto(
-                    messageId: message.Id,
-                    channelId: message.Channel!.Id,
-                    authorId: message.Author!.Id,
-                    content: message.Content
-                );
+                return DiscordMessageMapper.Map(message);
             }
             catch (Exception ex)
             {
@@ -94,12 +85,7 @@ namespace LundBot.Infrastructure.Discord.Services
 
                 DiscordMessage message = await channel.SendMessageAsync(builder);
 
-                return new DiscordMessageDto(
-                    messageId: message.Id,
-                    channelId: message.Channel!.Id,
-                    authorId: message.Author!.Id,
-                    content: message.Content
-                );
+                return DiscordMessageMapper.Map(message);
             }
             catch (Exception ex)
             {
@@ -119,12 +105,7 @@ namespace LundBot.Infrastructure.Discord.Services
 
                 await message.ModifyAsync(newContent);
 
-                return new DiscordMessageDto(
-                    messageId: message.Id,
-                    channelId: message.Channel!.Id,
-                    authorId: message.Author!.Id,
-                    content: message.Content
-                );
+                return DiscordMessageMapper.Map(message);
             }
             catch (Exception ex)
             {
@@ -164,7 +145,11 @@ namespace LundBot.Infrastructure.Discord.Services
                 {
                     case DiscordButtonDto button:
                         builder.AddActionRowComponent(
-                            new DiscordButtonComponent(MapButtonStyle(button.ButtonStyle), button.CustomId, button.Label)
+                            new DiscordButtonComponent(
+                                MapButtonStyle(button.ButtonStyle),
+                                button.CustomId,
+                                button.Label
+                            )
                         );
                         break;
 

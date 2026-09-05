@@ -3,7 +3,7 @@ using DSharpPlus.Entities;
 using LundBot.Application.Discord.Roles;
 using Serilog;
 
-namespace LundBot.Infrastructure.Discord.Services
+namespace LundBot.Infrastructure.Discord.Roles
 {
     public class DiscordRoleService : IDiscordRoleService
     {

@@ -2,7 +2,7 @@ using DSharpPlus;
 using LundBot.Application.Discord.Bot;
 using Serilog;
 
-namespace LundBot.Infrastructure.Discord.Services
+namespace LundBot.Infrastructure.Discord.Bot
 {
     public sealed class DiscordBotService : IDiscordBotService
     {

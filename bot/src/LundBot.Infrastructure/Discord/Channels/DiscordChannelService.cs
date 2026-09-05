@@ -3,7 +3,7 @@ using DSharpPlus.Entities;
 using LundBot.Application.Discord.Channels;
 using Serilog;
 
-namespace LundBot.Infrastructure.Discord.Services
+namespace LundBot.Infrastructure.Discord.Channels
 {
     public sealed class DiscordChannelService : IDiscordChannelService
     {

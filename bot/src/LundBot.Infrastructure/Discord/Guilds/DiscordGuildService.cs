@@ -4,7 +4,7 @@ using LundBot.Application.Discord.Guilds;
 using LundBot.Application.Discord.Members;
 using Serilog;
 
-namespace LundBot.Infrastructure.Discord.Services
+namespace LundBot.Infrastructure.Discord.Guilds
 {
     public sealed class DiscordGuildService : IDiscordGuildService
     {

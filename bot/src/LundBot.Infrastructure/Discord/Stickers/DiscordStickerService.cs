@@ -1,10 +1,9 @@
 using DSharpPlus;
 using LundBot.Application.Discord.Stickers;
-using LundBot.Infrastructure.Discord.Configuration;
-using Microsoft.Extensions.Options;
+using LundBot.Infrastructure.Discord.Stickers.Mappings;
 using Serilog;
 
-namespace LundBot.Infrastructure.Discord.Services
+namespace LundBot.Infrastructure.Discord.Stickers
 {
     public sealed class DiscordStickerService : IDiscordStickerService
     {
@@ -22,16 +21,7 @@ namespace LundBot.Infrastructure.Discord.Services
             _logger.Information("Fetching all sticker packs...");
 
             var stickers = await _discordClient.GetStickerPacksAsync();
-
-            return stickers
-                .Select(stickerPack => new DiscordStickerPackDto(
-                    stickerPackId: stickerPack.Id,
-                    name: stickerPack.Name,
-                    stickers: stickerPack
-                        .Stickers.Select(sticker => new DiscordStickerDto(stickerId: sticker.Id, name: sticker.Name))
-                        .ToList()
-                ))
-                .ToList();
+            return stickers.Select(DiscordStickerMapper.Map).ToList();
         }
     }
 }
