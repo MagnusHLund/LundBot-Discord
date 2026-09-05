@@ -1,6 +1,7 @@
 using DSharpPlus;
 using DSharpPlus.Entities;
-using LundBot.Application.Common.Discord;
+using LundBot.Application.Discord.Interactions;
+using LundBot.Application.Discord.Messages;
 using Serilog;
 
 namespace LundBot.Infrastructure.Discord.Services
@@ -107,14 +108,49 @@ namespace LundBot.Infrastructure.Discord.Services
             }
         }
 
-        public Task<DiscordMessageDto?> ModifyMessageAsync(ulong messageId, ulong channelId, string newContent)
+        public async Task<DiscordMessageDto?> ModifyMessageAsync(ulong messageId, ulong channelId, string newContent)
         {
-            throw new NotImplementedException();
+            _logger.Information("Modifying message {MessageId} in channel {ChannelId}...", messageId, channelId);
+
+            try
+            {
+                DiscordChannel channel = await _discordClient.GetChannelAsync(channelId);
+                DiscordMessage message = await channel.GetMessageAsync(messageId);
+
+                await message.ModifyAsync(newContent);
+
+                return new DiscordMessageDto(
+                    messageId: message.Id,
+                    channelId: message.Channel!.Id,
+                    authorId: message.Author!.Id,
+                    content: message.Content
+                );
+            }
+            catch (Exception ex)
+            {
+                _logger.Error(ex, "Failed to modify message {MessageId} in channel {ChannelId}", messageId, channelId);
+                return null;
+            }
         }
 
-        public Task<bool> DeleteMessageAsync(ulong messageId, ulong channelId)
+        public async Task<bool> DeleteMessageAsync(ulong messageId, ulong channelId)
         {
-            throw new NotImplementedException();
+            _logger.Information("Deleting message {MessageId} in channel {ChannelId}...", messageId, channelId);
+
+            try
+            {
+                DiscordChannel channel = await _discordClient.GetChannelAsync(channelId);
+                DiscordMessage message = await channel.GetMessageAsync(messageId);
+
+                await message.DeleteAsync();
+
+                return true;
+            }
+            catch (Exception ex)
+            {
+                _logger.Error(ex, "Failed to delete message {MessageId} in channel {ChannelId}", messageId, channelId);
+                return false;
+            }
         }
 
         private static void AddComponentsToMessageBuilder(
@@ -128,7 +164,7 @@ namespace LundBot.Infrastructure.Discord.Services
                 {
                     case DiscordButtonDto button:
                         builder.AddActionRowComponent(
-                            new DiscordButtonComponent(MapStyle(button.ButtonStyle), button.CustomId, button.Label)
+                            new DiscordButtonComponent(MapButtonStyle(button.ButtonStyle), button.CustomId, button.Label)
                         );
                         break;
 
@@ -137,7 +173,7 @@ namespace LundBot.Infrastructure.Discord.Services
             }
         }
 
-        private static DiscordButtonStyle MapStyle(DiscordButtonStyleEnum buttonStyle)
+        private static DiscordButtonStyle MapButtonStyle(DiscordButtonStyleEnum buttonStyle)
         {
             return buttonStyle switch
             {

@@ -1,11 +1,16 @@
-using DSharpPlus.Extensions;
 using LundBot.Application.Common.Caching;
-using LundBot.Application.Common.Discord;
+using LundBot.Application.Discord.Bot;
+using LundBot.Application.Discord.Channels;
+using LundBot.Application.Discord.Guilds;
+using LundBot.Application.Discord.Members;
+using LundBot.Application.Discord.Messages;
+using LundBot.Application.Discord.Stickers;
+using LundBot.Application.Discord.Users;
 using LundBot.Application.Features.Leaderboards;
 using LundBot.Application.Features.MemberJoin;
 using LundBot.Application.Features.WebsiteTraffic;
 using LundBot.Infrastructure.Caching;
-using LundBot.Infrastructure.Discord.Events;
+using LundBot.Infrastructure.Discord.Configuration;
 using LundBot.Infrastructure.Discord.Services;
 using LundBot.Infrastructure.Persistence;
 using LundBot.Infrastructure.Persistence.Repositories.Leaderboards;
@@ -25,8 +30,8 @@ namespace LundBot.Infrastructure
         )
         {
             services.AddDatabase(configuration);
+            services.AddConfiguration(configuration);
 
-            services.AddEvents();
             services.AddServices();
             services.AddRepositories();
 
@@ -50,23 +55,6 @@ namespace LundBot.Infrastructure
             return services;
         }
 
-        private static IServiceCollection AddEvents(this IServiceCollection services)
-        {
-            services.ConfigureEventHandlers(events =>
-            {
-                events.AddEventHandlers<ComponentInteractionCreatedHandler>();
-                events.AddEventHandlers<GuildDownloadCompletedHandler>();
-                events.AddEventHandlers<GuildMemberUpdatedHandler>();
-                events.AddEventHandlers<GuildMemberAddedHandler>();
-                events.AddEventHandlers<SessionCreatedHandler>();
-                events.AddEventHandlers<CommandExecutedHandler>();
-                events.AddEventHandlers<CommandErroredHandler>();
-                events.AddEventHandlers<GuildCreatedHandler>();
-            });
-
-            return services;
-        }
-
         private static IServiceCollection AddServices(this IServiceCollection services)
         {
             services.AddSingleton<ICacheService, CacheService>();
@@ -78,7 +66,6 @@ namespace LundBot.Infrastructure
             services.AddSingleton<IDiscordChannelService, DiscordChannelService>();
             services.AddSingleton<IDiscordMessageService, DiscordMessageService>();
             services.AddSingleton<IDiscordStickerService, DiscordStickerService>();
-            services.AddSingleton<IDiscordInteractionService, DiscordInteractionService>();
 
             return services;
         }
@@ -96,6 +83,16 @@ namespace LundBot.Infrastructure
             services.AddScoped<WebsiteTrafficMessageRepository>();
             services.AddScoped<LeaderboardMessageRepository>();
             services.AddScoped<MemberJoinMessageRepository>();
+
+            return services;
+        }
+
+        private static IServiceCollection AddConfiguration(
+            this IServiceCollection services,
+            IConfiguration configuration
+        )
+        {
+            services.Configure<DiscordConfig>(configuration.GetSection("Discord"));
 
             return services;
         }

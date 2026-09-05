@@ -1,5 +1,5 @@
 using DSharpPlus.Entities;
-using LundBot.Application.Common.Discord;
+using LundBot.Application.Discord.Permissions;
 
 namespace LundBot.Presentation.Discord.Mappings
 {

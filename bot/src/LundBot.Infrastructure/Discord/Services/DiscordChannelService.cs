@@ -1,6 +1,6 @@
 using DSharpPlus;
 using DSharpPlus.Entities;
-using LundBot.Application.Common.Discord;
+using LundBot.Application.Discord.Channels;
 using Serilog;
 
 namespace LundBot.Infrastructure.Discord.Services

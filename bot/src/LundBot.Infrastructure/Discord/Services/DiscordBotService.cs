@@ -1,5 +1,5 @@
 using DSharpPlus;
-using LundBot.Application.Common.Discord;
+using LundBot.Application.Discord.Bot;
 using Serilog;
 
 namespace LundBot.Infrastructure.Discord.Services

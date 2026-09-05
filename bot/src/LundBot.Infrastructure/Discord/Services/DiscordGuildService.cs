@@ -1,6 +1,7 @@
 using DSharpPlus;
 using DSharpPlus.Entities;
-using LundBot.Application.Common.Discord;
+using LundBot.Application.Discord.Guilds;
+using LundBot.Application.Discord.Members;
 using Serilog;
 
 namespace LundBot.Infrastructure.Discord.Services
@@ -41,7 +42,17 @@ namespace LundBot.Infrastructure.Discord.Services
                 DiscordGuild guild = await _discordClient.GetGuildAsync(guildId);
                 IReadOnlyList<DiscordInvite> invites = await guild.GetInvitesAsync();
 
-                return invites.Select(invite => new DiscordInviteDto(invite.Code, invite.Inviter?.Id ?? 0)).ToList();
+                return invites
+                    .Select(invite => new DiscordInviteDto(
+                        invite.Code,
+                        (ushort)invite.Uses,
+                        new DiscordMemberDto(
+                            userId: invite.Inviter?.Id ?? 0,
+                            username: invite.Inviter?.Username ?? "",
+                            displayName: invite.Inviter?.GlobalName ?? ""
+                        )
+                    ))
+                    .ToList();
             }
             catch (Exception ex)
             {

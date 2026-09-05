@@ -1,6 +1,7 @@
 using DSharpPlus;
 using DSharpPlus.Entities;
-using LundBot.Application.Common.Discord;
+using LundBot.Application.Discord.Members;
+using LundBot.Application.Discord.Permissions;
 using Serilog;
 
 namespace LundBot.Infrastructure.Discord.Services
@@ -80,7 +81,6 @@ namespace LundBot.Infrastructure.Discord.Services
                 DiscordGuild guild = await _discordClient.GetGuildAsync(guildId);
                 await guild.RequestMembersAsync();
 
-                _logger.Information("Successfully preloaded members for guild {GuildId}.", guildId);
                 return true;
             }
             catch (Exception ex)
