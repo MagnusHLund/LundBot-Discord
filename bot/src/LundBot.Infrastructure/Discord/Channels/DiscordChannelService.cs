@@ -17,9 +17,9 @@ namespace LundBot.Infrastructure.Discord.Channels
             _discordClient = discordClient;
         }
 
-        public async Task<DiscordChannelDto?> GetChannelAsync(ulong channelId, ulong guildId)
+        public async Task<DiscordChannelDto?> GetChannelAsync(ulong channelId)
         {
-            _logger.Information("Getting channel with ID {ChannelId} in guild {GuildId}...", channelId, guildId);
+            _logger.Information("Getting channel with ID {ChannelId}...", channelId);
 
             try
             {
@@ -28,7 +28,7 @@ namespace LundBot.Infrastructure.Discord.Channels
             }
             catch (Exception ex)
             {
-                _logger.Error(ex, "Failed to get channel with ID {ChannelId} in guild {GuildId}.", channelId, guildId);
+                _logger.Error(ex, "Failed to get channel with ID {ChannelId}.", channelId);
                 return null;
             }
         }
