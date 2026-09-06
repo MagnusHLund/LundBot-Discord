@@ -4,6 +4,8 @@ using DSharpPlus.Extensions;
 using LundBot.Presentation.Api.Bot.Middleware;
 using LundBot.Presentation.Config;
 using LundBot.Presentation.Discord.Bot;
+using LundBot.Presentation.Discord.Events;
+using LundBot.Presentation.Discord.Interactions;
 using LundBot.Presentation.Discord.Leaderboards;
 using Serilog;
 using Serilog.Events;
@@ -18,7 +20,10 @@ namespace LundBot.Presentation
 
             services.AddConfiguration(configuration);
             services.AddDiscord(configuration);
+
             services.AddBackgroundServices();
+            services.AddServices();
+            services.AddEvents();
 
             return services;
         }
@@ -55,13 +60,36 @@ namespace LundBot.Presentation
             return services;
         }
 
+        private static IServiceCollection AddEvents(this IServiceCollection services)
+        {
+            services.ConfigureEventHandlers(events =>
+            {
+                events.AddEventHandlers<ComponentInteractionCreatedHandler>();
+                events.AddEventHandlers<GuildDownloadCompletedHandler>();
+                events.AddEventHandlers<GuildMemberUpdatedHandler>();
+                events.AddEventHandlers<GuildMemberAddedHandler>();
+                events.AddEventHandlers<SessionCreatedHandler>();
+                events.AddEventHandlers<CommandExecutedHandler>();
+                events.AddEventHandlers<CommandErroredHandler>();
+                events.AddEventHandlers<GuildCreatedHandler>();
+            });
+
+            return services;
+        }
+
+        private static IServiceCollection AddServices(this IServiceCollection services)
+        {
+            services.AddSingleton<IDiscordInteractionService, DiscordInteractionService>();
+
+            return services;
+        }
+
         private static IServiceCollection AddConfiguration(
             this IServiceCollection services,
             IConfiguration configuration
         )
         {
             services.Configure<ServerConfig>(configuration.GetSection("Server"));
-            services.Configure<DiscordConfig>(configuration.GetSection("Discord"));
             services.Configure<DeveloperEnvironmentConfig>(configuration.GetSection("DeveloperEnvironment"));
 
             return services;
