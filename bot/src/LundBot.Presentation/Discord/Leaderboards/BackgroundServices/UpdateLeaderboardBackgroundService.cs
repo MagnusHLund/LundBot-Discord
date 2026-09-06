@@ -1,4 +1,4 @@
-namespace LundBot.Presentation.Discord.Leaderboards
+namespace LundBot.Presentation.Discord.Leaderboards.BackgroundServices
 {
     public sealed class UpdateLeaderboardBackgroundService : BackgroundService
     {
