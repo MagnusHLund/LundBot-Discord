@@ -59,43 +59,10 @@ namespace LundBot.Services
                 return;
             }
 
-            try
-            {
-                // Populates the cache and gets rid of "Unknown user", as long as that user is still in the guild
-                await _discordMemberService.PreloadMembersAsync(guild);
-            }
-            catch (Exception ex)
-            {
-                _logger.Error(
-                    ex,
-                    "Error preloading members for guild {GuildId}: {ErrorMessage}",
-                    guild.Id,
-                    ex.Message
-                );
-            }
-
-            DiscordMember newMember;
-
-            try
-            {
-                newMember = await _discordMemberService.GetMemberAsync(guild, member.Id);
-            }
-            catch (Exception ex)
-            {
-                _logger.Error(
-                    ex,
-                    "Error fetching member {UserId} in guild {GuildId}: {ErrorMessage}",
-                    member.Id,
-                    guild.Id,
-                    ex.Message
-                );
-                newMember = member; // Fallback to the provided member if fetching fails
-            }
-
             short randomIndex = (short)new Random().Next(WelcomeMessages.Messages.Count);
             string welcomeMessage = string.Format(
                 WelcomeMessages.Messages[randomIndex],
-                $"{member.DisplayName}"
+                member.DisplayName
             );
 
             _messageService.MessageFactory.SetJoinedUserId(member.Id.ToString());
