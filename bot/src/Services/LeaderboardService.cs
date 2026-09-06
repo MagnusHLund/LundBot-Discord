@@ -26,6 +26,7 @@ namespace LundBot.Services
         private readonly ICacheService _cacheService;
         private readonly ILeaderboardsRepository _leaderboardsRepository;
         private readonly IDiscordMemberService _discordMemberService;
+        private readonly IDiscordUserService _discordUserService;
         private readonly IDiscordChannelService _discordChannelService;
         private readonly IMessageService<
             LeaderboardMessagesEntity,
@@ -41,6 +42,7 @@ namespace LundBot.Services
             ILeaderboardMessagesRepository leaderboardsMessageRepository,
             ILeaderboardScoreSourceRepository leaderboardScoreSourceRepository,
             ILeaderboardScoresRepository leaderboardScoreRepository,
+            IDiscordUserService discordUserService,
             IDiscordMemberService discordMemberService,
             ICacheService cacheService,
             IDiscordChannelService discordChannelService,
@@ -58,6 +60,7 @@ namespace LundBot.Services
             _leaderboardScoreSourceRepository = leaderboardScoreSourceRepository;
             _leaderboardScoreRepository = leaderboardScoreRepository;
             _discordChannelService = discordChannelService;
+            _discordUserService = discordUserService;
             _discordMemberService = discordMemberService;
             _messageService = messageService;
             _cacheService = cacheService;
@@ -368,10 +371,40 @@ namespace LundBot.Services
                     continue;
                 }
 
-                var member = await _discordMemberService.GetMemberAsync(guild, parsedUserId);
-                sb.AppendLine(
-                    $"{rank}. **{score.Score}** - **{member.DisplayName}** ({member.Username})"
-                );
+                DiscordMember member;
+
+                try
+                {
+                    member = await _discordMemberService.GetMemberAsync(guild, parsedUserId);
+                }
+                catch (Exception ex)
+                {
+                    _logger.Warning(
+                        ex,
+                        "Failed to retrieve Discord member with ID {DiscordUserId} for leaderboard score with ID {ScoreId}. Trying to fetch User instead.",
+                        parsedUserId,
+                        score.Id
+                    );
+
+                    try
+                    {
+                        member = (DiscordMember)
+                            await _discordUserService.GetUserAsync(parsedUserId);
+                    }
+                    catch (Exception ex2)
+                    {
+                        _logger.Warning(
+                            ex2,
+                            "Failed to retrieve Discord user with ID {DiscordUserId} for leaderboard score with ID {ScoreId}. Skipping this score.",
+                            parsedUserId,
+                            score.Id
+                        );
+                        continue;
+                    }
+                }
+
+                string displayName = member.DisplayName ?? member.GlobalName ?? member.Username;
+                sb.AppendLine($"{rank}. **{score.Score}** - **{displayName}** ({member.Username})");
                 rank++;
             }
 
