@@ -1,3 +1,4 @@
+using LundBot.Application.Discord.Channels;
 using LundBot.Application.Discord.Users;
 using LundBot.Domain.Leaderboards;
 
@@ -44,7 +45,7 @@ namespace LundBot.Application.Features.Leaderboards
             throw new NotImplementedException();
         }
 
-        public Task UpdateLeaderboardMessageAsync(Leaderboard leaderboard, ulong channelId)
+        public Task UpdateLeaderboardMessageAsync(Leaderboard leaderboard, DiscordChannelDto channel)
         {
             throw new NotImplementedException();
         }
