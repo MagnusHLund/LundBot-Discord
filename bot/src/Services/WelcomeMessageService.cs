@@ -62,7 +62,7 @@ namespace LundBot.Services
             short randomIndex = (short)new Random().Next(WelcomeMessages.Messages.Count);
             string welcomeMessage = string.Format(
                 WelcomeMessages.Messages[randomIndex],
-                member.DisplayName
+                $"**{member.DisplayName}**"
             );
 
             _messageService.MessageFactory.SetJoinedUserId(member.Id.ToString());
@@ -95,7 +95,7 @@ namespace LundBot.Services
         )
         {
             var message = new DiscordMessageBuilder().WithContent(
-                $"{senderUser.DisplayName} says hi to {targetUser.DisplayName}"
+                $"**{senderUser.DisplayName}** says hi to **{targetUser.DisplayName}**"
             );
 
             var welcomeStickers = await GetWelcomeStickersAsync();
