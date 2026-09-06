@@ -8,7 +8,8 @@ namespace LundBot.Presentation.Api.Bot.Middleware
 
         private static readonly HashSet<string> AllowedOrigins = new()
         {
-            "https://lundbot.com",
+            "https://lundbot69.com",
+            "https://discord.lundbot69.com",
             "https://infinitewarfarecommunity.com",
         };
 
