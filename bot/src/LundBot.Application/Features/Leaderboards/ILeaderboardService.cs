@@ -1,3 +1,4 @@
+using LundBot.Application.Discord.Channels;
 using LundBot.Application.Discord.Users;
 using LundBot.Domain.Leaderboards;
 
@@ -12,6 +13,6 @@ namespace LundBot.Application.Features.Leaderboards
         Task RegisterWarningOnLeaderboardAsync(ulong channelId, DiscordUserDto targetUser);
         Task RefreshLeaderboardAsync(ulong channelId, ulong guildId);
         ValueTask<List<Leaderboard>> GetLeaderboardsForGuildAsync(ulong guildId);
-        Task UpdateLeaderboardMessageAsync(Leaderboard leaderboard, ulong channelId);
+        Task UpdateLeaderboardMessageAsync(Leaderboard leaderboard, DiscordChannelDto channel);
     }
 }

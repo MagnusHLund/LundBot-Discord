@@ -7,7 +7,7 @@ namespace LundBot.Infrastructure.Discord.Channels.Mappings
     {
         public static DiscordChannelDto Map(this DiscordChannel channel)
         {
-            return new DiscordChannelDto(channel.Id);
+            return new DiscordChannelDto(channel.Id, channel.Guild.Id);
         }
     }
 }
