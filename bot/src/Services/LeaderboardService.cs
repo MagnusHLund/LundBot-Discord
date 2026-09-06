@@ -369,7 +369,7 @@ namespace LundBot.Services
                 }
 
                 var member = await _discordMemberService.GetMemberAsync(guild, parsedUserId);
-                sb.AppendLine($"{rank}. {member.Mention} - {score.Score}");
+                sb.AppendLine($"{rank}. {member.DisplayName} ({member.Username}) - {score.Score}");
                 rank++;
             }
 

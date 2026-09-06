@@ -64,8 +64,42 @@ namespace LundBot.Services.Discord.Events
 
             if (interactionParts.Length > 1)
             {
-                ulong userId = ulong.Parse(interactionParts[1]);
-                targetMember = await e.Guild.GetMemberAsync(userId);
+                if (!ulong.TryParse(interactionParts[1], out var userId))
+                {
+                    _logger.Error(
+                        "Error parsing target user ID from interaction: {InteractionId}",
+                        e.Id
+                    );
+
+                    await _discordInteractionService.SendResponseAsync(
+                        e.Interaction,
+                        "Unable to parse target user ID.",
+                        true
+                    );
+
+                    return;
+                }
+
+                try
+                {
+                    targetMember = await e.Guild.GetMemberAsync(userId);
+                }
+                catch (Exception ex)
+                {
+                    _logger.Error(
+                        ex,
+                        "Error parsing target user ID from interaction: {InteractionId}",
+                        e.Id
+                    );
+
+                    await _discordInteractionService.SendResponseAsync(
+                        e.Interaction,
+                        "Unable to fetch target user. The user might not still be in the server.",
+                        true
+                    );
+
+                    return;
+                }
             }
 
             switch (interactionName)
