@@ -5,16 +5,14 @@ namespace LundBot.Infrastructure.Discord.Permissions.Mappings
 {
     public static class DiscordPermissionMapper
     {
-        public static DiscordPermissionEnum Map(DiscordPermission permission)
+        public static DiscordPermissionEnum Map(this DiscordPermission permission)
         {
             return (DiscordPermissionEnum)(int)permission;
         }
 
-        public static DiscordPermission Map(DiscordPermissionEnum permission)
+        public static DiscordPermission Map(this DiscordPermissionEnum permission)
         {
             return (DiscordPermission)(int)permission;
         }
     }
 }
-
-// TODO: Use the "this" keyword on all mappers and adjust usage.

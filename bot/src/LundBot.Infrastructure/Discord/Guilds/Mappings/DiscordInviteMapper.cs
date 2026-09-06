@@ -7,15 +7,15 @@ namespace LundBot.Infrastructure.Discord.Guilds.Mappings
 {
     public static class DiscordInviteMapper
     {
-        public static DiscordInviteDto Map(DiscordInvite invite)
+        public static DiscordInviteDto Map(this DiscordInvite invite)
         {
             DiscordUserDto inviter = DiscordUserMapper.Map(invite.Inviter);
             return new DiscordInviteDto(inviteCode: invite.Code, uses: (ushort)invite.Uses, inviter: inviter);
         }
 
-        public static IReadOnlyList<DiscordInviteDto> Map(IReadOnlyList<DiscordInvite> invites)
+        public static IReadOnlyList<DiscordInviteDto> Map(this IReadOnlyList<DiscordInvite> invites)
         {
-            return invites.Select(i => Map(i)).ToList();
+            return invites.Select(i => i.Map()).ToList();
         }
     }
 }

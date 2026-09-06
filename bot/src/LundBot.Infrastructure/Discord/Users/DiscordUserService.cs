@@ -24,7 +24,7 @@ namespace LundBot.Infrastructure.Discord.Users
             try
             {
                 DiscordUser user = await _discordClient.GetUserAsync(userId);
-                return DiscordUserMapper.Map(user);
+                return user.Map();
             }
             catch (Exception ex)
             {

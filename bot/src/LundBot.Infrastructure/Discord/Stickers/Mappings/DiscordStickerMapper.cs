@@ -5,16 +5,16 @@ namespace LundBot.Infrastructure.Discord.Stickers.Mappings
 {
     public static class DiscordStickerMapper
     {
-        public static DiscordStickerPackDto Map(DiscordMessageStickerPack stickerPack)
+        public static DiscordStickerPackDto Map(this DiscordMessageStickerPack stickerPack)
         {
             return new DiscordStickerPackDto(
                 stickerPackId: stickerPack.Id,
                 name: stickerPack.Name,
-                stickers: stickerPack.Stickers.Select(sp => Map(sp)).ToList()
+                stickers: stickerPack.Stickers.Select(sp => sp.Map()).ToList()
             );
         }
 
-        public static DiscordStickerDto Map(DiscordMessageSticker sticker)
+        public static DiscordStickerDto Map(this DiscordMessageSticker sticker)
         {
             return new DiscordStickerDto(stickerId: sticker.Id, name: sticker.Name);
         }

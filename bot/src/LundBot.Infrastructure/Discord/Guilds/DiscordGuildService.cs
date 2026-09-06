@@ -24,7 +24,7 @@ namespace LundBot.Infrastructure.Discord.Guilds
             try
             {
                 DiscordGuild guild = await _discordClient.GetGuildAsync(guildId);
-                return DiscordGuildMapper.Map(guild);
+                return guild.Map();
             }
             catch (Exception ex)
             {
@@ -42,7 +42,7 @@ namespace LundBot.Infrastructure.Discord.Guilds
                 DiscordGuild guild = await _discordClient.GetGuildAsync(guildId);
                 IReadOnlyList<DiscordInvite> invites = await guild.GetInvitesAsync();
 
-                return DiscordInviteMapper.Map(invites);
+                return invites.Map();
             }
             catch (Exception ex)
             {

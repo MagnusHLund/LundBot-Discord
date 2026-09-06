@@ -36,7 +36,7 @@ namespace LundBot.Infrastructure.Discord.Messages
                     return null;
                 }
 
-                return DiscordMessageMapper.Map(message);
+                return message.Map();
             }
             catch (Exception ex)
             {
@@ -59,7 +59,7 @@ namespace LundBot.Infrastructure.Discord.Messages
                 DiscordChannel channel = await _discordClient.GetChannelAsync(channelId);
                 DiscordMessage message = await channel.SendMessageAsync(content);
 
-                return DiscordMessageMapper.Map(message);
+                return message.Map();
             }
             catch (Exception ex)
             {
@@ -85,7 +85,7 @@ namespace LundBot.Infrastructure.Discord.Messages
 
                 DiscordMessage message = await channel.SendMessageAsync(builder);
 
-                return DiscordMessageMapper.Map(message);
+                return message.Map();
             }
             catch (Exception ex)
             {
@@ -105,7 +105,7 @@ namespace LundBot.Infrastructure.Discord.Messages
 
                 await message.ModifyAsync(newContent);
 
-                return DiscordMessageMapper.Map(message);
+                return message.Map();
             }
             catch (Exception ex)
             {
@@ -153,7 +153,7 @@ namespace LundBot.Infrastructure.Discord.Messages
                         );
                         break;
 
-                    // TODO: This can be expanded. See AddComponentsToBuilder in the linked file for reference, https://github.com/MagnusHLund/LundBot-Discord/blob/2.4.2/bot/src/Services/Discord/DiscordMessageService.cs
+                    // This can be expanded. See AddComponentsToBuilder in the linked file for reference, https://github.com/MagnusHLund/LundBot-Discord/blob/2.4.2/bot/src/Services/Discord/DiscordMessageService.cs
                 }
             }
         }

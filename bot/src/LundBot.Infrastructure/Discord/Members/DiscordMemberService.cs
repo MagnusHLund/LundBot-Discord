@@ -28,7 +28,7 @@ namespace LundBot.Infrastructure.Discord.Members
                 DiscordGuild guild = await _discordClient.GetGuildAsync(guildId);
                 DiscordMember member = await guild.GetMemberAsync(memberId);
 
-                return DiscordMemberMapper.Map(member);
+                return member.Map();
             }
             catch (Exception ex)
             {

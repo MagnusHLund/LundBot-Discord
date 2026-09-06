@@ -23,7 +23,7 @@ namespace LundBot.Infrastructure.Discord.Stickers
             try
             {
                 var stickers = await _discordClient.GetStickerPacksAsync();
-                return stickers.Select(DiscordStickerMapper.Map).ToList();
+                return stickers.Select(sp => sp.Map()).ToList();
             }
             catch (Exception ex)
             {

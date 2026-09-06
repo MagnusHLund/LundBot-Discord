@@ -24,7 +24,7 @@ namespace LundBot.Infrastructure.Discord.Channels
             try
             {
                 DiscordChannel channel = await _discordClient.GetChannelAsync(channelId);
-                return DiscordChannelMapper.Map(channel);
+                return channel.Map();
             }
             catch (Exception ex)
             {
@@ -47,7 +47,7 @@ namespace LundBot.Infrastructure.Discord.Channels
                     return null;
                 }
 
-                return DiscordChannelMapper.Map(systemChannel);
+                return systemChannel.Map();
             }
             catch (Exception ex)
             {

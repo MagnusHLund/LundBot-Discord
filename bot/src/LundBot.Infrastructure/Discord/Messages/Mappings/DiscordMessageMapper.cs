@@ -5,7 +5,7 @@ namespace LundBot.Infrastructure.Discord.Messages.Mappings
 {
     public static class DiscordMessageMapper
     {
-        public static DiscordMessageDto Map(DiscordMessage message)
+        public static DiscordMessageDto Map(this DiscordMessage message)
         {
             return new DiscordMessageDto(
                 messageId: message.Id,
