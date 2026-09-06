@@ -103,9 +103,9 @@ namespace LundBot.Infrastructure.Discord.Messages
                 DiscordChannel channel = await _discordClient.GetChannelAsync(channelId);
                 DiscordMessage message = await channel.GetMessageAsync(messageId);
 
-                await message.ModifyAsync(newContent);
+                DiscordMessage modifiedMessage = await message.ModifyAsync(newContent);
 
-                return message.Map();
+                return modifiedMessage.Map();
             }
             catch (Exception ex)
             {
