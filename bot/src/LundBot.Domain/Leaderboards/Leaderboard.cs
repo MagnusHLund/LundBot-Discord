@@ -12,7 +12,7 @@ namespace LundBot.Domain.Leaderboards
         public ulong DiscordChannelId { get; set; }
         public string Title { get; set; } = null!;
         public string Message { get; set; } = null!;
-        public LeaderboardType LeaderboardType { get; set; }
+        public LeaderboardTypeEnum LeaderboardType { get; set; }
 
         public ICollection<LeaderboardScore> LeaderboardScores { get; set; } = new List<LeaderboardScore>();
         public ICollection<LeaderboardMessage> LeaderboardMessages { get; set; } = new List<LeaderboardMessage>();
