@@ -24,18 +24,16 @@ jobs:
 
       - name: Update version in appsettings.json
         run: |
-          jq ".server.version = \"${{ steps.tag.outputs.TAG }}\"" bot/src/appsettings.json > bot/src/appsettings.tmp
-          mv bot/src/appsettings.tmp bot/src/appsettings.json
+          jq ".server.version = \"${{ steps.tag.outputs.TAG }}\"" bot/src/LundBot.Presentation/appsettings.json > bot/src/LundBot.Presentation/appsettings.tmp
+          mv bot/src/LundBot.Presentation/appsettings.tmp bot/src/LundBot.Presentation/appsettings.json
 
       - name: Commit and push updated file
+        env:
+          GH_TOKEN: ${{ secrets.VERSION_BUMP_TOKEN }}
         run: |
           git config user.name "github-actions"
           git config user.email "github-actions@github.com"
-          git add bot/src/appsettings.json
+          git add bot/src/LundBot.Presentation/appsettings.json
           git commit -m "Update server.version to ${{ steps.tag.outputs.TAG }} for tag ${{ steps.tag.outputs.TAG }}"
-
-          # Update the tag
+          git push https://x-access-token:${GH_TOKEN}@github.com/${{ github.repository }}.git HEAD:main
           git push --force origin HEAD:refs/tags/${{ steps.tag.outputs.TAG }}
-
-          # update main branch
-          git push origin HEAD:main
