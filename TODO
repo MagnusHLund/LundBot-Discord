@@ -5,3 +5,5 @@
 3. Add basic text chat monitoring, for automatic warnings and message deletion
 4. Create new table for warns, which has the warn reasons
 5. Stop storing Roles in appsettings. Add it to the database, along with the role to kick. Role to kick would then be registered using a command.
+6. Remove MemberJoin messages after 30 days in the database only, as they can be considered irrelevant at that point
+7. Remove MemberJoin messages, in both database and discord chat, if the user leaves the guild
