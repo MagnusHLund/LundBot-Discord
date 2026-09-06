@@ -6,12 +6,20 @@ namespace LundBot.Application.Features.Leaderboards
 {
     public interface ILeaderboardService
     {
-        Task CreateLeaderboardAsync(ulong channelId, string title, string message, LeaderboardTypeEnum leaderboardType);
-        Task RemoveLeaderboardAsync(ulong channelId);
-        Task UpvoteUserOnLeaderboardAsync(ulong channelId, DiscordUserDto userUpvoting, DiscordUserDto targetUser);
-        Task RegisterUserJoinedWithInviteAsync(ulong guildId, DiscordUserDto userJoined, DiscordUserDto invitedByUser);
-        Task RegisterWarningOnLeaderboardAsync(ulong channelId, DiscordUserDto targetUser);
-        Task RefreshLeaderboardAsync(ulong channelId, ulong guildId);
+        Task<bool> CreateLeaderboardAsync(
+            ulong channelId,
+            string title,
+            string message,
+            LeaderboardTypeEnum leaderboardType
+        );
+        Task<bool> RemoveLeaderboardAsync(ulong channelId);
+        Task<bool> UpvoteUserOnLeaderboardAsync(
+            ulong channelId,
+            DiscordUserDto userUpvoting,
+            DiscordUserDto targetUser
+        );
+        Task<bool> RegisterWarningOnLeaderboardAsync(ulong channelId, DiscordUserDto targetUser);
+        Task<bool> RefreshLeaderboardAsync(ulong channelId, ulong guildId);
         ValueTask<List<Leaderboard>> GetLeaderboardsForGuildAsync(ulong guildId);
         Task UpdateLeaderboardMessageAsync(Leaderboard leaderboard, DiscordChannelDto channel);
     }

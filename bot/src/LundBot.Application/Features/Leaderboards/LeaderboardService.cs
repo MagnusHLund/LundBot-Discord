@@ -6,7 +6,7 @@ namespace LundBot.Application.Features.Leaderboards
 {
     public sealed class LeaderboardService : ILeaderboardService
     {
-        public Task CreateLeaderboardAsync(
+        public Task<bool> CreateLeaderboardAsync(
             ulong channelId,
             string title,
             string message,
@@ -21,26 +21,17 @@ namespace LundBot.Application.Features.Leaderboards
             throw new NotImplementedException();
         }
 
-        public Task RefreshLeaderboardAsync(ulong channelId, ulong guildId)
+        public Task<bool> RefreshLeaderboardAsync(ulong channelId, ulong guildId)
         {
             throw new NotImplementedException();
         }
 
-        public Task RegisterUserJoinedWithInviteAsync(
-            ulong guildId,
-            DiscordUserDto userJoined,
-            DiscordUserDto invitedByUser
-        )
+        public Task<bool> RegisterWarningOnLeaderboardAsync(ulong channelId, DiscordUserDto targetUser)
         {
             throw new NotImplementedException();
         }
 
-        public Task RegisterWarningOnLeaderboardAsync(ulong channelId, DiscordUserDto targetUser)
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task RemoveLeaderboardAsync(ulong channelId)
+        public Task<bool> RemoveLeaderboardAsync(ulong channelId)
         {
             throw new NotImplementedException();
         }
@@ -50,7 +41,7 @@ namespace LundBot.Application.Features.Leaderboards
             throw new NotImplementedException();
         }
 
-        public Task UpvoteUserOnLeaderboardAsync(
+        public Task<bool> UpvoteUserOnLeaderboardAsync(
             ulong channelId,
             DiscordUserDto userUpvoting,
             DiscordUserDto targetUser
