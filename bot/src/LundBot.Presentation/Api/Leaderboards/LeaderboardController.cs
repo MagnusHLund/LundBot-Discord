@@ -1,6 +1,7 @@
 using LundBot.Application.Features.Leaderboards;
 using LundBot.Presentation.Api.Common;
 using LundBot.Presentation.Config;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 
@@ -14,22 +15,17 @@ namespace LundBot.Presentation.Api.Leaderboards
 
         public LeaderboardController(
             IOptions<DeveloperEnvironmentConfig> devConfig,
-            IOptions<ServerConfig> serverConfig,
             ILeaderboardService leaderboardService
         )
-            : base(devConfig, serverConfig)
+            : base(devConfig)
         {
             _leaderboardService = leaderboardService;
         }
 
+        [Authorize]
         [HttpPost("refresh")]
         public async Task<IActionResult> RefreshLeaderboard([FromQuery] ulong channelId, [FromQuery] ulong guildId)
         {
-            if (!HasApiKey())
-            {
-                return Unauthorized();
-            }
-
             bool success = await _leaderboardService.RefreshLeaderboardAsync(channelId, guildId);
 
             if (!success)

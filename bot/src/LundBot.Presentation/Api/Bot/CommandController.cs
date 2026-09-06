@@ -1,6 +1,7 @@
 using LundBot.Application.Common.Bot;
 using LundBot.Presentation.Api.Common;
 using LundBot.Presentation.Config;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 
@@ -12,25 +13,16 @@ namespace LundBot.Presentation.Api.Bot
     {
         private readonly ICommandService _commandService;
 
-        public CommandController(
-            IOptions<DeveloperEnvironmentConfig> devConfig,
-            IOptions<ServerConfig> serverConfig,
-            ICommandService commandService
-        )
-            : base(devConfig, serverConfig)
+        public CommandController(IOptions<DeveloperEnvironmentConfig> devConfig, ICommandService commandService)
+            : base(devConfig)
         {
             _commandService = commandService;
         }
 
+        [Authorize]
         [HttpPost("sync")]
         public async Task<IActionResult> SyncCommands()
         {
-            // TODO: Add better authentication implementation for all endpoints
-            if (!HasApiKey())
-            {
-                return Unauthorized();
-            }
-
             bool success = await _commandService.RefreshCommandsAsync();
 
             if (!success)
@@ -44,14 +36,10 @@ namespace LundBot.Presentation.Api.Bot
             return Ok(new { message = "Commands synchronized successfully." });
         }
 
+        [Authorize]
         [HttpDelete("unregister/all")]
         public async Task<IActionResult> UnregisterAllCommands([FromQuery] bool global = false)
         {
-            if (!HasApiKey())
-            {
-                return Unauthorized();
-            }
-
             bool success = await _commandService.UnregisterAllCommands(global);
 
             if (!success)
@@ -65,14 +53,10 @@ namespace LundBot.Presentation.Api.Bot
             return Ok(new { message = "All commands have been unregistered." });
         }
 
+        [Authorize]
         [HttpDelete("unregister/{id}")]
         public async Task<IActionResult> UnregisterCommand([FromRoute] string id, [FromQuery] bool global = false)
         {
-            if (!HasApiKey())
-            {
-                return Unauthorized();
-            }
-
             bool success = await _commandService.UnregisterCommand(id, global);
 
             if (!success)
