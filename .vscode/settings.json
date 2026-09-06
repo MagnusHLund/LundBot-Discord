@@ -1,5 +1,5 @@
 {
   "dotnet.preferVisualStudioCodeFileSystemWatcher": true,
-  "cSpell.words": ["Serilog", "Spaceland", "Unlocker", "Upvoting"],
+  "cSpell.words": ["Serilog", "Shaolin", "Spaceland", "Unlocker", "Upvoting"],
   "cmake.ignoreCMakeListsMissing": true
 }
