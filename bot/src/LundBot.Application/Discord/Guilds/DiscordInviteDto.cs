@@ -6,9 +6,9 @@ namespace LundBot.Application.Discord.Guilds
     {
         public string InviteCode { get; }
         public ushort Uses { get; }
-        public DiscordUserDto Inviter { get; }
+        public DiscordUserDto? Inviter { get; }
 
-        public DiscordInviteDto(string inviteCode, ushort uses, DiscordUserDto inviter)
+        public DiscordInviteDto(string inviteCode, ushort uses, DiscordUserDto? inviter)
         {
             InviteCode = inviteCode;
             Uses = uses;

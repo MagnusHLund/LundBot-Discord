@@ -9,7 +9,7 @@ namespace LundBot.Infrastructure.Discord.Guilds.Mappings
     {
         public static DiscordInviteDto Map(this DiscordInvite invite)
         {
-            DiscordUserDto inviter = DiscordUserMapper.Map(invite.Inviter);
+            DiscordUserDto? inviter = invite.Inviter is null ? null : DiscordUserMapper.Map(invite.Inviter);
             return new DiscordInviteDto(inviteCode: invite.Code, uses: (ushort)invite.Uses, inviter: inviter);
         }
 
