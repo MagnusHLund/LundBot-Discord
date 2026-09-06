@@ -1,9 +1,7 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-
 namespace LundBot.Application.Features.Moderation
 {
-    public interface IModerationActionService { }
+    public interface IModerationActionService
+    {
+        Task<bool> KickUserDueToRoleAssignmentAsync(ulong guildId, ulong userId);
+    }
 }

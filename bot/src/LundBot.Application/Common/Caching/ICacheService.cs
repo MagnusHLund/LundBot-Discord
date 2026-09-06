@@ -1,12 +1,10 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-
 namespace LundBot.Application.Common.Caching
 {
     public interface ICacheService
     {
-        
+        void Set<T>(string key, T value, TimeSpan? expiration = null);
+        T? Get<T>(string key);
+        void Clear(string key);
+        void Update<T>(string key, Func<T?, T> updater, TimeSpan? expiration = null);
     }
 }

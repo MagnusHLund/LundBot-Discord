@@ -4,7 +4,6 @@ using LundBot.Application.Common.Bot;
 using LundBot.Application.Discord.Bot;
 using LundBot.Infrastructure.Utils;
 using LundBot.Presentation.Config;
-using Serilog;
 
 namespace LundBot.Presentation.Discord.Bot
 {

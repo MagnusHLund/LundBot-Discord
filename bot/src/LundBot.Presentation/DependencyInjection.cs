@@ -7,7 +7,6 @@ using LundBot.Presentation.Discord.Bot;
 using LundBot.Presentation.Discord.Events;
 using LundBot.Presentation.Discord.Interactions;
 using LundBot.Presentation.Discord.Leaderboards.BackgroundServices;
-using Serilog;
 using Serilog.Events;
 
 namespace LundBot.Presentation

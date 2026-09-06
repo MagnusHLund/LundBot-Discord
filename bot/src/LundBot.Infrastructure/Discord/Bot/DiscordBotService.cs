@@ -1,6 +1,6 @@
 using DSharpPlus;
+using DSharpPlus.Entities;
 using LundBot.Application.Discord.Bot;
-using Serilog;
 
 namespace LundBot.Infrastructure.Discord.Bot
 {
@@ -31,13 +31,15 @@ namespace LundBot.Infrastructure.Discord.Bot
             }
         }
 
-        public async Task<bool> UpdateBotStatusAsync()
+        public async Task<bool> UpdateBotStatusAsync(string message)
         {
             _logger.Information("Updating bot status...");
 
+            DiscordActivity activity = new DiscordActivity(message, DiscordActivityType.Playing);
+
             try
             {
-                await _discordClient.UpdateStatusAsync();
+                await _discordClient.UpdateStatusAsync(activity);
                 return true;
             }
             catch (Exception ex)

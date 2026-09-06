@@ -4,7 +4,6 @@ using LundBot.Application.Discord.Members;
 using LundBot.Application.Discord.Permissions;
 using LundBot.Infrastructure.Discord.Members.Mappings;
 using LundBot.Infrastructure.Discord.Permissions.Mappings;
-using Serilog;
 
 namespace LundBot.Infrastructure.Discord.Members
 {

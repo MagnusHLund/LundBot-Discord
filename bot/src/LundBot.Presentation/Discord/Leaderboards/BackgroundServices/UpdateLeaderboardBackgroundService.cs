@@ -1,5 +1,4 @@
 using LundBot.Application.Features.Leaderboards;
-using Serilog;
 
 namespace LundBot.Presentation.Discord.Leaderboards.BackgroundServices
 {

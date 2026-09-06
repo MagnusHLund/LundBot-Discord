@@ -1,9 +1,9 @@
 using DSharpPlus.Entities;
-using LundBot.Application.Discord.Guilds;
+using LundBot.Application.Discord.Invites;
 using LundBot.Application.Discord.Users;
 using LundBot.Infrastructure.Discord.Users.Mappings;
 
-namespace LundBot.Infrastructure.Discord.Guilds.Mappings
+namespace LundBot.Infrastructure.Discord.Invites.Mappings
 {
     public static class DiscordInviteMapper
     {

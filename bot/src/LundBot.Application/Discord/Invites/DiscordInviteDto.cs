@@ -1,6 +1,6 @@
 using LundBot.Application.Discord.Users;
 
-namespace LundBot.Application.Discord.Guilds
+namespace LundBot.Application.Discord.Invites
 {
     public sealed record DiscordInviteDto
     {

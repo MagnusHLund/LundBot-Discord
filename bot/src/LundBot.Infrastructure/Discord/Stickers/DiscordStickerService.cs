@@ -1,7 +1,6 @@
 using DSharpPlus;
 using LundBot.Application.Discord.Stickers;
 using LundBot.Infrastructure.Discord.Stickers.Mappings;
-using Serilog;
 
 namespace LundBot.Infrastructure.Discord.Stickers
 {

@@ -3,7 +3,6 @@ using DSharpPlus.Entities;
 using LundBot.Application.Discord.Interactions;
 using LundBot.Application.Discord.Messages;
 using LundBot.Infrastructure.Discord.Messages.Mappings;
-using Serilog;
 
 namespace LundBot.Infrastructure.Discord.Messages
 {
