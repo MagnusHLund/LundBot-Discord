@@ -7,4 +7,9 @@
     <RootNamespace>LundBot.Domain</RootNamespace>
   </PropertyGroup>
 
+  <!-- Remove default logging -->
+  <ItemGroup>
+    <Using Remove="Microsoft.Extensions.Logging" />
+  </ItemGroup>
+
 </Project>

@@ -27,6 +27,11 @@
     <PackageReference Include="Serilog.Sinks.File" Version="7.0.0" />
   </ItemGroup>
 
+  <!-- Remove default logging -->
+  <ItemGroup>
+    <Using Remove="Microsoft.Extensions.Logging" />
+  </ItemGroup>
+
   <!-- Project references -->
   <ItemGroup>
     <ProjectReference Include="..\LundBot.Application\LundBot.Application.csproj" />

@@ -17,4 +17,9 @@
     <ProjectReference Include="..\LundBot.Domain\LundBot.Domain.csproj" />
   </ItemGroup>
 
+  <!-- Remove default logging -->
+  <ItemGroup>
+    <Using Remove="Microsoft.Extensions.Logging" />
+  </ItemGroup>
+
 </Project>
