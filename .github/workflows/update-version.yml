@@ -30,26 +30,11 @@ jobs:
 
       - name: Commit and push updated file
         env:
-          GH_TOKEN: ${{ github.token }}
+          GH_TOKEN: ${{ secrets.VERSION_BUMP_TOKEN }}
         run: |
           git config user.name "github-actions"
           git config user.email "github-actions@github.com"
           git add bot/src/appsettings.json
           git commit -m "Update server.version to ${{ steps.tag.outputs.TAG }} for tag ${{ steps.tag.outputs.TAG }}"
-
-          # Update the tag
+          git push https://x-access-token:${GH_TOKEN}@github.com/${{ github.repository }}.git HEAD:main
           git push --force origin HEAD:refs/tags/${{ steps.tag.outputs.TAG }}
-
-          # main is protected and requires changes via pull request, so push to a
-          # dedicated branch and open a PR instead of pushing directly to main
-          BRANCH="update-version/${{ steps.tag.outputs.TAG }}"
-          git push origin HEAD:refs/heads/$BRANCH
-
-          gh pr create \
-            --base main \
-            --head "$BRANCH" \
-            --title "Update server.version to ${{ steps.tag.outputs.TAG }}" \
-            --body "Automated version bump to ${{ steps.tag.outputs.TAG }}." \
-            || echo "Pull request already exists for $BRANCH"
-
-          gh pr merge "$BRANCH" --auto --squash || echo "Could not enable auto-merge for $BRANCH"
