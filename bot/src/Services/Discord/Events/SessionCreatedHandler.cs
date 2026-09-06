@@ -41,6 +41,7 @@ namespace LundBot.Services.Discord.Events
         {
             foreach (var g in BotService.DiscordClient.Guilds.Values)
             {
+                // TODO: For some reason guild name is null here. Maybe look into DSharpPlus and fix this issue?
                 _logger.Information("Bot is in guild: {GuildName} ({GuildId})", g.Name, g.Id);
 
                 await _discordMemberService.PreloadMembersAsync(g);
