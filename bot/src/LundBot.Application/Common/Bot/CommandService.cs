@@ -22,12 +22,6 @@ namespace LundBot.Application.Common.Bot
             return await _discordCommandService.RefreshCommandsAsync();
         }
 
-        public Task<bool> RegisterCommandsAsync()
-        {
-            // TODO: Not actually implemented. This Method is required to be implemented to startup the application.
-            return Task.FromResult(true);
-        }
-
         public Task<bool> UnregisterAllCommands(bool global = false)
         {
             throw new NotImplementedException();

@@ -5,6 +5,7 @@ using LundBot.Presentation.Api.Authentication;
 using LundBot.Presentation.Api.Bot.Middleware;
 using LundBot.Presentation.Config;
 using LundBot.Presentation.Discord.Bot;
+using LundBot.Presentation.Discord.Commands;
 using LundBot.Presentation.Discord.Events;
 using LundBot.Presentation.Discord.Interactions;
 using LundBot.Presentation.Discord.Leaderboards.BackgroundServices;
@@ -58,6 +59,8 @@ namespace LundBot.Presentation
 
             services.AddDiscordClient(discordToken, intents);
             services.AddCommandsExtension((ServiceProvider, extension) => { });
+
+            services.AddSingleton<IDiscordCommandRegistration, DiscordCommandRegistration>();
 
             return services;
         }

@@ -2,6 +2,8 @@ using DSharpPlus;
 using DSharpPlus.Commands;
 using DSharpPlus.Entities;
 using LundBot.Application.Discord.Commands;
+using LundBot.Infrastructure.Discord.Configuration;
+using Microsoft.Extensions.Options;
 
 namespace LundBot.Infrastructure.Discord.Commands
 {
@@ -9,13 +11,19 @@ namespace LundBot.Infrastructure.Discord.Commands
     {
         private readonly DiscordClient _discordClient;
         private readonly CommandsExtension _commands;
+        private readonly DiscordConfig _discordConfig;
 
         private readonly ILogger _logger = Log.ForContext<DiscordCommandService>();
 
-        public DiscordCommandService(DiscordClient discordClient, CommandsExtension commands)
+        public DiscordCommandService(
+            DiscordClient discordClient,
+            CommandsExtension commands,
+            IOptions<DiscordConfig> discordConfig
+        )
         {
             _discordClient = discordClient;
             _commands = commands;
+            _discordConfig = discordConfig.Value;
         }
 
         public async Task<bool> RefreshCommandsAsync()

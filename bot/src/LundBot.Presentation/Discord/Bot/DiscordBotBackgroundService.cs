@@ -4,6 +4,7 @@ using LundBot.Application.Common.Bot;
 using LundBot.Application.Discord.Bot;
 using LundBot.Infrastructure.Utils;
 using LundBot.Presentation.Config;
+using LundBot.Presentation.Discord.Commands;
 using Microsoft.Extensions.Options;
 
 namespace LundBot.Presentation.Discord.Bot
@@ -13,18 +14,21 @@ namespace LundBot.Presentation.Discord.Bot
         private readonly ServerConfig _serverConfig;
         private readonly ICommandService _commandsService;
         private readonly IDiscordBotService _discordBotService;
+        private readonly DiscordCommandRegistration _discordCommandRegistration;
 
         private readonly ILogger _logger = Log.ForContext<DiscordBotBackgroundService>();
 
         public DiscordBotBackgroundService(
             IOptions<ServerConfig> serverConfig,
             ICommandService commandsService,
-            IDiscordBotService discordBotService
+            IDiscordBotService discordBotService,
+            DiscordCommandRegistration discordCommandRegistration
         )
         {
             _serverConfig = serverConfig.Value;
             _commandsService = commandsService;
             _discordBotService = discordBotService;
+            _discordCommandRegistration = discordCommandRegistration;
         }
 
         protected override async Task ExecuteAsync(CancellationToken cancellationToken)
@@ -53,7 +57,7 @@ namespace LundBot.Presentation.Discord.Bot
 
             do
             {
-                bool successRegisterCommands = await _commandsService.RegisterCommandsAsync();
+                bool successRegisterCommands = await _discordCommandRegistration.RegisterCommandsAsync();
                 bool successConnectToDiscord = await _discordBotService.ConnectToDiscordAsync();
 
                 retry = !successRegisterCommands || !successConnectToDiscord;
