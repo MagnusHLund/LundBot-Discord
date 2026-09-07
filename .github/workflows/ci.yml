@@ -37,10 +37,10 @@ jobs:
             ${{ runner.os }}-nuget-
 
       - name: Restore dependencies
-        run: dotnet restore ./bot
+        run: dotnet restore ./bot/LundBot.slnx
 
       - name: Build solution
-        run: dotnet build ./bot --configuration Release --no-restore
+        run: dotnet build ./bot/LundBot.slnx --configuration Release --no-restore
 
       - name: Set runtime validation configuration
         run: |
