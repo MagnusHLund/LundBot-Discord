@@ -44,7 +44,6 @@ namespace LundBot.Presentation
                 .MinimumLevel.Override("DSharpPlus", LogEventLevel.Warning)
                 .MinimumLevel.Override("System.Net.Http.HttpClient", LogEventLevel.Warning)
                 .ReadFrom.Configuration(builder.Configuration)
-                .Enrich.FromLogContext()
                 .CreateLogger();
 
             builder.Host.UseSerilog();

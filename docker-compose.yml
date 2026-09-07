@@ -5,9 +5,9 @@ services:
     container_name: lundbot-discord
     restart: unless-stopped
     volumes:
-      - ./bot/src/appsettings.json:/app/appsettings.json:ro
-      - ./bot/src/appsettings.Production.json:/app/appsettings.Production.json:ro
-      - ./bot/src/Logs:/app/src/Logs
+      - ./bot/src/LundBot.Presentation/appsettings.json:/app/appsettings.json:ro
+      - ./bot/src/LundBot.Presentation/appsettings.Production.json:/app/appsettings.Production.json:ro
+      - ./bot/Logs:/app/Logs
     ports:
       - 3000:65535
     networks:
@@ -25,7 +25,6 @@ services:
       - ./bot:/app
       - bot_dev_bin:/app/src/bin
       - bot_dev_obj:/app/src/obj
-      - ./bot/src/Logs:/app/src/Logs
     ports:
       - 3000:65535
       - 5679:5678

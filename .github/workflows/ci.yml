@@ -37,10 +37,10 @@ jobs:
             ${{ runner.os }}-nuget-
 
       - name: Restore dependencies
-        run: dotnet restore ./bot/src
+        run: dotnet restore ./bot
 
       - name: Build solution
-        run: dotnet build ./bot/src --configuration Release --no-restore
+        run: dotnet build ./bot --configuration Release --no-restore
 
       - name: Set runtime validation configuration
         run: |
@@ -50,7 +50,7 @@ jobs:
       - name: Runtime DI validation
         run: |
           echo "Starting runtime validation..."
-          dotnet run --project ./bot/src/LundBot.csproj --no-build --configuration Release &
+          dotnet run --project ./bot --no-build --configuration Release &
           BOT_PID=$!
           sleep 10
           if ! kill -0 $BOT_PID 2>/dev/null; then
