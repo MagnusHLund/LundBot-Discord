@@ -1,6 +1,7 @@
 using System.ComponentModel;
 using DSharpPlus.Commands;
 using LundBot.Application.Features.InfiniteWarfare.Maps;
+using LundBot.Domain.Common.Enums;
 using LundBot.Presentation.Discord.Bot;
 using LundBot.Presentation.Discord.Interactions;
 
@@ -23,13 +24,19 @@ namespace LundBot.Presentation.Discord.InfiniteWarfare.Maps
         [Description("Selects a random map from the list of maps.")]
         public async Task RandomMapAsync(CommandContext context)
         {
-            string randomMap = _randomMapService.GetRandomMap();
+            string randomMap;
 
-            await TaskWithErrorHandlingAsync(
-                context,
-                () => Task.FromResult(_randomMapService.GetRandomMap()),
-                $"Random map: {randomMap}"
-            );
+            try
+            {
+                randomMap = _randomMapService.GetRandomMap();
+            }
+            catch (Exception ex)
+            {
+                await context.RespondAsync($"An error occurred: {ex.Message}");
+                return;
+            }
+
+            await context.RespondAsync($"Random map: {randomMap}");
         }
     }
 }
