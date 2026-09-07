@@ -146,11 +146,6 @@ namespace LundBot.Presentation.Discord.Events
                 )
             )
             {
-                await _discordInteractionService.SendResponseAsync(
-                    eventArgs.Interaction,
-                    "You are not authorized to perform this action.",
-                    true
-                );
                 return;
             }
 
@@ -160,7 +155,7 @@ namespace LundBot.Presentation.Discord.Events
 
             if (!success)
             {
-                await _discordInteractionService.SendResponseAsync(
+                await _discordInteractionService.SendFollowUpAsync(
                     eventArgs.Interaction,
                     "Action failed. Please try again later.",
                     true

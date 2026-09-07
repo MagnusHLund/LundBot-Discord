@@ -16,5 +16,11 @@ namespace LundBot.Presentation.Discord.Interactions
             DiscordInteractionResponseBuilder responseBuilder,
             bool showOnlyToUser = true
         );
+
+        Task<bool> SendFollowUpAsync(
+            DiscordInteraction interaction,
+            string message,
+            bool showOnlyToUser = true
+        );
     }
 }

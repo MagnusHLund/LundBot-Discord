@@ -77,5 +77,25 @@ namespace LundBot.Presentation.Discord.Interactions
                 return false;
             }
         }
+
+        public async Task<bool> SendFollowUpAsync(
+            DiscordInteraction interaction,
+            string message,
+            bool showOnlyToUser = true
+        )
+        {
+            try
+            {
+                await interaction.CreateFollowupMessageAsync(
+                    new DiscordFollowupMessageBuilder().WithContent(message).AsEphemeral(showOnlyToUser)
+                );
+
+                return true;
+            }
+            catch (Exception)
+            {
+                return false;
+            }
+        }
     }
 }
