@@ -22,6 +22,7 @@ using LundBot.Infrastructure.Persistence;
 using LundBot.Infrastructure.Persistence.Repositories.Leaderboards;
 using LundBot.Infrastructure.Persistence.Repositories.MemberJoin;
 using LundBot.Infrastructure.Persistence.Repositories.WebsiteTraffic;
+using LundBot.Infrastructure.Queues;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -63,6 +64,8 @@ namespace LundBot.Infrastructure
 
         private static IServiceCollection AddServices(this IServiceCollection services)
         {
+            services.AddSingleton<ILeaderboardQueue, LeaderboardQueue>();
+
             services.AddSingleton<ICacheService, CacheService>();
 
             services.AddSingleton<IDiscordBotService, DiscordBotService>();

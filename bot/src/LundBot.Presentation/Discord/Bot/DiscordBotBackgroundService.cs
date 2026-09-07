@@ -4,6 +4,7 @@ using LundBot.Application.Common.Bot;
 using LundBot.Application.Discord.Bot;
 using LundBot.Infrastructure.Utils;
 using LundBot.Presentation.Config;
+using Microsoft.Extensions.Options;
 
 namespace LundBot.Presentation.Discord.Bot
 {
@@ -16,12 +17,12 @@ namespace LundBot.Presentation.Discord.Bot
         private readonly ILogger _logger = Log.ForContext<DiscordBotBackgroundService>();
 
         public DiscordBotBackgroundService(
-            ServerConfig serverConfig,
+            IOptions<ServerConfig> serverConfig,
             ICommandService commandsService,
             IDiscordBotService discordBotService
         )
         {
-            _serverConfig = serverConfig;
+            _serverConfig = serverConfig.Value;
             _commandsService = commandsService;
             _discordBotService = discordBotService;
         }
