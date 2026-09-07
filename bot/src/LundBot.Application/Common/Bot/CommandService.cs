@@ -13,6 +13,7 @@ namespace LundBot.Application.Common.Bot
 
         public Task LogRegisteredCommandsForGuildsAsync()
         {
+            // TODO: Not actually implemented. This Method is required to be implemented to startup the application.
             return Task.CompletedTask;
         }
 
@@ -23,6 +24,7 @@ namespace LundBot.Application.Common.Bot
 
         public Task<bool> RegisterCommandsAsync()
         {
+            // TODO: Not actually implemented. This Method is required to be implemented to startup the application.
             return Task.FromResult(true);
         }
 

@@ -1,0 +1,8 @@
+<Project>
+  <PropertyGroup>
+    <LundBotBuildRoot>/tmp/lundbot-build</LundBotBuildRoot>
+    <BaseOutputPath>$(LundBotBuildRoot)/bin/$(MSBuildProjectName)/</BaseOutputPath>
+    <BaseIntermediateOutputPath>$(LundBotBuildRoot)/obj/$(MSBuildProjectName)/</BaseIntermediateOutputPath>
+    <AppendTargetFrameworkToOutputPath>true</AppendTargetFrameworkToOutputPath>
+  </PropertyGroup>
+</Project>

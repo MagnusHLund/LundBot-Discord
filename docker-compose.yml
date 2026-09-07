@@ -22,9 +22,10 @@ services:
     container_name: lundbot-discord-dev
     restart: unless-stopped
     volumes:
-      - ./bot:/app
-      - bot_dev_bin:/app/src/bin
-      - bot_dev_obj:/app/src/obj
+      - ./bot:/app:cached
+    environment:
+      DOTNET_CLI_HOME: /tmp/dotnet-home
+      NUGET_PACKAGES: /tmp/nuget/packages
     ports:
       - 3000:65535
       - 5679:5678
@@ -59,6 +60,3 @@ networks:
   LundBotDiscordNetwork:
     driver: bridge
 
-volumes:
-  bot_dev_bin:
-  bot_dev_obj:
