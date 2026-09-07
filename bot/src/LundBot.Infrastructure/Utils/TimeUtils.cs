@@ -2,7 +2,7 @@ namespace LundBot.Infrastructure.Utils
 {
     public static class TimeUtils
     {
-        public static (DateTime, DateTime) getCurrentUtcWeekBounds(DateTime? referenceTime = null)
+        public static (DateTime StartOfWeek, DateTime EndOfWeek) GetCurrentUtcWeekBounds(DateTime? referenceTime = null)
         {
             DateTime currentTime = referenceTime?.ToUniversalTime() ?? DateTime.UtcNow;
 
