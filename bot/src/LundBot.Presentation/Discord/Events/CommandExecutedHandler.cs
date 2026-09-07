@@ -5,9 +5,16 @@ namespace LundBot.Presentation.Discord.Events
 {
     public sealed class CommandExecutedHandler : IEventHandler<CommandExecutedEventArgs>
     {
-        public Task HandleEventAsync(DiscordClient sender, CommandExecutedEventArgs eventArgs)
+        private readonly ILogger _logger = Log.ForContext<CommandExecutedHandler>();
+
+        public async Task HandleEventAsync(DiscordClient sender, CommandExecutedEventArgs eventArgs)
         {
-            throw new NotImplementedException();
+            _logger.Information(
+                "Command invoked: {Cmd} by {User} in Guild={Guild}",
+                eventArgs.Context.Command?.Name,
+                eventArgs.Context.User?.Username,
+                eventArgs.Context.Guild?.Id ?? 0
+            );
         }
     }
 }

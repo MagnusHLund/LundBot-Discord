@@ -2,7 +2,6 @@ using DSharpPlus;
 using DSharpPlus.Commands;
 using DSharpPlus.Entities;
 using LundBot.Application.Discord.Commands;
-using Serilog;
 
 namespace LundBot.Infrastructure.Discord.Commands
 {

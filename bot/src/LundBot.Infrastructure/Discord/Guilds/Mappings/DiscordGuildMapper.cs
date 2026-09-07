@@ -7,7 +7,7 @@ namespace LundBot.Infrastructure.Discord.Guilds.Mappings
     {
         public static DiscordGuildDto Map(this DiscordGuild guild)
         {
-            return new DiscordGuildDto(guild.Id);
+            return new DiscordGuildDto(guild.Id, guild.Name);
         }
     }
 }

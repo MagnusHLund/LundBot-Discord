@@ -1,7 +1,6 @@
 using Microsoft.AspNetCore.Builder;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
 
 namespace LundBot.Infrastructure.Persistence
 {
@@ -11,21 +10,19 @@ namespace LundBot.Infrastructure.Persistence
         {
             using IServiceScope scope = app.Services.CreateScope();
 
-            ILogger logger = scope.ServiceProvider.GetRequiredService<ILogger<LundBotDbContext>>();
-
             LundBotDbContext dbContext = scope.ServiceProvider.GetRequiredService<LundBotDbContext>();
 
             try
             {
-                logger.LogInformation("Checking for pending database migrations...");
+                Log.Information("Checking for pending database migrations...");
 
                 await dbContext.Database.MigrateAsync();
 
-                logger.LogInformation("Database migrations applied successfully.");
+                Log.Information("Database migrations applied successfully.");
             }
             catch (Exception ex)
             {
-                logger.LogError(ex, "An error occurred while applying database migrations.");
+                Log.Error(ex, "An error occurred while applying database migrations.");
 
                 throw;
             }

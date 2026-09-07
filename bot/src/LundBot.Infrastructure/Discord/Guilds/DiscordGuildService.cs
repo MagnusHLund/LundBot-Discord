@@ -1,8 +1,9 @@
 using DSharpPlus;
 using DSharpPlus.Entities;
 using LundBot.Application.Discord.Guilds;
+using LundBot.Application.Discord.Invites;
 using LundBot.Infrastructure.Discord.Guilds.Mappings;
-using Serilog;
+using LundBot.Infrastructure.Discord.Invites.Mappings;
 
 namespace LundBot.Infrastructure.Discord.Guilds
 {

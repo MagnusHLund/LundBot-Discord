@@ -1,6 +1,5 @@
 using DSharpPlus;
 using LundBot.Application.Discord.Moderation;
-using Serilog;
 
 namespace LundBot.Infrastructure.Discord.Moderation
 {

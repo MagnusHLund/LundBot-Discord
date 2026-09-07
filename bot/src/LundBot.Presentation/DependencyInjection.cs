@@ -1,13 +1,14 @@
 using DSharpPlus;
 using DSharpPlus.Commands;
 using DSharpPlus.Extensions;
+using LundBot.Presentation.Api.Authentication;
 using LundBot.Presentation.Api.Bot.Middleware;
 using LundBot.Presentation.Config;
 using LundBot.Presentation.Discord.Bot;
 using LundBot.Presentation.Discord.Events;
 using LundBot.Presentation.Discord.Interactions;
-using LundBot.Presentation.Discord.Leaderboards;
-using Serilog;
+using LundBot.Presentation.Discord.Leaderboards.BackgroundServices;
+using Microsoft.AspNetCore.Authentication;
 using Serilog.Events;
 
 namespace LundBot.Presentation
@@ -20,6 +21,8 @@ namespace LundBot.Presentation
 
             services.AddConfiguration(configuration);
             services.AddDiscord(configuration);
+
+            services.AddAuthentication();
 
             services.AddBackgroundServices();
             services.AddServices();
@@ -41,7 +44,6 @@ namespace LundBot.Presentation
                 .MinimumLevel.Override("DSharpPlus", LogEventLevel.Warning)
                 .MinimumLevel.Override("System.Net.Http.HttpClient", LogEventLevel.Warning)
                 .ReadFrom.Configuration(builder.Configuration)
-                .Enrich.FromLogContext()
                 .CreateLogger();
 
             builder.Host.UseSerilog();
@@ -99,6 +101,17 @@ namespace LundBot.Presentation
         {
             services.AddHostedService<DiscordBotBackgroundService>();
             services.AddHostedService<UpdateLeaderboardBackgroundService>();
+
+            return services;
+        }
+
+        private static IServiceCollection AddAuthentication(this IServiceCollection services)
+        {
+            services
+                .AddAuthentication("ApiKey")
+                .AddScheme<AuthenticationSchemeOptions, ApiKeyAuthenticationHandler>("ApiKey", _ => { });
+
+            services.AddAuthorization();
 
             return services;
         }

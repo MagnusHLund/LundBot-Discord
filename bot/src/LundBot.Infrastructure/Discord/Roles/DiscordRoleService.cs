@@ -1,7 +1,6 @@
 using DSharpPlus;
 using DSharpPlus.Entities;
 using LundBot.Application.Discord.Roles;
-using Serilog;
 
 namespace LundBot.Infrastructure.Discord.Roles
 {

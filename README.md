@@ -19,7 +19,7 @@ You can read more about the discord server on our [website](https://infinitewarf
 
 ### appsettings
 
-1. Within the bot `/bot/src/` directory, add `appsettings.Development.json` or `appsettings.Production.json` depending on the value you set in the .env file for `ASPNETCORE_ENVIRONMENT`.
+1. Within the bot `/bot/src/LundBot.Presentation` directory, add `appsettings.Development.json` or `appsettings.Production.json` depending on the value you set in the .env file for `ASPNETCORE_ENVIRONMENT`.
 2. You can now mess with the following values, within the json file that you just created:
 
 ```json
@@ -29,7 +29,7 @@ You can read more about the discord server on our [website](https://infinitewarf
     "FastUpdateGuildIds": [0],
     "WebTrafficChannelId": 0,
     "ShouldRegisterGlobalCommands": false,
-    "RoleIdToAutoKick": 0,
+    "RoleIdToAutoKick": 0
   },
   "Database": {
     "ConnectionString": "Server=lundbot-mariadb-dev;Port=3306;Database=LundBotDiscord;User=root;Password=password;"

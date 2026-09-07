@@ -2,7 +2,6 @@ using DSharpPlus;
 using DSharpPlus.Entities;
 using LundBot.Application.Discord.Users;
 using LundBot.Infrastructure.Discord.Users.Mappings;
-using Serilog;
 
 namespace LundBot.Infrastructure.Discord.Users
 {

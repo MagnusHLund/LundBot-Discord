@@ -2,7 +2,6 @@ using DSharpPlus;
 using DSharpPlus.Entities;
 using LundBot.Application.Discord.Channels;
 using LundBot.Infrastructure.Discord.Channels.Mappings;
-using Serilog;
 
 namespace LundBot.Infrastructure.Discord.Channels
 {

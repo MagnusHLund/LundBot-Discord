@@ -1,3 +1,5 @@
+using LundBot.Application.Discord.Invites;
+
 namespace LundBot.Application.Discord.Guilds
 {
     public interface IDiscordGuildService
