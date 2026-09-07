@@ -1,4 +1,5 @@
 using LundBot.Application.Common.Bot;
+using LundBot.Application.Features.InfiniteWarfare.Maps;
 using LundBot.Application.Features.Leaderboards;
 using LundBot.Application.Features.MemberJoin;
 using LundBot.Application.Features.Moderation;
@@ -20,6 +21,7 @@ namespace LundBot.Application
         private static IServiceCollection AddServices(this IServiceCollection services)
         {
             services.AddSingleton<ICommandService, CommandService>();
+            services.AddSingleton<IRandomMapService, RandomMapService>();
 
             services.AddScoped<IUserService, UserService>();
             services.AddScoped<IMemberJoinService, MemberJoinService>();

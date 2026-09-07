@@ -1,9 +1,12 @@
 using LundBot.Application.Common.Caching;
 using LundBot.Application.Discord.Bot;
 using LundBot.Application.Discord.Channels;
+using LundBot.Application.Discord.Commands;
 using LundBot.Application.Discord.Guilds;
 using LundBot.Application.Discord.Members;
 using LundBot.Application.Discord.Messages;
+using LundBot.Application.Discord.Moderation;
+using LundBot.Application.Discord.Roles;
 using LundBot.Application.Discord.Stickers;
 using LundBot.Application.Discord.Users;
 using LundBot.Application.Features.Leaderboards;
@@ -12,10 +15,13 @@ using LundBot.Application.Features.WebsiteTraffic;
 using LundBot.Infrastructure.Caching;
 using LundBot.Infrastructure.Discord.Bot;
 using LundBot.Infrastructure.Discord.Channels;
+using LundBot.Infrastructure.Discord.Commands;
 using LundBot.Infrastructure.Discord.Configuration;
 using LundBot.Infrastructure.Discord.Guilds;
 using LundBot.Infrastructure.Discord.Members;
 using LundBot.Infrastructure.Discord.Messages;
+using LundBot.Infrastructure.Discord.Moderation;
+using LundBot.Infrastructure.Discord.Roles;
 using LundBot.Infrastructure.Discord.Stickers;
 using LundBot.Infrastructure.Discord.Users;
 using LundBot.Infrastructure.Persistence;
@@ -69,11 +75,14 @@ namespace LundBot.Infrastructure
             services.AddSingleton<ICacheService, CacheService>();
 
             services.AddSingleton<IDiscordBotService, DiscordBotService>();
+            services.AddSingleton<IDiscordCommandService, DiscordCommandService>();
             services.AddSingleton<IDiscordUserService, DiscordUserService>();
             services.AddSingleton<IDiscordGuildService, DiscordGuildService>();
             services.AddSingleton<IDiscordMemberService, DiscordMemberService>();
             services.AddSingleton<IDiscordChannelService, DiscordChannelService>();
             services.AddSingleton<IDiscordMessageService, DiscordMessageService>();
+            services.AddSingleton<IDiscordModerationService, DiscordModerationService>();
+            services.AddSingleton<IDiscordRoleService, DiscordRoleService>();
             services.AddSingleton<IDiscordStickerService, DiscordStickerService>();
 
             return services;

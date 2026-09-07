@@ -1,20 +1,29 @@
+using LundBot.Application.Discord.Commands;
+
 namespace LundBot.Application.Common.Bot
 {
     public sealed class CommandService : ICommandService
     {
-        public Task LogRegisteredCommandsForGuildsAsync()
+        private readonly IDiscordCommandService _discordCommandService;
+
+        public CommandService(IDiscordCommandService discordCommandService)
         {
-            throw new NotImplementedException();
+            _discordCommandService = discordCommandService;
         }
 
-        public Task<bool> RefreshCommandsAsync()
+        public Task LogRegisteredCommandsForGuildsAsync()
         {
-            throw new NotImplementedException();
+            return Task.CompletedTask;
+        }
+
+        public async Task<bool> RefreshCommandsAsync()
+        {
+            return await _discordCommandService.RefreshCommandsAsync();
         }
 
         public Task<bool> RegisterCommandsAsync()
         {
-            throw new NotImplementedException();
+            return Task.FromResult(true);
         }
 
         public Task<bool> UnregisterAllCommands(bool global = false)
