@@ -73,8 +73,6 @@ namespace LundBot.Presentation.Discord.Bot
                 }
             } while (retry);
 
-            await _commandsService.LogRegisteredCommandsForGuildsAsync();
-
             _logger.Information("Bot initialization is complete!");
         }
 

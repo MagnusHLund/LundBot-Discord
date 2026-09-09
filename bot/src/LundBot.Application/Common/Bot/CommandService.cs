@@ -6,15 +6,11 @@ namespace LundBot.Application.Common.Bot
     {
         private readonly IDiscordCommandService _discordCommandService;
 
+        private readonly ILogger _logger = Log.ForContext<CommandService>();
+
         public CommandService(IDiscordCommandService discordCommandService)
         {
             _discordCommandService = discordCommandService;
-        }
-
-        public Task LogRegisteredCommandsForGuildsAsync()
-        {
-            // TODO: Not actually implemented. This Method is required to be implemented to startup the application.
-            return Task.CompletedTask;
         }
 
         public async Task<bool> RefreshCommandsAsync()
@@ -22,14 +18,36 @@ namespace LundBot.Application.Common.Bot
             return await _discordCommandService.RefreshCommandsAsync();
         }
 
-        public Task<bool> UnregisterAllCommands(bool global = false)
+        public async Task<bool> UnregisterAllCommands(bool global = false, ulong? guildId = null)
         {
-            throw new NotImplementedException();
+            if (global)
+            {
+                return await _discordCommandService.DeleteAllGlobalApplicationCommandsAsync();
+            }
+
+            if (guildId is null)
+            {
+                _logger.Error("Guild ID must be provided for guild-specific command deletion.");
+                return false;
+            }
+
+            return await _discordCommandService.DeleteAllGuildApplicationCommandsAsync(guildId.Value);
         }
 
-        public Task<bool> UnregisterCommand(string commandId, bool global = false)
+        public async Task<bool> UnregisterCommand(ulong commandId, bool global = false, ulong? guildId = null)
         {
-            throw new NotImplementedException();
+            if (global)
+            {
+                return await _discordCommandService.DeleteGlobalApplicationCommandAsync(commandId);
+            }
+
+            if (guildId is null)
+            {
+                _logger.Error("Guild ID must be provided for guild-specific command deletion.");
+                return false;
+            }
+
+            return await _discordCommandService.DeleteGuildApplicationCommandAsync(commandId, guildId.Value);
         }
     }
 }
