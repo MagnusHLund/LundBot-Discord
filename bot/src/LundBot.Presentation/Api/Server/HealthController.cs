@@ -12,8 +12,7 @@ namespace LundBot.Presentation.Api.Server
     {
         private readonly ServerConfig _serverConfig;
 
-        public HealthController(IOptions<DeveloperEnvironmentConfig> devConfig, IOptions<ServerConfig> serverConfig)
-            : base(devConfig)
+        public HealthController(IOptions<ServerConfig> serverConfig)
         {
             _serverConfig = serverConfig.Value;
         }

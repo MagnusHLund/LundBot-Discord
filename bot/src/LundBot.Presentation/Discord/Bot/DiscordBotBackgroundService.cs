@@ -2,7 +2,6 @@ using System.Reflection;
 using DSharpPlus;
 using LundBot.Application.Common.Bot;
 using LundBot.Application.Discord.Bot;
-using LundBot.Infrastructure.Utils;
 using LundBot.Presentation.Config;
 using LundBot.Presentation.Discord.Commands;
 using Microsoft.Extensions.Options;
@@ -13,6 +12,7 @@ namespace LundBot.Presentation.Discord.Bot
     {
         private readonly ServerConfig _serverConfig;
         private readonly ICommandService _commandsService;
+        private readonly IHostEnvironment _hostEnvironment;
         private readonly IDiscordBotService _discordBotService;
         private readonly DiscordCommandRegistration _discordCommandRegistration;
 
@@ -22,13 +22,15 @@ namespace LundBot.Presentation.Discord.Bot
             IOptions<ServerConfig> serverConfig,
             ICommandService commandsService,
             IDiscordBotService discordBotService,
-            DiscordCommandRegistration discordCommandRegistration
+            DiscordCommandRegistration discordCommandRegistration,
+            IHostEnvironment hostEnvironment
         )
         {
             _serverConfig = serverConfig.Value;
             _commandsService = commandsService;
             _discordBotService = discordBotService;
             _discordCommandRegistration = discordCommandRegistration;
+            _hostEnvironment = hostEnvironment;
         }
 
         protected override async Task ExecuteAsync(CancellationToken cancellationToken)
@@ -48,7 +50,7 @@ namespace LundBot.Presentation.Discord.Bot
             _logger.Information(
                 "Initializing Bot version {Version} in {Environment} mode... (DSharpPlus version: {DSharpPlusVersion})",
                 _serverConfig.Version,
-                EnvironmentUtils.GetEnvironment(),
+                _hostEnvironment.EnvironmentName,
                 dSharpPlusVersion
             );
 

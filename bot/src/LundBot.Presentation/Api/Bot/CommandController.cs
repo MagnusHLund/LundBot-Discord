@@ -13,8 +13,7 @@ namespace LundBot.Presentation.Api.Bot
     {
         private readonly ICommandService _commandService;
 
-        public CommandController(IOptions<DeveloperEnvironmentConfig> devConfig, ICommandService commandService)
-            : base(devConfig)
+        public CommandController(ICommandService commandService)
         {
             _commandService = commandService;
         }

@@ -1,6 +1,6 @@
 using DSharpPlus;
 using DSharpPlus.Commands;
-using LundBot.Infrastructure.Discord.Configuration;
+using LundBot.Presentation.Config;
 using LundBot.Presentation.Discord.Bot;
 using LundBot.Presentation.Discord.InfiniteWarfare.Maps;
 using LundBot.Presentation.Discord.Leaderboards.Commands;
@@ -10,19 +10,13 @@ namespace LundBot.Presentation.Discord.Commands
 {
     public sealed class DiscordCommandRegistration : IDiscordCommandRegistration
     {
-        private readonly DiscordClient _discordClient;
-        private readonly DiscordConfig _discordConfig;
+        private readonly DiscordCommandConfig _discordConfig;
         private readonly CommandsExtension _commands;
 
         private readonly ILogger _logger = Log.ForContext<DiscordCommandRegistration>();
 
-        public DiscordCommandRegistration(
-            DiscordClient discordClient,
-            IOptions<DiscordConfig> discordConfig,
-            CommandsExtension commands
-        )
+        public DiscordCommandRegistration(IOptions<DiscordCommandConfig> discordConfig, CommandsExtension commands)
         {
-            _discordClient = discordClient;
             _discordConfig = discordConfig.Value;
             _commands = commands;
         }

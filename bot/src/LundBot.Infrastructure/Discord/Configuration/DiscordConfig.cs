@@ -6,6 +6,5 @@ namespace LundBot.Infrastructure.Discord.Configuration
         public List<ulong> FastUpdateGuildIds { get; set; } = new List<ulong>();
         public ulong WebTrafficChannelId { get; set; } = 0;
         public ulong RoleIdToAutoKick { get; set; } = 0;
-        public bool ShouldRegisterGlobalCommands { get; set; } = false;
     }
 }

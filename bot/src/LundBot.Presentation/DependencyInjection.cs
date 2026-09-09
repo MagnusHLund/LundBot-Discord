@@ -2,7 +2,7 @@ using DSharpPlus;
 using DSharpPlus.Commands;
 using DSharpPlus.Extensions;
 using LundBot.Presentation.Api.Authentication;
-using LundBot.Presentation.Api.Bot.Middleware;
+using LundBot.Presentation.Api.Middleware;
 using LundBot.Presentation.Config;
 using LundBot.Presentation.Discord.Bot;
 using LundBot.Presentation.Discord.Commands;
@@ -95,6 +95,7 @@ namespace LundBot.Presentation
         )
         {
             services.Configure<ServerConfig>(configuration.GetSection("Server"));
+            services.Configure<DiscordCommandConfig>(configuration.GetSection("Discord"));
             services.Configure<DeveloperEnvironmentConfig>(configuration.GetSection("DeveloperEnvironment"));
 
             return services;

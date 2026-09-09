@@ -13,11 +13,7 @@ namespace LundBot.Presentation.Api.Leaderboards
     {
         private readonly ILeaderboardService _leaderboardService;
 
-        public LeaderboardController(
-            IOptions<DeveloperEnvironmentConfig> devConfig,
-            ILeaderboardService leaderboardService
-        )
-            : base(devConfig)
+        public LeaderboardController(ILeaderboardService leaderboardService)
         {
             _leaderboardService = leaderboardService;
         }

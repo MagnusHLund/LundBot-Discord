@@ -5,7 +5,6 @@ using DSharpPlus.Commands.Processors.SlashCommands.ArgumentModifiers;
 using DSharpPlus.Entities;
 using LundBot.Application.Discord.Users;
 using LundBot.Application.Features.Leaderboards;
-using LundBot.Infrastructure.Discord.Users.Mappings;
 using LundBot.Presentation.Discord.Bot;
 using LundBot.Presentation.Discord.Interactions;
 using LundBot.Presentation.Discord.Leaderboards.AutoCompletes;
@@ -42,7 +41,7 @@ namespace LundBot.Presentation.Discord.Leaderboards.Commands
                 return;
             }
 
-            DiscordUserDto targetUser = user.Map();
+            DiscordUserDto targetUser = new DiscordUserDto(user.Id, user.Username);
 
             await TaskWithErrorHandlingAsync(
                 context,

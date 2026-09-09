@@ -1,22 +1,21 @@
 using DSharpPlus;
-using DSharpPlus.Entities;
 using DSharpPlus.EventArgs;
 using LundBot.Application.Features.Moderation;
-using LundBot.Infrastructure.Discord.Configuration;
+using LundBot.Presentation.Config;
 using Microsoft.Extensions.Options;
 
 namespace LundBot.Presentation.Discord.Events
 {
     public sealed class GuildMemberUpdatedHandler : IEventHandler<GuildMemberUpdatedEventArgs>
     {
-        private readonly DiscordConfig _discordConfig;
+        private readonly DiscordCommandConfig _discordConfig;
         private readonly IModerationActionService _moderationActionsService;
         private readonly IServiceProvider _serviceProvider;
 
         private readonly ILogger _logger = Log.ForContext<GuildMemberUpdatedHandler>();
 
         public GuildMemberUpdatedHandler(
-            IOptions<DiscordConfig> discordConfig,
+            IOptions<DiscordCommandConfig> discordConfig,
             IModerationActionService moderationActionsService,
             IServiceProvider serviceProvider
         )
