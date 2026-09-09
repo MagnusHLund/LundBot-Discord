@@ -1,12 +1,9 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+using LundBot.Domain.Common;
 
 namespace LundBot.Application.Common.Messaging
 {
-    public interface IMessageEntityFactory
-    {
-        
+    public interface IMessageEntityFactory<TEntity>
+        where TEntity : AbstractMessageEntity, new() {
+        TEntity Create(string discordMessageId);
     }
 }
