@@ -32,6 +32,11 @@ namespace LundBot.Infrastructure.Discord.Messages
 
                 if (message is null || message.Channel is null || message.Author is null)
                 {
+                    _logger.Warning(
+                        "Message with ID {MessageId} not found in channel {ChannelId}.",
+                        messageId,
+                        channelId
+                    );
                     return null;
                 }
 

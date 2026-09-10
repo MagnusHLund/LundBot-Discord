@@ -1,9 +1,7 @@
 using LundBot.Application.Common.Bot;
 using LundBot.Presentation.Api.Common;
-using LundBot.Presentation.Config;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Options;
 
 namespace LundBot.Presentation.Api.Bot
 {
@@ -54,19 +52,19 @@ namespace LundBot.Presentation.Api.Bot
 
         [Authorize]
         [HttpDelete("unregister/{id}")]
-        public async Task<IActionResult> UnregisterCommand([FromRoute] string id, [FromQuery] bool global = false)
+        public async Task<IActionResult> UnregisterCommand([FromRoute] ulong commandId, [FromQuery] bool global = false)
         {
-            bool success = await _commandService.UnregisterCommand(id, global);
+            bool success = await _commandService.UnregisterCommand(commandId, global);
 
             if (!success)
             {
                 return StatusCode(
                     StatusCodes.Status500InternalServerError,
-                    new { message = $"Failed to unregister command with ID {id}." }
+                    new { message = $"Failed to unregister command with ID {commandId}." }
                 );
             }
 
-            return Ok(new { message = $"Command with ID {id} has been unregistered." });
+            return Ok(new { message = $"Command with ID {commandId} has been unregistered." });
         }
     }
 }
