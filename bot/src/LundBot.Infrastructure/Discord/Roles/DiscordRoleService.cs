@@ -111,5 +111,32 @@ namespace LundBot.Infrastructure.Discord.Roles
                 return false;
             }
         }
+
+        public async Task<bool> IsMemberABotAsync(ulong memberId, ulong guildId)
+        {
+            _logger.Information(
+                "Checking if member with ID {MemberId} is a bot in guild {GuildId}...",
+                memberId,
+                guildId
+            );
+
+            try
+            {
+                DiscordGuild guild = await _discordClient.GetGuildAsync(guildId);
+                DiscordMember member = await guild.GetMemberAsync(memberId);
+
+                return member.IsBot;
+            }
+            catch (Exception ex)
+            {
+                _logger.Error(
+                    ex,
+                    "Failed to check if member with ID {MemberId} is a bot in guild {GuildId}",
+                    memberId,
+                    guildId
+                );
+                return false;
+            }
+        }
     }
 }

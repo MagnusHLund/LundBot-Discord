@@ -24,6 +24,8 @@ namespace LundBot.Application.Features.Leaderboards
         private readonly IDiscordUserService _discordUserService;
         private readonly IDiscordChannelService _discordChannelService;
         private readonly ILeaderboardQueue _leaderboardQueue;
+        private readonly IHostEnvironment _hostEnvironment;
+        private readonly IDiscordRoleService _discordRoleService;
         private readonly ICacheService _cacheService;
         private readonly IMessageService<
             LeaderboardMessage,
@@ -43,7 +45,12 @@ namespace LundBot.Application.Features.Leaderboards
             ILeaderboardQueue leaderboardQueue,
             IDiscordMemberService discordMemberService,
             IDiscordUserService discordUserService,
-            IMessageService<LeaderboardMessage, ILeaderboardMessageRepository, LeaderboardMessageFactory> messageService
+            IMessageService<
+                LeaderboardMessage,
+                ILeaderboardMessageRepository,
+                LeaderboardMessageFactory
+            > messageService,
+            IHostEnvironment hostEnvironment
         )
         {
             _leaderboardRepository = leaderboardRepository;
@@ -56,6 +63,7 @@ namespace LundBot.Application.Features.Leaderboards
             _messageService = messageService;
             _discordMemberService = discordMemberService;
             _discordUserService = discordUserService;
+            _hostEnvironment = hostEnvironment;
         }
 
         public async Task<bool> CreateLeaderboardAsync(
@@ -232,6 +240,22 @@ namespace LundBot.Application.Features.Leaderboards
             DiscordUserDto userInvitedBy
         )
         {
+            if (
+                _hostEnvironment.IsProduction()
+                    && await _discordRoleService.IsMemberOwnerAsync(userInvitedBy.UserId, guild.GuildId)
+                || await _discordRoleService.IsMemberABotAsync(userInvitedBy.UserId, guild.GuildId)
+            )
+            {
+                _logger.Information(
+                    "User {UserInvitedById} is either the owner or a bot in guild {GuildId}, skipping registration of user {UserJoinedId}",
+                    userInvitedBy.UserId,
+                    guild.GuildId,
+                    userJoined.UserId
+                );
+
+                return;
+            }
+
             (bool leaderboardExists, Leaderboard? leaderboard) =
                 await _leaderboardRepository.DoesInviteLeaderboardExistOnServerAsync(guild.GuildId);
 
