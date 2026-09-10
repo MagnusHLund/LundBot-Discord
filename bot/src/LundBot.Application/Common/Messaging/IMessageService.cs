@@ -1,29 +1,35 @@
 using LundBot.Application.Discord.Channels;
 using LundBot.Application.Discord.Interactions;
 using LundBot.Application.Discord.Messages;
+using LundBot.Application.Features.Leaderboards;
 using LundBot.Domain.Common;
 
 namespace LundBot.Application.Common.Messaging
 {
-    public interface IMessageService<TEntity, TFactory>
-        where TEntity : AbstractMessageEntity, new()
+    public interface IMessageService<TEntity, TRepository, TFactory>
+        where TRepository : ILeaderboardMessageRepository
         where TFactory : IMessageEntityFactory<TEntity>
+        where TEntity : AbstractMessageEntity, new()
     {
         TFactory MessageFactory { get; }
 
-        Task SynchronizeDiscordMessagesAsync(string message, IEnumerable<TEntity> existingMessages, ulong channelId);
+        Task<bool> SynchronizeDiscordMessagesAsync(
+            string message,
+            IEnumerable<TEntity> existingMessages,
+            ulong channelId
+        );
 
-        Task DeleteMessagesForChannelAsync(IEnumerable<TEntity> existingMessages, DiscordChannelDto channel);
+        Task<bool> DeleteMessagesForChannelAsync(IEnumerable<TEntity> existingMessages, ulong channelId);
 
-        Task DeleteMessageByIdAsync(TEntity message, DiscordChannelDto channel);
+        Task<bool> DeleteMessageByIdAsync(TEntity message, DiscordChannelDto channel);
 
-        Task CreateMessageWithComponentsAsync(
+        Task<DiscordMessageDto?> CreateMessageWithComponentsAsync(
             string content,
             DiscordChannelDto channel,
             List<DiscordMessageComponentDto> components
         );
 
-        Task CreateMessageFromDiscordMessageBuilderAsync(
+        Task<DiscordMessageDto?> CreateMessageFromDiscordMessageBuilderAsync(
             DiscordMessageBuilderDto messageBuilder,
             DiscordChannelDto channel,
             bool shouldSaveMessageInDatabase = false

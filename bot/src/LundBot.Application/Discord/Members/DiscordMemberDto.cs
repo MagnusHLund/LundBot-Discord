@@ -6,8 +6,8 @@ namespace LundBot.Application.Discord.Members
     {
         public string DisplayName { get; }
 
-        public DiscordMemberDto(ulong userId, string username, string displayName)
-            : base(userId, username)
+        public DiscordMemberDto(ulong userId, string username, string? globalName, string displayName)
+            : base(userId, username, globalName)
         {
             DisplayName = displayName;
         }

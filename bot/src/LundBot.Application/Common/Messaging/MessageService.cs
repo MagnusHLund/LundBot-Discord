@@ -7,7 +7,7 @@ using LundBot.Domain.Common;
 namespace LundBot.Application.Common.Messaging
 {
     public sealed class MessageService<TEntity, TRepository, TFactory>
-        where TRepository : IMessageRepository<TEntity>
+        where TRepository : AbstractMessageRepository<TEntity>
         where TEntity : AbstractMessageEntity, new()
         where TFactory : IMessageEntityFactory<TEntity>, IMessageService<TEntity, TFactory>
     {

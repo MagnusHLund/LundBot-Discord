@@ -49,9 +49,11 @@ namespace LundBot.Presentation.Discord.Leaderboards.Commands
 
             DiscordUserDto targetUser = new DiscordUserDto(user.Id, user.Username);
 
+            ulong guildId = context.Guild.Id;
+
             await TaskWithErrorHandlingAsync(
                 context,
-                () => _leaderboardService.UpvoteUserOnLeaderboardAsync(channelId, userUpvoting, targetUser),
+                () => _leaderboardService.UpvoteUserOnLeaderboardAsync(channelId, guildId, userUpvoting, targetUser),
                 $"You have successfully upvoted {targetUser.Username} on the leaderboard in <#{channelId}>."
             );
         }

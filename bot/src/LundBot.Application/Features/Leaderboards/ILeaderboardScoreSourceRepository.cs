@@ -1,12 +1,8 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-
 namespace LundBot.Application.Features.Leaderboards
 {
     public interface ILeaderboardScoreSourceRepository
     {
-        
+        Task<bool> HasUserGivenScoreToTargetAsync(ulong userId, ulong targetUserId, int leaderboardId);
+        Task<bool> AddScoreAsync(ulong userId, ulong targetUserId, int leaderboardId);
     }
 }

@@ -4,11 +4,13 @@ namespace LundBot.Application.Discord.Users
     {
         public ulong UserId { get; }
         public string Username { get; }
+        public string? GlobalName { get; }
 
-        public DiscordUserDto(ulong userId, string username)
+        public DiscordUserDto(ulong userId, string username, string? globalName)
         {
             UserId = userId;
             Username = username;
+            GlobalName = globalName;
         }
     }
 }

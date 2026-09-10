@@ -10,5 +10,13 @@ namespace LundBot.Domain.Leaderboards
     {
         public int LeaderboardId { get; set; }
         public Leaderboard Leaderboard { get; set; } = null!;
+
+        public LeaderboardMessage(int leaderboardId, ulong discordMessageId)
+        {
+            LeaderboardId = leaderboardId;
+            DiscordMessageId = discordMessageId;
+        }
+
+        public LeaderboardMessage() { }
     }
 }
