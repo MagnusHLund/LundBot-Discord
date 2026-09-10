@@ -1,10 +1,13 @@
 using LundBot.Application.Common.Bot;
+using LundBot.Application.Common.Messaging;
 using LundBot.Application.Features.InfiniteWarfare.Maps;
 using LundBot.Application.Features.Leaderboards;
 using LundBot.Application.Features.MemberJoin;
 using LundBot.Application.Features.Moderation;
 using LundBot.Application.Features.Users;
 using LundBot.Application.Features.WebsiteTraffic;
+using LundBot.Domain.Leaderboards;
+using LundBot.Domain.WebsiteTraffic;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace LundBot.Application
@@ -29,7 +32,9 @@ namespace LundBot.Application
             services.AddScoped<IWebsiteTrafficService, WebsiteTrafficService>();
             services.AddScoped<IModerationActionService, ModerationActionService>();
 
-            // TODO: MessageService. It is a little more advanced than the others.
+            services.AddScoped<LeaderboardMessageFactory>();
+            services.AddScoped<WebsiteTrafficMessageFactory>();
+            services.AddScoped(typeof(IMessageService<,,>), typeof(MessageService<,,>));
 
             return services;
         }

@@ -5,11 +5,6 @@ namespace LundBot.Infrastructure.Persistence.Repositories.Leaderboards
 {
     public sealed class LeaderboardMessageRepository : ILeaderboardMessageRepository
     {
-        public LeaderboardMessage Create(ulong discordMessageId)
-        {
-            throw new NotImplementedException();
-        }
-
         public Task<bool> CreateAsync(LeaderboardMessage entity)
         {
             throw new NotImplementedException();

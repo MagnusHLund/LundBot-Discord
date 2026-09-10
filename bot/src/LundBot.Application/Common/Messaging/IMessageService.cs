@@ -1,13 +1,12 @@
 using LundBot.Application.Discord.Channels;
 using LundBot.Application.Discord.Interactions;
 using LundBot.Application.Discord.Messages;
-using LundBot.Application.Features.Leaderboards;
 using LundBot.Domain.Common;
 
 namespace LundBot.Application.Common.Messaging
 {
     public interface IMessageService<TEntity, TRepository, TFactory>
-        where TRepository : ILeaderboardMessageRepository
+        where TRepository : IMessageRepository<TEntity>
         where TFactory : IMessageEntityFactory<TEntity>
         where TEntity : AbstractMessageEntity, new()
     {

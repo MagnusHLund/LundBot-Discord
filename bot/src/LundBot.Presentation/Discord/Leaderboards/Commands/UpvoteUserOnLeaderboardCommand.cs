@@ -39,7 +39,11 @@ namespace LundBot.Presentation.Discord.Leaderboards.Commands
                 return;
             }
 
-            DiscordUserDto userUpvoting = new DiscordUserDto(context.User.Id, context.User.Username);
+            DiscordUserDto userUpvoting = new DiscordUserDto(
+                context.User.Id,
+                context.User.Username,
+                context.User.GlobalName
+            );
 
             if (userUpvoting.UserId == user.Id)
             {
@@ -47,13 +51,11 @@ namespace LundBot.Presentation.Discord.Leaderboards.Commands
                 return;
             }
 
-            DiscordUserDto targetUser = new DiscordUserDto(user.Id, user.Username);
-
-            ulong guildId = context.Guild.Id;
+            DiscordUserDto targetUser = new DiscordUserDto(user.Id, user.Username, user.GlobalName);
 
             await TaskWithErrorHandlingAsync(
                 context,
-                () => _leaderboardService.UpvoteUserOnLeaderboardAsync(channelId, guildId, userUpvoting, targetUser),
+                () => _leaderboardService.UpvoteUserOnLeaderboardAsync(channelId, userUpvoting, targetUser),
                 $"You have successfully upvoted {targetUser.Username} on the leaderboard in <#{channelId}>."
             );
         }

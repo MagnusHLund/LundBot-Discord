@@ -41,11 +41,11 @@ namespace LundBot.Presentation.Discord.Leaderboards.Commands
                 return;
             }
 
-            DiscordUserDto targetUser = new DiscordUserDto(user.Id, user.Username);
+            DiscordUserDto targetUser = new DiscordUserDto(user.Id, user.Username, user.GlobalName);
 
             await TaskWithErrorHandlingAsync(
                 context,
-                () => _leaderboardService.RegisterWarningOnLeaderboardAsync(channelId, targetUser),
+                () => _leaderboardService.RegisterWarningOnLeaderboardAsync(channelId, context.User.Id, user.Id),
                 $"Registered a warning for {targetUser.Username} on the leaderboard in <#{channelId}>."
             );
         }

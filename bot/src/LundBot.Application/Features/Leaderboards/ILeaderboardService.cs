@@ -19,7 +19,7 @@ namespace LundBot.Application.Features.Leaderboards
             DiscordUserDto userUpvoting,
             DiscordUserDto targetUser
         );
-        Task<bool> RegisterWarningOnLeaderboardAsync(ulong channelId, DiscordUserDto targetUser);
+        Task<bool> RegisterWarningOnLeaderboardAsync(ulong channelId, ulong senderUserId, ulong targetUserId);
         Task RegisterUserJoinedWithInviteAsync(
             DiscordGuildDto guild,
             DiscordUserDto userJoined,

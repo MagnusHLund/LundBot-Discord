@@ -16,8 +16,6 @@ namespace LundBot.Application.Features.Leaderboards
     {
         private const int TOP_UPVOTE_SCORES_LIMIT = 100;
 
-        private readonly IHostEnvironment _hostEnvironment;
-        private readonly IDiscordRoleService _discordRoleService;
         private readonly ILeaderboardRepository _leaderboardRepository;
         private readonly ILeaderboardScoreRepository _leaderboardScoreRepository;
         private readonly ILeaderboardScoreSourceRepository _leaderboardScoreSourceRepository;
@@ -28,9 +26,9 @@ namespace LundBot.Application.Features.Leaderboards
         private readonly ILeaderboardQueue _leaderboardQueue;
         private readonly ICacheService _cacheService;
         private readonly IMessageService<
+            LeaderboardMessage,
             ILeaderboardMessageRepository,
-            LeaderboardMessageFactory,
-            LeaderboardMessage
+            LeaderboardMessageFactory
         > _messageService;
 
         private readonly ILogger _logger = Log.ForContext<LeaderboardService>();
@@ -39,34 +37,40 @@ namespace LundBot.Application.Features.Leaderboards
             ILeaderboardRepository leaderboardRepository,
             ILeaderboardScoreRepository leaderboardScoreRepository,
             ILeaderboardScoreSourceRepository leaderboardScoreSourceRepository,
+            ILeaderboardMessageRepository leaderboardMessageRepository,
             ICacheService cacheService,
             IDiscordChannelService discordChannelService,
             ILeaderboardQueue leaderboardQueue,
             IDiscordMemberService discordMemberService,
             IDiscordUserService discordUserService,
-            IMessageService<LeaderboardMessageRepository, LeaderboardMessageFactory, LeaderboardMessage> messageService
+            IMessageService<LeaderboardMessage, ILeaderboardMessageRepository, LeaderboardMessageFactory> messageService
         )
         {
             _leaderboardRepository = leaderboardRepository;
             _leaderboardScoreRepository = leaderboardScoreRepository;
             _leaderboardScoreSourceRepository = leaderboardScoreSourceRepository;
+            _leaderboardMessageRepository = leaderboardMessageRepository;
             _discordChannelService = discordChannelService;
             _leaderboardQueue = leaderboardQueue;
             _cacheService = cacheService;
-            _discordChannelService = discordChannelService;
-            _leaderboardQueue = leaderboardQueue;
             _messageService = messageService;
             _discordMemberService = discordMemberService;
             _discordUserService = discordUserService;
         }
 
         public async Task<bool> CreateLeaderboardAsync(
-            DiscordChannelDto channel,
+            ulong channelId,
             string title,
             string message,
             LeaderboardTypeEnum leaderboardType
         )
         {
+            DiscordChannelDto? channel = await _discordChannelService.GetChannelAsync(channelId);
+            if (channel is null)
+            {
+                throw new CommandException($"The channel <#{channelId}> could not be found.", showMessageToUser: true);
+            }
+
             _logger.Information(
                 "Creating {LeaderboardType} leaderboard in channel {ChannelId} with title '{Title}' and message '{Message}'",
                 leaderboardType,
@@ -165,7 +169,7 @@ namespace LundBot.Application.Features.Leaderboards
                 return false;
             }
 
-            Leaderboard leaderboard = await GetLeaderboardAsync(channel);
+            Leaderboard leaderboard = await GetLeaderboardAsync(channelId, channel.GuildId);
 
             var topUpvoteScores = await _leaderboardScoreRepository.GetTopScoresAsync(
                 leaderboard.Id,
@@ -190,15 +194,25 @@ namespace LundBot.Application.Features.Leaderboards
         }
 
         // TODO: This does not have a sender
-        public async Task<bool> RegisterWarningOnLeaderboardAsync(ulong channelId, ulong guildId, DiscordUserDto targetUser)
+        public async Task<bool> RegisterWarningOnLeaderboardAsync(
+            ulong channelId,
+            ulong senderUserId,
+            ulong targetUserId
+        )
         {
+            DiscordChannelDto? channel = await _discordChannelService.GetChannelAsync(channelId);
+            if (channel is null)
+            {
+                throw new CommandException($"The channel <#{channelId}> could not be found.", showMessageToUser: true);
+            }
+
             _logger.Information(
                 "Registering a warning for user {UserTargetId} on the leaderboard in channel {ChannelId}",
-                targetUser.UserId,
+                targetUserId,
                 channelId
             );
 
-            Leaderboard leaderboard = await GetLeaderboardAsync(channelId, guildId);
+            Leaderboard leaderboard = await GetLeaderboardAsync(channelId, channel.GuildId);
 
             if (leaderboard.LeaderboardType != LeaderboardTypeEnum.Warning)
             {
@@ -208,11 +222,8 @@ namespace LundBot.Application.Features.Leaderboards
                 );
             }
 
-            await AddScoreToLeaderboardAsync(
-                targetUser.UserId,
-                targetUser.UserId,
-                leaderboard
-            );
+            await AddScoreToLeaderboardAsync(senderUserId, targetUserId, leaderboard);
+            return true;
         }
 
         public async Task RegisterUserJoinedWithInviteAsync(
@@ -221,26 +232,8 @@ namespace LundBot.Application.Features.Leaderboards
             DiscordUserDto userInvitedBy
         )
         {
-            if (
-                (_hostEnvironment.IsProduction()
-                    && await _discordRoleService.IsUserOwnerAsync(userInvitedBy.UserId, guild.GuildId))
-                || await _discordRoleService.IsUserABot(userInvitedBy.UserId, guild.GuildId)
-            )
-            {
-                _logger.Information(
-                    "User {UserInvitedById} is either the owner or a bot in guild {GuildId}, skipping registration of user {UserJoinedId}",
-                    userInvitedBy.UserId,
-                    guild.GuildId,
-                    userJoined.UserId
-                );
-
-                return;
-            }
-
             (bool leaderboardExists, Leaderboard? leaderboard) =
-                await _leaderboardRepository.DoesInviteLeaderboardExistOnServerAsync(
-                    guild.GuildId
-                );
+                await _leaderboardRepository.DoesInviteLeaderboardExistOnServerAsync(guild.GuildId);
 
             if (!leaderboardExists)
             {
@@ -250,35 +243,61 @@ namespace LundBot.Application.Features.Leaderboards
                     userJoined.UserId
                 );
                 return;
+            }
+
+            bool hasAlreadyBeenInvited = await _leaderboardScoreSourceRepository.HasUserGivenScoreToTargetAsync(
+                userInvitedBy.UserId,
+                userJoined.UserId,
+                leaderboard!.Id
+            );
+
+            if (hasAlreadyBeenInvited)
+            {
+                _logger.Information(
+                    "User {UserJoinedId} has already been invited by {UserInvitedById} on the invite leaderboard in guild {GuildId}, skipping registration",
+                    userJoined.UserId,
+                    userInvitedBy.UserId,
+                    guild.GuildId
+                );
+                return;
+            }
+
+            await AddScoreToLeaderboardAsync(userJoined.UserId, userInvitedBy.UserId, leaderboard);
         }
 
-        public async Task<bool> RemoveLeaderboardAsync(ulong channelId, ulong guildId)
+        public async Task<bool> RemoveLeaderboardAsync(ulong channelId)
         {
+            DiscordChannelDto? channel = await _discordChannelService.GetChannelAsync(channelId);
+            if (channel is null)
+            {
+                throw new CommandException($"The channel <#{channelId}> could not be found.", showMessageToUser: true);
+            }
+
             _logger.Information(
                 "Removing leaderboard in channel {ChannelId} for server {GuildId}",
                 channelId,
-                guildId
+                channel.GuildId
             );
 
-            Leaderboard leaderboard = await GetLeaderboardAsync(channelId, guildId);
+            Leaderboard leaderboard = await GetLeaderboardAsync(channelId, channel.GuildId);
 
             var existingMessages = await _leaderboardMessageRepository.GetMessagesForLeaderboardAsync(leaderboard.Id);
 
-            await _leaderboardRepository.RemoveLeaderboardAsync(channelId, guildId);
+            await _leaderboardRepository.RemoveLeaderboardAsync(channelId, channel.GuildId);
 
             await _messageService.DeleteMessagesForChannelAsync(existingMessages, channelId);
 
-            var existingLeaderboards = await GetLeaderboardsForGuildAsync(guildId);
+            var existingLeaderboards = await GetLeaderboardsForGuildAsync(channel.GuildId);
             existingLeaderboards.RemoveAll(l => l.Id == leaderboard.Id);
 
             _cacheService.Update<List<Leaderboard>>(
-                CacheKeys.LeaderboardsPerGuild(guildId),
+                CacheKeys.LeaderboardsPerGuild(channel.GuildId),
                 _ => existingLeaderboards
             );
             return true;
         }
 
-        public async Task<bool> UpdateLeaderboardMessageAsync(Leaderboard leaderboard, DiscordChannelDto channel)
+        public async Task UpdateLeaderboardMessageAsync(Leaderboard leaderboard, DiscordChannelDto channel)
         {
             var topUpvoteScores = await _leaderboardScoreRepository.GetTopScoresAsync(
                 leaderboard.Id,
@@ -294,7 +313,7 @@ namespace LundBot.Application.Features.Leaderboards
 
             var existingMessages = await _leaderboardMessageRepository.GetMessagesForLeaderboardAsync(leaderboard.Id);
 
-            return await _messageService.SynchronizeDiscordMessagesAsync(
+            await _messageService.SynchronizeDiscordMessagesAsync(
                 leaderboardMessage,
                 existingMessages,
                 channel.ChannelId
@@ -303,11 +322,16 @@ namespace LundBot.Application.Features.Leaderboards
 
         public async Task<bool> UpvoteUserOnLeaderboardAsync(
             ulong channelId,
-            ulong guildId,
             DiscordUserDto userUpvoting,
             DiscordUserDto targetUser
         )
         {
+            DiscordChannelDto? channel = await _discordChannelService.GetChannelAsync(channelId);
+            if (channel is null)
+            {
+                throw new CommandException($"The channel <#{channelId}> could not be found.", showMessageToUser: true);
+            }
+
             _logger.Information(
                 "User {UserUpvotingId} is upvoting user {UserTargetId} on the leaderboard in channel {ChannelId}",
                 userUpvoting.UserId,
@@ -315,7 +339,7 @@ namespace LundBot.Application.Features.Leaderboards
                 channelId
             );
 
-            Leaderboard leaderboard = await GetLeaderboardAsync(channelId, guildId);
+            Leaderboard leaderboard = await GetLeaderboardAsync(channelId, channel.GuildId);
 
             if (leaderboard.LeaderboardType != LeaderboardTypeEnum.Upvote)
             {

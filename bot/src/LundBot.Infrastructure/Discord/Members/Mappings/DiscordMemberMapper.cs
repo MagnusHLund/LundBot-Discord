@@ -7,7 +7,12 @@ namespace LundBot.Infrastructure.Discord.Members.Mappings
     {
         public static DiscordMemberDto Map(this DiscordMember member)
         {
-            return new DiscordMemberDto(userId: member.Id, username: member.Username, displayName: member.DisplayName);
+            return new DiscordMemberDto(
+                userId: member.Id,
+                username: member.Username,
+                globalName: member.GlobalName,
+                displayName: member.DisplayName
+            );
         }
     }
 }

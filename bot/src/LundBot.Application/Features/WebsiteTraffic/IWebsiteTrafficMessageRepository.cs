@@ -1,12 +1,7 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+using LundBot.Application.Common.Messaging;
+using LundBot.Domain.WebsiteTraffic;
 
 namespace LundBot.Application.Features.WebsiteTraffic
 {
-    public interface IWebsiteTrafficMessageRepository
-    {
-        
-    }
+    public interface IWebsiteTrafficMessageRepository : IMessageRepository<WebsiteTrafficMessage> { }
 }
