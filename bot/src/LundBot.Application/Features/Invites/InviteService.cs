@@ -2,7 +2,7 @@ using LundBot.Application.Common.Caching;
 using LundBot.Application.Discord.Guilds;
 using LundBot.Application.Discord.Invites;
 using LundBot.Application.Discord.Users;
-using LundBot.Application.Features.Leaderboards;
+using LundBot.Application.Features.Leaderboards.Contracts;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace LundBot.Application.Features.Invites
@@ -77,9 +77,9 @@ namespace LundBot.Application.Features.Invites
             DiscordUserDto inviter = usedInvite.Inviter;
 
             using var scope = _serviceProvider.CreateScope();
-            var leaderboardService = scope.ServiceProvider.GetRequiredService<ILeaderboardService>();
+            var leaderboardService = scope.ServiceProvider.GetRequiredService<IInviteLeaderboardService>();
 
-            await leaderboardService.RegisterUserJoinedWithInviteAsync(guild, userJoined, inviter);
+            await leaderboardService.RegisterSuccessfullyInvitedUserAsync(guild, userJoined, inviter);
             return true;
         }
     }

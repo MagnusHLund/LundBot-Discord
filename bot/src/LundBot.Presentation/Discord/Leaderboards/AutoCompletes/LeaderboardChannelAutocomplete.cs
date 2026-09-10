@@ -1,16 +1,16 @@
 using DSharpPlus.Commands.Processors.SlashCommands;
 using DSharpPlus.Commands.Processors.SlashCommands.ArgumentModifiers;
 using DSharpPlus.Entities;
-using LundBot.Application.Features.Leaderboards;
+using LundBot.Application.Features.Leaderboards.Contracts;
 using LundBot.Domain.Leaderboards;
 
 namespace LundBot.Presentation.Discord.Leaderboards.AutoCompletes
 {
     public class LeaderboardChannelAutocomplete : IAutoCompleteProvider
     {
-        private protected readonly ILeaderboardService _leaderboardService;
+        private protected readonly IAbstractLeaderboardService _leaderboardService;
 
-        public LeaderboardChannelAutocomplete(ILeaderboardService leaderboardService)
+        public LeaderboardChannelAutocomplete(IAbstractLeaderboardService leaderboardService)
         {
             _leaderboardService = leaderboardService;
         }

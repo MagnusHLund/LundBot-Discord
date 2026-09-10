@@ -1,13 +1,13 @@
 using DSharpPlus.Commands.Processors.SlashCommands;
 using DSharpPlus.Entities;
-using LundBot.Application.Features.Leaderboards;
+using LundBot.Application.Features.Leaderboards.Contracts;
 using LundBot.Domain.Leaderboards;
 
 namespace LundBot.Presentation.Discord.Leaderboards.AutoCompletes
 {
     public sealed class WarningLeaderboardChannelAutocomplete : LeaderboardChannelAutocomplete
     {
-        public WarningLeaderboardChannelAutocomplete(ILeaderboardService leaderboardService)
+        public WarningLeaderboardChannelAutocomplete(IAbstractLeaderboardService leaderboardService)
             : base(leaderboardService) { }
 
         public override async ValueTask<IEnumerable<DiscordAutoCompleteChoice>> AutoCompleteAsync(

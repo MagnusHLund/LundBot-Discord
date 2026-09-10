@@ -1,4 +1,4 @@
-namespace LundBot.Application.Features.Leaderboards
+namespace LundBot.Application.Features.Leaderboards.Contracts
 {
     public interface ILeaderboardScoreSourceRepository
     {

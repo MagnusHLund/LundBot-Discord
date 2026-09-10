@@ -3,7 +3,7 @@ using DSharpPlus.Commands;
 using DSharpPlus.Commands.ArgumentModifiers;
 using DSharpPlus.Commands.ContextChecks;
 using DSharpPlus.Entities;
-using LundBot.Application.Features.Leaderboards;
+using LundBot.Application.Features.Leaderboards.Contracts;
 using LundBot.Domain.Leaderboards;
 using LundBot.Presentation.Discord.Bot;
 using LundBot.Presentation.Discord.Interactions;
@@ -12,11 +12,11 @@ namespace LundBot.Presentation.Discord.Leaderboards.Commands
 {
     public sealed class CreateLeaderboardCommand : AbstractBaseCommand
     {
-        private readonly ILeaderboardService _leaderboardService;
+        private readonly IAbstractLeaderboardService _leaderboardService;
 
         public CreateLeaderboardCommand(
             IDiscordInteractionService discordInteractionService,
-            ILeaderboardService leaderboardService
+            IAbstractLeaderboardService leaderboardService
         )
             : base(discordInteractionService)
         {

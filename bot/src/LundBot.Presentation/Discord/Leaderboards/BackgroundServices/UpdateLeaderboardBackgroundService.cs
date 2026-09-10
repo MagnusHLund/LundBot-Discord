@@ -1,4 +1,5 @@
 using LundBot.Application.Features.Leaderboards;
+using LundBot.Application.Features.Leaderboards.Contracts;
 
 namespace LundBot.Presentation.Discord.Leaderboards.BackgroundServices
 {
@@ -33,7 +34,7 @@ namespace LundBot.Presentation.Discord.Leaderboards.BackgroundServices
                 }
 
                 using var scope = _scopeFactory.CreateScope();
-                var leaderboardService = scope.ServiceProvider.GetRequiredService<ILeaderboardService>();
+                var leaderboardService = scope.ServiceProvider.GetRequiredService<IAbstractLeaderboardService>();
 
                 _logger.Information(
                     "Processing leaderboard update job for leaderboard ID {LeaderboardId}...",

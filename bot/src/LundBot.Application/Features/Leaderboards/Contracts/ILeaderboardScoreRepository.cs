@@ -1,6 +1,6 @@
 using LundBot.Domain.Leaderboards;
 
-namespace LundBot.Application.Features.Leaderboards
+namespace LundBot.Application.Features.Leaderboards.Contracts
 {
     public interface ILeaderboardScoreRepository
     {

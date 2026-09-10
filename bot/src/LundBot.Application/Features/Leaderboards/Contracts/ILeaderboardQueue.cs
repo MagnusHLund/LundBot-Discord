@@ -1,4 +1,6 @@
-namespace LundBot.Application.Features.Leaderboards
+using LundBot.Application.Features.Leaderboards.Shared;
+
+namespace LundBot.Application.Features.Leaderboards.Contracts
 {
     public interface ILeaderboardQueue
     {

@@ -1,5 +1,6 @@
 using System.Threading.Channels;
-using LundBot.Application.Features.Leaderboards;
+using LundBot.Application.Features.Leaderboards.Contracts;
+using LundBot.Application.Features.Leaderboards.Shared;
 
 namespace LundBot.Infrastructure.Queues
 {

@@ -1,4 +1,4 @@
-using LundBot.Application.Features.Leaderboards;
+using LundBot.Application.Features.Leaderboards.Contracts;
 using LundBot.Presentation.Api.Common;
 using LundBot.Presentation.Config;
 using Microsoft.AspNetCore.Authorization;
@@ -11,9 +11,9 @@ namespace LundBot.Presentation.Api.Leaderboards
     [Route("api/[controller]")]
     public sealed class LeaderboardController : AbstractBaseController
     {
-        private readonly ILeaderboardService _leaderboardService;
+        private readonly IAbstractLeaderboardService _leaderboardService;
 
-        public LeaderboardController(ILeaderboardService leaderboardService)
+        public LeaderboardController(IAbstractLeaderboardService leaderboardService)
         {
             _leaderboardService = leaderboardService;
         }
