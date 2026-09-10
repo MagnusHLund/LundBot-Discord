@@ -2,15 +2,20 @@
   "dotnet.preferVisualStudioCodeFileSystemWatcher": true,
   "cSpell.words": [
     "appsettings",
+    "Cryptids",
     "healthcheck",
     "innodb",
     "lundbot",
-    "unraid",
     "Serilog",
     "Shaolin",
+    "Sonova",
     "Spaceland",
+    "speedrun",
     "Unlocker",
-    "Upvoting"
+    "unraid",
+    "Upvoting",
+    "Wyler",
+    "Wylerverse"
   ],
   "cmake.ignoreCMakeListsMissing": true
 }

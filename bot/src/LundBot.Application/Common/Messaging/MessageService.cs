@@ -130,12 +130,12 @@ namespace LundBot.Application.Common.Messaging
 
         public async Task<DiscordMessageDto?> CreateMessageFromDiscordMessageBuilderAsync(
             DiscordMessageBuilderDto messageBuilder,
-            DiscordChannelDto channel,
+            ulong channelId,
             bool shouldSaveMessageInDatabase = false
         )
         {
             DiscordMessageDto? discordMessage = await _discordMessageService.SendMessageAsync(
-                channel.ChannelId,
+                channelId,
                 messageBuilder
             );
 

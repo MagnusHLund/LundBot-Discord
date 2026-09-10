@@ -30,7 +30,7 @@ namespace LundBot.Application.Common.Messaging
 
         Task<DiscordMessageDto?> CreateMessageFromDiscordMessageBuilderAsync(
             DiscordMessageBuilderDto messageBuilder,
-            DiscordChannelDto channel,
+            ulong channelId,
             bool shouldSaveMessageInDatabase = false
         );
     }
