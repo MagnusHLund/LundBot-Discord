@@ -2,12 +2,12 @@ namespace LundBot.Application.Discord.Roles
 {
     public sealed record DiscordRoleDto
     {
-        public ulong Id { get; }
+        public ulong RoleId { get; }
         public string Name { get; }
 
-        public DiscordRoleDto(ulong id, string name)
+        public DiscordRoleDto(ulong roleId, string name)
         {
-            Id = id;
+            RoleId = roleId;
             Name = name;
         }
     }
