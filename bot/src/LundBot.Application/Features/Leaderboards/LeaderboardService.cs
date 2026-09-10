@@ -1,4 +1,5 @@
 using LundBot.Application.Discord.Channels;
+using LundBot.Application.Discord.Guilds;
 using LundBot.Application.Discord.Users;
 using LundBot.Domain.Leaderboards;
 
@@ -27,6 +28,15 @@ namespace LundBot.Application.Features.Leaderboards
         }
 
         public Task<bool> RegisterWarningOnLeaderboardAsync(ulong channelId, DiscordUserDto targetUser)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task RegisterUserJoinedWithInviteAsync(
+            DiscordGuildDto guild,
+            DiscordUserDto userJoined,
+            DiscordUserDto userInvitedBy
+        )
         {
             throw new NotImplementedException();
         }
