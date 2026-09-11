@@ -3,11 +3,11 @@ using LundBot.Domain.WebsiteTraffic;
 
 namespace LundBot.Application.Features.WebsiteTraffic
 {
-    public sealed class WebsiteTrafficMessageFactory : IMessageEntityFactory<WebsiteTrafficMessage>
+    public sealed class WebsiteTrafficMessageFactory : IMessageEntityFactory<WebsiteTrafficAnalyticsMessage>
     {
-        public WebsiteTrafficMessage Create(ulong discordMessageId)
+        public WebsiteTrafficAnalyticsMessage Create(ulong discordMessageId)
         {
-            return new WebsiteTrafficMessage { DiscordMessageId = discordMessageId };
+            return new WebsiteTrafficAnalyticsMessage { DiscordMessageId = discordMessageId };
         }
     }
 }

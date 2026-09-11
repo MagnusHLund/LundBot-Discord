@@ -1,4 +1,4 @@
-namespace LundBot.Infrastructure.Utils
+namespace LundBot.Application.Common.Validation
 {
     public static class ValidationUtils
     {

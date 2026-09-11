@@ -110,7 +110,7 @@ namespace LundBot.Infrastructure
             IConfiguration configuration
         )
         {
-            services.Configure<DiscordConfig>(configuration.GetSection("Discord"));
+            services.Configure<DiscordIntegrationConfig>(configuration.GetSection("Discord"));
 
             return services;
         }

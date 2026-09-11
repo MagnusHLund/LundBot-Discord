@@ -12,8 +12,8 @@ namespace LundBot.Infrastructure.Persistence
         public DbSet<LeaderboardScore> LeaderboardScores { get; set; } = null!;
         public DbSet<LeaderboardScoreSource> LeaderboardScoreSources { get; set; } = null!;
         public DbSet<LeaderboardMessage> LeaderboardMessages { get; set; } = null!;
-        public DbSet<WebsiteTraffic> WebsiteTraffic { get; set; } = null!;
-        public DbSet<WebsiteTrafficMessage> WebsiteTrafficMessages { get; set; } = null!;
+        public DbSet<WebsiteTrafficAnalytics> WebsiteTraffic { get; set; } = null!;
+        public DbSet<WebsiteTrafficAnalyticsMessage> WebsiteTrafficMessages { get; set; } = null!;
         public DbSet<MemberJoinMessage> MemberJoinMessages { get; set; } = null!;
 
         public LundBotDbContext() { }
@@ -29,8 +29,8 @@ namespace LundBot.Infrastructure.Persistence
             ConfigureLeaderboardScores(modelBuilder.Entity<LeaderboardScore>(), isMySql);
             ConfigureLeaderboardScoreSource(modelBuilder.Entity<LeaderboardScoreSource>(), isMySql);
             ConfigureLeaderboardMessages(modelBuilder.Entity<LeaderboardMessage>(), isMySql);
-            ConfigureWebsiteTraffic(modelBuilder.Entity<WebsiteTraffic>(), isMySql);
-            ConfigureWebsiteTrafficMessages(modelBuilder.Entity<WebsiteTrafficMessage>(), isMySql);
+            ConfigureWebsiteTraffic(modelBuilder.Entity<WebsiteTrafficAnalytics>(), isMySql);
+            ConfigureWebsiteTrafficMessages(modelBuilder.Entity<WebsiteTrafficAnalyticsMessage>(), isMySql);
             ConfigureMemberJoinMessages(modelBuilder.Entity<MemberJoinMessage>(), isMySql);
         }
 
@@ -205,7 +205,7 @@ namespace LundBot.Infrastructure.Persistence
                 .HasConstraintName("fk_leaderboard_messages_leaderboards");
         }
 
-        private static void ConfigureWebsiteTraffic(EntityTypeBuilder<WebsiteTraffic> entity, bool isMySql)
+        private static void ConfigureWebsiteTraffic(EntityTypeBuilder<WebsiteTrafficAnalytics> entity, bool isMySql)
         {
             entity.ToTable("WebsiteTraffic");
 
@@ -233,7 +233,7 @@ namespace LundBot.Infrastructure.Persistence
         }
 
         private static void ConfigureWebsiteTrafficMessages(
-            EntityTypeBuilder<WebsiteTrafficMessage> entity,
+            EntityTypeBuilder<WebsiteTrafficAnalyticsMessage> entity,
             bool isMySql
         )
         {

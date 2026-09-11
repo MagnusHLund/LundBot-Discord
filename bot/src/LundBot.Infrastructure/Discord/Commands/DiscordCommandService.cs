@@ -11,14 +11,14 @@ namespace LundBot.Infrastructure.Discord.Commands
     {
         private readonly DiscordClient _discordClient;
         private readonly CommandsExtension _commands;
-        private readonly DiscordConfig _discordConfig;
+        private readonly DiscordIntegrationConfig _discordConfig;
 
         private readonly ILogger _logger = Log.ForContext<DiscordCommandService>();
 
         public DiscordCommandService(
             DiscordClient discordClient,
             CommandsExtension commands,
-            IOptions<DiscordConfig> discordConfig
+            IOptions<DiscordIntegrationConfig> discordConfig
         )
         {
             _discordClient = discordClient;

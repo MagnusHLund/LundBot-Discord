@@ -5,12 +5,20 @@ namespace LundBot.Infrastructure.Persistence.Repositories.WebsiteTraffic
 {
     public sealed class WebsiteTrafficMessageRepository : IWebsiteTrafficMessageRepository
     {
-        public Task<bool> CreateAsync(WebsiteTrafficMessage entity)
+        public Task<bool> CreateAsync(WebsiteTrafficAnalyticsMessage entity)
         {
             throw new NotImplementedException();
         }
 
-        public Task<bool> UpdateAsync(WebsiteTrafficMessage entity)
+        public Task<List<WebsiteTrafficAnalyticsMessage>> GetWebsiteTrafficMessagesForPeriodAsync(
+            DateTime startDate,
+            DateTime endDate
+        )
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<bool> UpdateAsync(WebsiteTrafficAnalyticsMessage entity)
         {
             throw new NotImplementedException();
         }

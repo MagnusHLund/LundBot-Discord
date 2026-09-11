@@ -1,7 +1,7 @@
 using System.Security.Cryptography;
 using System.Text;
 
-namespace LundBot.Infrastructure.Utils
+namespace LundBot.Application.Common.Security.Hashing
 {
     public static class HashUtils
     {

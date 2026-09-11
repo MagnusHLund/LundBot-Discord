@@ -6,17 +6,18 @@ using LundBot.Application.Features.Leaderboards.Shared;
 using LundBot.Application.Features.Leaderboards.Types;
 using LundBot.Application.Features.MemberJoin;
 using LundBot.Application.Features.Moderation;
-using LundBot.Application.Features.Users;
 using LundBot.Application.Features.WebsiteTraffic;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace LundBot.Application
 {
     public static class DependencyInjection
     {
-        public static IServiceCollection AddApplication(this IServiceCollection services)
+        public static IServiceCollection AddApplication(this IServiceCollection services, IConfiguration configuration)
         {
             services.AddServices();
+            services.AddConfiguration(configuration);
 
             return services;
         }
@@ -26,7 +27,6 @@ namespace LundBot.Application
             services.AddSingleton<ICommandService, CommandService>();
             services.AddSingleton<IRandomMapService, RandomMapService>();
 
-            services.AddScoped<IUserService, UserService>();
             services.AddScoped<IMemberJoinService, MemberJoinService>();
             services.AddScoped<IInviteLeaderboardService, InviteLeaderboardService>();
             services.AddScoped<IWarnLeaderboardService, WarnLeaderboardService>();
@@ -37,6 +37,16 @@ namespace LundBot.Application
             services.AddScoped<LeaderboardMessageFactory>();
             services.AddScoped<WebsiteTrafficMessageFactory>();
             services.AddScoped(typeof(IMessageService<,,>), typeof(MessageService<,,>));
+
+            return services;
+        }
+
+        private static IServiceCollection AddConfiguration(
+            this IServiceCollection services,
+            IConfiguration configuration
+        )
+        {
+            services.Configure<WebsiteTrafficConfig>(configuration.GetSection("Discord"));
 
             return services;
         }

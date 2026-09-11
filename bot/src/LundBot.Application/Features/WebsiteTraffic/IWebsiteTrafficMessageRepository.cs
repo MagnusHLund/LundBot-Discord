@@ -3,5 +3,11 @@ using LundBot.Domain.WebsiteTraffic;
 
 namespace LundBot.Application.Features.WebsiteTraffic
 {
-    public interface IWebsiteTrafficMessageRepository : IMessageRepository<WebsiteTrafficMessage> { }
+    public interface IWebsiteTrafficMessageRepository : IMessageRepository<WebsiteTrafficAnalyticsMessage>
+    {
+        Task<List<WebsiteTrafficAnalyticsMessage>> GetWebsiteTrafficMessagesForPeriodAsync(
+            DateTime startDate,
+            DateTime endDate
+        );
+    }
 }
