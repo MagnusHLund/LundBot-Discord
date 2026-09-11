@@ -29,7 +29,7 @@ namespace LundBot.Application.Features.Moderation
                 return false;
             }
 
-            return await _discordModerationService.KickMemberAsync(guildId, userId, reason);
+            return await _discordModerationService.KickMemberAsync(userId, guildId, reason);
         }
     }
 }
