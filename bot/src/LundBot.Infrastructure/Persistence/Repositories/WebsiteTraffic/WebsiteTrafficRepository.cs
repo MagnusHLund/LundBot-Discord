@@ -32,10 +32,7 @@ namespace LundBot.Infrastructure.Persistence.Repositories.WebsiteTraffic
 
             if (websiteVisit == null)
             {
-                _logger.Warning(
-                    "No website visit found for hashed IP: {HashedIp}. Cannot register invite link click.",
-                    Convert.ToBase64String(hashedIpAddress)
-                );
+                _logger.Warning("No website visit found for user. Cannot register invite link click.");
                 return false;
             }
 
@@ -46,11 +43,7 @@ namespace LundBot.Infrastructure.Persistence.Repositories.WebsiteTraffic
             }
             catch (Exception ex)
             {
-                _logger.Error(
-                    ex,
-                    "Error registering invite link click for hashed IP: {HashedIp}",
-                    Convert.ToBase64String(hashedIpAddress)
-                );
+                _logger.Error(ex, "Error registering invite link click for user.");
                 return false;
             }
 
@@ -72,11 +65,7 @@ namespace LundBot.Infrastructure.Persistence.Repositories.WebsiteTraffic
             }
             catch (Exception ex)
             {
-                _logger.Error(
-                    ex,
-                    "Error registering website visit for hashed IP: {HashedIp}",
-                    Convert.ToBase64String(hashedIpAddress)
-                );
+                _logger.Error(ex, "Error registering website visit for user.");
                 return false;
             }
 

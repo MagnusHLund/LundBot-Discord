@@ -11,3 +11,8 @@
 ## Refactor related
 
 1. Add validation of command and API input
+
+## Before next deployment
+
+1. Database backup
+2. Move appsettings files to correct directory
