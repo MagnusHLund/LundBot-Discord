@@ -51,7 +51,7 @@ namespace LundBot.Presentation.Api.Bot
         }
 
         [Authorize]
-        [HttpDelete("unregister/{commandId:ulong}")]
+        [HttpDelete("unregister/{commandId}")]
         public async Task<IActionResult> UnregisterCommand(
             [FromRoute] ulong commandId,
             [FromQuery] ulong? guildId = null

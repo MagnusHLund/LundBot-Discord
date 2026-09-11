@@ -14,7 +14,7 @@ namespace LundBot.Presentation.Discord.Bot
         private readonly ICommandService _commandsService;
         private readonly IHostEnvironment _hostEnvironment;
         private readonly IDiscordBotService _discordBotService;
-        private readonly DiscordCommandRegistration _discordCommandRegistration;
+        private readonly IDiscordCommandRegistration _discordCommandRegistration;
 
         private readonly ILogger _logger = Log.ForContext<DiscordBotBackgroundService>();
 
@@ -22,7 +22,7 @@ namespace LundBot.Presentation.Discord.Bot
             IOptions<ServerConfig> serverConfig,
             ICommandService commandsService,
             IDiscordBotService discordBotService,
-            DiscordCommandRegistration discordCommandRegistration,
+            IDiscordCommandRegistration discordCommandRegistration,
             IHostEnvironment hostEnvironment
         )
         {

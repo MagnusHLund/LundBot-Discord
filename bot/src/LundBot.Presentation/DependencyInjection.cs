@@ -23,7 +23,7 @@ namespace LundBot.Presentation
             services.AddConfiguration(configuration);
             services.AddDiscord(configuration);
 
-            services.AddAuthentication();
+            services.AddApiAuthentication();
 
             services.AddBackgroundServices();
             services.AddServices();
@@ -109,7 +109,7 @@ namespace LundBot.Presentation
             return services;
         }
 
-        private static IServiceCollection AddAuthentication(this IServiceCollection services)
+        private static IServiceCollection AddApiAuthentication(this IServiceCollection services)
         {
             services
                 .AddAuthentication("ApiKey")
