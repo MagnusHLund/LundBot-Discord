@@ -87,9 +87,6 @@ namespace LundBot.Application.Features.WebsiteTraffic
             List<WebsiteTrafficAnalytics> websiteTrafficEntities =
                 await _websiteTrafficRepository.GetWebsiteTrafficEntitiesForPeriodAsync(startOfWeek, endOfWeek);
 
-            List<WebsiteTrafficAnalyticsMessage> websiteTrafficMessagesEntities =
-                await _websiteTrafficMessageRepository.GetWebsiteTrafficMessagesForPeriodAsync(startOfWeek, endOfWeek);
-
             int totalVisits = websiteTrafficEntities.Count;
             int totalInviteClicks = websiteTrafficEntities.Count(w => w.ClickedInviteButton);
 
@@ -101,6 +98,8 @@ namespace LundBot.Application.Features.WebsiteTraffic
             messageBuilder.AppendLine($"Invite Clicks: {totalInviteClicks}");
             messageBuilder.AppendLine();
             messageBuilder.AppendLine("## Entries");
+            messageBuilder.AppendLine("```text");
+            messageBuilder.AppendLine("#   Created At               | Invite");
 
             for (int i = 0; i < websiteTrafficEntities.Count; i++)
             {
@@ -108,9 +107,11 @@ namespace LundBot.Application.Features.WebsiteTraffic
                 string clickedInvite = traffic.ClickedInviteButton ? "✔️" : "❌";
 
                 messageBuilder.AppendLine(
-                    $"{i + 1}. {traffic.CreatedAt:dd-MM-yyyy HH:mm:ss} UTC | invite={clickedInvite}"
+                    $"{i + 1, -3} {traffic.CreatedAt:dd-MM-yyyy HH:mm:ss} UTC  | {clickedInvite}"
                 );
             }
+
+            messageBuilder.AppendLine("```");
 
             return messageBuilder.ToString().Trim();
         }
