@@ -47,7 +47,7 @@ namespace LundBot.Application.Common.Bot
                 return false;
             }
 
-            return await _discordCommandService.DeleteGuildApplicationCommandAsync(commandId, guildId.Value);
+            return await _discordCommandService.DeleteGuildApplicationCommandAsync(guildId.Value, commandId);
         }
     }
 }
