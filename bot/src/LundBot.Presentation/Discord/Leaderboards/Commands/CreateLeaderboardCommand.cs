@@ -12,11 +12,11 @@ namespace LundBot.Presentation.Discord.Leaderboards.Commands
 {
     public sealed class CreateLeaderboardCommand : AbstractBaseCommand
     {
-        private readonly IAbstractLeaderboardService _leaderboardService;
+        private readonly ILeaderboardService _leaderboardService;
 
         public CreateLeaderboardCommand(
             IDiscordInteractionService discordInteractionService,
-            IAbstractLeaderboardService leaderboardService
+            ILeaderboardService leaderboardService
         )
             : base(discordInteractionService)
         {

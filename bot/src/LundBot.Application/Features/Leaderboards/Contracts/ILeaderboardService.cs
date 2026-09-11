@@ -3,7 +3,7 @@ using LundBot.Domain.Leaderboards;
 
 namespace LundBot.Application.Features.Leaderboards.Contracts
 {
-    public interface IAbstractLeaderboardService
+    public interface ILeaderboardService
     {
         Task<bool> CreateLeaderboardAsync(
             ulong channelId,
@@ -11,9 +11,14 @@ namespace LundBot.Application.Features.Leaderboards.Contracts
             string message,
             LeaderboardTypeEnum leaderboardType
         );
+
         Task<bool> RemoveLeaderboardAsync(ulong channelId);
+
         Task<bool> RefreshLeaderboardAsync(ulong channelId, ulong guildId);
+
         Task<bool> UpdateLeaderboardMessageAsync(Leaderboard leaderboard, DiscordChannelDto channel);
+
         ValueTask<List<Leaderboard>> GetLeaderboardsForGuildAsync(ulong guildId);
+        Task<Leaderboard> GetLeaderboardAsync(ulong channelId, ulong guildId);
     }
 }

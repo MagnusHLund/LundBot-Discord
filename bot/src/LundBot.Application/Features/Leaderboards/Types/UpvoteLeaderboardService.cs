@@ -1,8 +1,5 @@
-using LundBot.Application.Common.Caching;
 using LundBot.Application.Common.Exceptions;
-using LundBot.Application.Common.Messaging;
 using LundBot.Application.Discord.Channels;
-using LundBot.Application.Discord.Members;
 using LundBot.Application.Discord.Users;
 using LundBot.Application.Features.Leaderboards.Contracts;
 using LundBot.Application.Features.Leaderboards.Shared;
@@ -18,32 +15,18 @@ namespace LundBot.Application.Features.Leaderboards.Types
         private readonly ILogger _logger = Log.ForContext<UpvoteLeaderboardService>();
 
         public UpvoteLeaderboardService(
-            IDiscordUserService discordUserService,
-            IDiscordMemberService discordMemberService,
-            ILeaderboardRepository leaderboardRepository,
-            IMessageService<
-                LeaderboardMessage,
-                ILeaderboardMessageRepository,
-                LeaderboardMessageFactory
-            > messageService,
-            ICacheService cacheService,
             IDiscordChannelService discordChannelService,
             ILeaderboardQueue leaderboardQueue,
             ILeaderboardScoreRepository leaderboardScoreRepository,
-            ILeaderboardMessageRepository leaderboardMessageRepository,
-            ILeaderboardScoreSourceRepository leaderboardScoreSourceRepository
+            ILeaderboardScoreSourceRepository leaderboardScoreSourceRepository,
+            ILeaderboardService leaderboardService
         )
             : base(
-                discordUserService,
-                discordMemberService,
-                leaderboardRepository,
-                messageService,
-                cacheService,
                 discordChannelService,
                 leaderboardQueue,
                 leaderboardScoreRepository,
-                leaderboardMessageRepository,
-                leaderboardScoreSourceRepository
+                leaderboardScoreSourceRepository,
+                leaderboardService
             )
         {
             _discordChannelService = discordChannelService;

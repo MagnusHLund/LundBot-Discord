@@ -12,11 +12,11 @@ namespace LundBot.Presentation.Discord.Leaderboards.Commands
 {
     public sealed class RemoveLeaderboardCommand : AbstractBaseCommand
     {
-        private readonly IAbstractLeaderboardService _leaderboardService;
+        private readonly ILeaderboardService _leaderboardService;
 
         public RemoveLeaderboardCommand(
             IDiscordInteractionService discordInteractionService,
-            IAbstractLeaderboardService leaderboardService
+            ILeaderboardService leaderboardService
         )
             : base(discordInteractionService)
         {

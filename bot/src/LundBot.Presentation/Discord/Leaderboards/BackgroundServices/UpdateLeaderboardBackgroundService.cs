@@ -34,7 +34,7 @@ namespace LundBot.Presentation.Discord.Leaderboards.BackgroundServices
                 }
 
                 using var scope = _scopeFactory.CreateScope();
-                var leaderboardService = scope.ServiceProvider.GetRequiredService<IAbstractLeaderboardService>();
+                var leaderboardService = scope.ServiceProvider.GetRequiredService<ILeaderboardService>();
 
                 _logger.Information(
                     "Processing leaderboard update job for leaderboard ID {LeaderboardId}...",

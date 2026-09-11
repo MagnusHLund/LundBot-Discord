@@ -8,9 +8,9 @@ namespace LundBot.Presentation.Discord.Leaderboards.AutoCompletes
 {
     public class LeaderboardChannelAutocomplete : IAutoCompleteProvider
     {
-        private protected readonly IAbstractLeaderboardService _leaderboardService;
+        private protected readonly ILeaderboardService _leaderboardService;
 
-        public LeaderboardChannelAutocomplete(IAbstractLeaderboardService leaderboardService)
+        public LeaderboardChannelAutocomplete(ILeaderboardService leaderboardService)
         {
             _leaderboardService = leaderboardService;
         }

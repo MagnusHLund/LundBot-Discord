@@ -7,7 +7,7 @@ namespace LundBot.Presentation.Discord.Leaderboards.AutoCompletes
 {
     public sealed class UpvoteLeaderboardChannelAutocomplete : LeaderboardChannelAutocomplete
     {
-        public UpvoteLeaderboardChannelAutocomplete(IAbstractLeaderboardService leaderboardService)
+        public UpvoteLeaderboardChannelAutocomplete(ILeaderboardService leaderboardService)
             : base(leaderboardService) { }
 
         public override async ValueTask<IEnumerable<DiscordAutoCompleteChoice>> AutoCompleteAsync(

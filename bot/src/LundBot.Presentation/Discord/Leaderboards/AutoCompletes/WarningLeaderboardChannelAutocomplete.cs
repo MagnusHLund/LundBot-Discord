@@ -7,7 +7,7 @@ namespace LundBot.Presentation.Discord.Leaderboards.AutoCompletes
 {
     public sealed class WarningLeaderboardChannelAutocomplete : LeaderboardChannelAutocomplete
     {
-        public WarningLeaderboardChannelAutocomplete(IAbstractLeaderboardService leaderboardService)
+        public WarningLeaderboardChannelAutocomplete(ILeaderboardService leaderboardService)
             : base(leaderboardService) { }
 
         public override async ValueTask<IEnumerable<DiscordAutoCompleteChoice>> AutoCompleteAsync(

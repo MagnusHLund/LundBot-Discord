@@ -9,9 +9,9 @@ namespace LundBot.Presentation.Api.Leaderboards
     [Route("api/[controller]")]
     public sealed class LeaderboardController : AbstractBaseController
     {
-        private readonly IAbstractLeaderboardService _leaderboardService;
+        private readonly ILeaderboardService _leaderboardService;
 
-        public LeaderboardController(IAbstractLeaderboardService leaderboardService)
+        public LeaderboardController(ILeaderboardService leaderboardService)
         {
             _leaderboardService = leaderboardService;
         }

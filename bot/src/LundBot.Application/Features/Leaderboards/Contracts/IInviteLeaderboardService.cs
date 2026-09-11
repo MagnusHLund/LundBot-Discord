@@ -3,7 +3,7 @@ using LundBot.Application.Discord.Users;
 
 namespace LundBot.Application.Features.Leaderboards.Contracts
 {
-    public interface IInviteLeaderboardService : IAbstractLeaderboardService
+    public interface IInviteLeaderboardService : ILeaderboardService
     {
         Task<bool> RegisterSuccessfullyInvitedUserAsync(
             DiscordGuildDto guild,
