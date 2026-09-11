@@ -55,7 +55,7 @@ namespace LundBot.Application.Features.MemberJoin
             _messageService.MessageFactory.SetJoinedUserId(member.UserId);
 
             string content = "Say Hi 👋";
-            string interactionId = $"welcome_hi:{member.UserId}";
+            string interactionId = $"memberJoin_hi:{member.UserId}";
             await _messageService.CreateMessageWithComponentsAsync(
                 welcomeMessage,
                 systemChannel,
