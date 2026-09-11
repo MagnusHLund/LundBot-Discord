@@ -1,4 +1,5 @@
 using LundBot.Presentation.Api.Common;
+using LundBot.Presentation.Api.Server.Dtos;
 using LundBot.Presentation.Config;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -23,7 +24,8 @@ namespace LundBot.Presentation.Api.Server
         {
             string version = _serverConfig.Version;
 
-            return Ok(new { status = "Healthy", version });
+            ServerHealthResponse response = new ServerHealthResponse { Status = "Healthy", Version = version };
+            return Ok(response);
         }
     }
 }

@@ -30,14 +30,14 @@ namespace LundBot.Presentation.Api.Bot
                 );
             }
 
-            return Ok(new { message = "Commands synchronized successfully." });
+            return NoContent();
         }
 
         [Authorize]
         [HttpDelete("unregister/all")]
-        public async Task<IActionResult> UnregisterAllCommands([FromQuery] bool global = false)
+        public async Task<IActionResult> UnregisterAllCommands([FromQuery] ulong? guildId = null)
         {
-            bool success = await _commandService.UnregisterAllCommands(global);
+            bool success = await _commandService.UnregisterAllCommands(guildId);
 
             if (!success)
             {
@@ -47,14 +47,17 @@ namespace LundBot.Presentation.Api.Bot
                 );
             }
 
-            return Ok(new { message = "All commands have been unregistered." });
+            return NoContent();
         }
 
         [Authorize]
-        [HttpDelete("unregister/{id}")]
-        public async Task<IActionResult> UnregisterCommand([FromRoute] ulong commandId, [FromQuery] bool global = false)
+        [HttpDelete("unregister/{commandId:ulong}")]
+        public async Task<IActionResult> UnregisterCommand(
+            [FromRoute] ulong commandId,
+            [FromQuery] ulong? guildId = null
+        )
         {
-            bool success = await _commandService.UnregisterCommand(commandId, global);
+            bool success = await _commandService.UnregisterCommand(commandId, guildId);
 
             if (!success)
             {
@@ -64,7 +67,7 @@ namespace LundBot.Presentation.Api.Bot
                 );
             }
 
-            return Ok(new { message = $"Command with ID {commandId} has been unregistered." });
+            return NoContent();
         }
     }
 }

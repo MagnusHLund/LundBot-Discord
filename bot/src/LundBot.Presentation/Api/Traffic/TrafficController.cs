@@ -32,12 +32,12 @@ namespace LundBot.Presentation.Api.Traffic
             string ipAddress = GetRequestorIpAddress(Request);
             bool success = await _websiteTrafficService.RegisterWebsiteVisitAsync(ipAddress);
 
-            if (success)
+            if (!success)
             {
-                return Ok(new { message = "Website visit registered successfully." });
+                return StatusCode(StatusCodes.Status500InternalServerError);
             }
 
-            return StatusCode(StatusCodes.Status500InternalServerError);
+            return NoContent();
         }
 
         [HttpPost("invite-click")]
@@ -46,12 +46,12 @@ namespace LundBot.Presentation.Api.Traffic
             string ipAddress = GetRequestorIpAddress(Request);
             bool success = await _websiteTrafficService.RegisterInviteLinkClickAsync(ipAddress);
 
-            if (success)
+            if (!success)
             {
-                return Ok(new { message = "Invite link click registered successfully." });
+                return StatusCode(StatusCodes.Status500InternalServerError);
             }
 
-            return StatusCode(StatusCodes.Status500InternalServerError);
+            return NoContent();
         }
 
         private string GetRequestorIpAddress(HttpRequest request)
