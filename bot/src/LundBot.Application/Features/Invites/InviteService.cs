@@ -1,3 +1,4 @@
+using System.Collections.Concurrent;
 using LundBot.Application.Common.Caching;
 using LundBot.Application.Discord.Guilds;
 using LundBot.Application.Discord.Invites;
@@ -12,6 +13,8 @@ namespace LundBot.Application.Features.Invites
         private readonly IDiscordGuildService _discordGuildService;
         private readonly ICacheService _cacheService;
         private readonly IServiceProvider _serviceProvider;
+
+        private static readonly ConcurrentDictionary<ulong, SemaphoreSlim> _guildInviteLocks = new();
 
         private readonly ILogger _logger = Log.ForContext<InviteService>();
 
@@ -32,54 +35,64 @@ namespace LundBot.Application.Features.Invites
             DiscordUserDto invitedByUser
         )
         {
-            // Discord does not provide a direct way to know who invited a user, so we have to compare the invite uses before and after the user joined.
-            var newInvites = await _discordGuildService.GetGuildInvitesAsync(guild.GuildId);
+            SemaphoreSlim guildLock = _guildInviteLocks.GetOrAdd(guild.GuildId, _ => new SemaphoreSlim(1, 1));
 
-            var oldInvites =
-                _cacheService.Get<List<DiscordInviteDto>>(CacheKeys.GuildInvites(guild.GuildId))
-                ?? new List<DiscordInviteDto>();
-
-            DiscordInviteDto? usedInvite = newInvites.FirstOrDefault(newInvite =>
-                oldInvites.Any(oldInvite =>
-                    oldInvite.InviteCode == newInvite.InviteCode && newInvite.Uses > oldInvite.Uses
-                )
-            );
-
-            // Update cache
-            _cacheService.Set(CacheKeys.GuildInvites(guild.GuildId), newInvites.ToList());
-
-            if (usedInvite is null)
+            await guildLock.WaitAsync();
+            try
             {
-                _logger.Information(
-                    "User {UserName} ({UserId}) joined guild {GuildName} ({GuildId}) but no invite was used.",
-                    userJoined.Username,
-                    userJoined.UserId,
-                    guild.GuildName,
-                    guild.GuildId
+                // Discord does not provide a direct way to know who invited a user, so we have to compare the invite uses before and after the user joined.
+                var newInvites = await _discordGuildService.GetGuildInvitesAsync(guild.GuildId);
+
+                var oldInvites =
+                    _cacheService.Get<List<DiscordInviteDto>>(CacheKeys.GuildInvites(guild.GuildId))
+                    ?? new List<DiscordInviteDto>();
+
+                DiscordInviteDto? usedInvite = newInvites.FirstOrDefault(newInvite =>
+                    oldInvites.Any(oldInvite =>
+                        oldInvite.InviteCode == newInvite.InviteCode && newInvite.Uses > oldInvite.Uses
+                    )
                 );
 
-                return false;
+                // Update cache
+                _cacheService.Set(CacheKeys.GuildInvites(guild.GuildId), newInvites.ToList());
+
+                if (usedInvite is null)
+                {
+                    _logger.Information(
+                        "User {UserName} ({UserId}) joined guild {GuildName} ({GuildId}) but no invite was used.",
+                        userJoined.Username,
+                        userJoined.UserId,
+                        guild.GuildName,
+                        guild.GuildId
+                    );
+
+                    return false;
+                }
+                if (usedInvite.Inviter is null)
+                {
+                    _logger.Information(
+                        "User {UserName} ({UserId}) joined guild {GuildName} ({GuildId}) using invite code {InviteCode} but the inviter is unknown.",
+                        userJoined.Username,
+                        userJoined.UserId,
+                        guild.GuildName,
+                        guild.GuildId,
+                        usedInvite.InviteCode
+                    );
+
+                    return false;
+                }
+
+                DiscordUserDto inviter = usedInvite.Inviter;
+
+                using var scope = _serviceProvider.CreateScope();
+                var leaderboardService = scope.ServiceProvider.GetRequiredService<IInviteLeaderboardService>();
+
+                return await leaderboardService.RegisterSuccessfullyInvitedUserAsync(guild, userJoined, inviter);
             }
-            if (usedInvite.Inviter is null)
+            finally
             {
-                _logger.Information(
-                    "User {UserName} ({UserId}) joined guild {GuildName} ({GuildId}) using invite code {InviteCode} but the inviter is unknown.",
-                    userJoined.Username,
-                    userJoined.UserId,
-                    guild.GuildName,
-                    guild.GuildId,
-                    usedInvite.InviteCode
-                );
-
-                return false;
+                guildLock.Release();
             }
-
-            DiscordUserDto inviter = usedInvite.Inviter;
-
-            using var scope = _serviceProvider.CreateScope();
-            var leaderboardService = scope.ServiceProvider.GetRequiredService<IInviteLeaderboardService>();
-
-return await leaderboardService.RegisterSuccessfullyInvitedUserAsync(guild, userJoined, inviter);
         }
     }
 }
