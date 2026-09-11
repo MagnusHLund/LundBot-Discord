@@ -43,9 +43,12 @@ namespace LundBot.Presentation.Discord.Events
                 else
                 {
                     _logger.Warning("Cannot send error response because the context is null.");
+                }
+            }
             catch (Exception ex)
             {
                 _logger.Error(ex, "Unhandled exception while attempting to send an error response to the user.");
             }
+        }
     }
 }

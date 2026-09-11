@@ -1,8 +1,16 @@
 <Project>
   <PropertyGroup>
+    <!-- Default build root for Unix-like systems -->
     <LundBotBuildRoot>/tmp/lundbot-build</LundBotBuildRoot>
+
+    <!-- Windows-specific build root -->
+    <LundBotBuildRoot Condition="$([MSBuild]::IsOSPlatform('Windows'))">$(TEMP)/lundbot-build</LundBotBuildRoot>
+
     <BaseOutputPath>$(LundBotBuildRoot)/bin/$(MSBuildProjectName)/</BaseOutputPath>
     <BaseIntermediateOutputPath>$(LundBotBuildRoot)/obj/$(MSBuildProjectName)/</BaseIntermediateOutputPath>
+
     <AppendTargetFrameworkToOutputPath>true</AppendTargetFrameworkToOutputPath>
+    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+    <GenerateTargetFrameworkAttribute>false</GenerateTargetFrameworkAttribute>
   </PropertyGroup>
 </Project>

@@ -2,7 +2,6 @@ using DSharpPlus;
 using DSharpPlus.EventArgs;
 using LundBot.Application.Common.Bot;
 using LundBot.Application.Discord.Guilds;
-using LundBot.Infrastructure.Discord.Guilds.Mappings;
 
 namespace LundBot.Presentation.Discord.Events
 {
@@ -21,7 +20,7 @@ namespace LundBot.Presentation.Discord.Events
         {
             _logger.Information("Guild created: {GuildName} ({GuildId})", eventArgs.Guild.Name, eventArgs.Guild.Id);
 
-            DiscordGuildDto guild = eventArgs.Guild.Map();
+            DiscordGuildDto guild = new DiscordGuildDto(eventArgs.Guild.Id, eventArgs.Guild.Name);
             return RefreshCommandsForGuildAsync(guild);
         }
 

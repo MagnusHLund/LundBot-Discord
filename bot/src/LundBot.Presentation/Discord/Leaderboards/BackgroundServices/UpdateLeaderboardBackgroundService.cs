@@ -1,4 +1,5 @@
 using LundBot.Application.Features.Leaderboards;
+using LundBot.Application.Features.Leaderboards.Contracts;
 
 namespace LundBot.Presentation.Discord.Leaderboards.BackgroundServices
 {

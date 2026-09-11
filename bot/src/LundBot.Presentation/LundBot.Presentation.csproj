@@ -27,6 +27,14 @@
     <PackageReference Include="Serilog.Sinks.File" Version="7.0.0" />
   </ItemGroup>
 
+    <!-- DSharpPlus packages -->
+  <ItemGroup>
+    <PackageReference Include="DSharpPlus" Version="5.0.0-nightly-02602" />
+    <PackageReference Include="DSharpPlus.Commands" Version="5.0.0-nightly-02602" />
+    <PackageReference Include="DSharpPlus.Interactivity" Version="5.0.0-nightly-02602" />
+  </ItemGroup>
+
+
   <!-- Remove default logging -->
   <ItemGroup>
     <Using Remove="Microsoft.Extensions.Logging" />
@@ -35,6 +43,8 @@
   <!-- Project references -->
   <ItemGroup>
     <ProjectReference Include="..\LundBot.Application\LundBot.Application.csproj" />
+
+    <!-- Infrastructure is not allowed to be used by the presentation layer. It is only here for design-time purposes. The exception being usage within Program.cs only. -->
     <ProjectReference Include="..\LundBot.Infrastructure\LundBot.Infrastructure.csproj" />
   </ItemGroup>
 

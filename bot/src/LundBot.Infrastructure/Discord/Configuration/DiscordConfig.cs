@@ -1,11 +1,7 @@
 namespace LundBot.Infrastructure.Discord.Configuration
 {
-    public sealed class DiscordConfig
+    public sealed class DiscordIntegrationConfig
     {
         public string Token { get; set; } = string.Empty;
-        public List<ulong> FastUpdateGuildIds { get; set; } = new List<ulong>();
-        public ulong WebTrafficChannelId { get; set; } = 0;
-        public ulong RoleIdToAutoKick { get; set; } = 0;
-        public bool ShouldRegisterGlobalCommands { get; set; } = false;
     }
 }

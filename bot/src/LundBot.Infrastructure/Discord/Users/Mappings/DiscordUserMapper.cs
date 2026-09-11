@@ -7,7 +7,7 @@ namespace LundBot.Infrastructure.Discord.Users.Mappings
     {
         public static DiscordUserDto Map(this DiscordUser user)
         {
-            return new DiscordUserDto(userId: user.Id, username: user.Username);
+            return new DiscordUserDto(userId: user.Id, username: user.Username, globalName: user.GlobalName);
         }
     }
 }

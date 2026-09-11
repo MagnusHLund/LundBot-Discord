@@ -3,8 +3,7 @@ using DSharpPlus.Commands;
 using DSharpPlus.Commands.Processors.SlashCommands.ArgumentModifiers;
 using DSharpPlus.Entities;
 using LundBot.Application.Discord.Users;
-using LundBot.Application.Features.Leaderboards;
-using LundBot.Infrastructure.Discord.Users.Mappings;
+using LundBot.Application.Features.Leaderboards.Contracts;
 using LundBot.Presentation.Discord.Bot;
 using LundBot.Presentation.Discord.Interactions;
 using LundBot.Presentation.Discord.Leaderboards.AutoCompletes;
@@ -13,15 +12,15 @@ namespace LundBot.Presentation.Discord.Leaderboards.Commands
 {
     public sealed class UpvoteUserOnLeaderboardCommand : AbstractBaseCommand
     {
-        private readonly ILeaderboardService _leaderboardService;
+        private readonly IUpvoteLeaderboardService _upvoteLeaderboardService;
 
         public UpvoteUserOnLeaderboardCommand(
             IDiscordInteractionService discordInteractionService,
-            ILeaderboardService leaderboardService
+            IUpvoteLeaderboardService leaderboardService
         )
             : base(discordInteractionService)
         {
-            _leaderboardService = leaderboardService;
+            _upvoteLeaderboardService = leaderboardService;
         }
 
         [Command("upvote")]
@@ -40,7 +39,11 @@ namespace LundBot.Presentation.Discord.Leaderboards.Commands
                 return;
             }
 
-            DiscordUserDto userUpvoting = context.User.Map();
+            DiscordUserDto userUpvoting = new DiscordUserDto(
+                context.User.Id,
+                context.User.Username,
+                context.User.GlobalName
+            );
 
             if (userUpvoting.UserId == user.Id)
             {
@@ -48,11 +51,11 @@ namespace LundBot.Presentation.Discord.Leaderboards.Commands
                 return;
             }
 
-            DiscordUserDto targetUser = user.Map();
+            DiscordUserDto targetUser = new DiscordUserDto(user.Id, user.Username, user.GlobalName);
 
             await TaskWithErrorHandlingAsync(
                 context,
-                () => _leaderboardService.UpvoteUserOnLeaderboardAsync(channelId, userUpvoting, targetUser),
+                () => _upvoteLeaderboardService.UpvoteUserAsync(channelId, userUpvoting, targetUser),
                 $"You have successfully upvoted {targetUser.Username} on the leaderboard in <#{channelId}>."
             );
         }

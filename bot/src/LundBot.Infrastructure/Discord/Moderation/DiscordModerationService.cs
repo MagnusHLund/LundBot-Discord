@@ -14,7 +14,7 @@ namespace LundBot.Infrastructure.Discord.Moderation
             _discordClient = discordClient;
         }
 
-        public async Task<bool> KickMemberAsync(ulong memberId, ulong guildId)
+        public async Task<bool> KickMemberAsync(ulong memberId, ulong guildId, string reason)
         {
             _logger.Information("Kicking member {MemberId} from guild {GuildId}...", memberId, guildId);
 
@@ -23,7 +23,7 @@ namespace LundBot.Infrastructure.Discord.Moderation
                 var guild = await _discordClient.GetGuildAsync(guildId);
                 var member = await guild.GetMemberAsync(memberId);
 
-                await member.RemoveAsync();
+                await member.RemoveAsync(reason);
 
                 return true;
             }

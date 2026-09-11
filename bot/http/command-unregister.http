@@ -4,24 +4,24 @@
 
 ### Unregister single command for global scope
 
-DELETE {{LundBot_HostAddress}}/api/command/unregister/{{command_id}}?global=true
+DELETE {{LundBot_HostAddress}}/api/command/unregister/{{command_id}}
 Accept: application/json
 Authorization: Bearer {{api_key}}
 
 ### Unregister  single command for all fast update guilds
 
-DELETE {{LundBot_HostAddress}}/api/command/unregister/{{command_id}}?global=false
+DELETE {{LundBot_HostAddress}}/api/command/unregister/{{command_id}}
 Accept: application/json
 Authorization: Bearer {{api_key}}
 
 ### Unregister all commands for global scope
 
-DELETE {{LundBot_HostAddress}}/api/command/unregister/all?global=true
+DELETE {{LundBot_HostAddress}}/api/command/unregister/all
 Accept: application/json
 Authorization: Bearer {{api_key}}
 
 ### Unregister all commands for all fast update guilds
 
-DELETE {{LundBot_HostAddress}}/api/command/unregister/all?global=false
+DELETE {{LundBot_HostAddress}}/api/command/unregister/all
 Accept: application/json
 Authorization: Bearer {{api_key}}

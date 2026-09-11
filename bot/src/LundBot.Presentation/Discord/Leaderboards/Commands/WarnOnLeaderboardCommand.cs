@@ -4,8 +4,7 @@ using DSharpPlus.Commands.ContextChecks;
 using DSharpPlus.Commands.Processors.SlashCommands.ArgumentModifiers;
 using DSharpPlus.Entities;
 using LundBot.Application.Discord.Users;
-using LundBot.Application.Features.Leaderboards;
-using LundBot.Infrastructure.Discord.Users.Mappings;
+using LundBot.Application.Features.Leaderboards.Contracts;
 using LundBot.Presentation.Discord.Bot;
 using LundBot.Presentation.Discord.Interactions;
 using LundBot.Presentation.Discord.Leaderboards.AutoCompletes;
@@ -14,15 +13,15 @@ namespace LundBot.Presentation.Discord.Leaderboards.Commands
 {
     public sealed class WarnOnLeaderboardCommand : AbstractBaseCommand
     {
-        private readonly ILeaderboardService _leaderboardService;
+        private readonly IWarnLeaderboardService _warnLeaderboardService;
 
         public WarnOnLeaderboardCommand(
-            ILeaderboardService leaderboardService,
+            IWarnLeaderboardService leaderboardService,
             IDiscordInteractionService discordInteractionService
         )
             : base(discordInteractionService)
         {
-            _leaderboardService = leaderboardService;
+            _warnLeaderboardService = leaderboardService;
         }
 
         [RequirePermissions(DiscordPermission.Administrator)]
@@ -42,11 +41,11 @@ namespace LundBot.Presentation.Discord.Leaderboards.Commands
                 return;
             }
 
-            DiscordUserDto targetUser = user.Map();
+            DiscordUserDto targetUser = new DiscordUserDto(user.Id, user.Username, user.GlobalName);
 
             await TaskWithErrorHandlingAsync(
                 context,
-                () => _leaderboardService.RegisterWarningOnLeaderboardAsync(channelId, targetUser),
+                () => _warnLeaderboardService.RegisterWarningAsync(channelId, context.User.Id, user.Id),
                 $"Registered a warning for {targetUser.Username} on the leaderboard in <#{channelId}>."
             );
         }

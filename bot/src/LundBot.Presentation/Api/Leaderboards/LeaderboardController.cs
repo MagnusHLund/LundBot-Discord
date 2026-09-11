@@ -1,9 +1,7 @@
-using LundBot.Application.Features.Leaderboards;
+using LundBot.Application.Features.Leaderboards.Contracts;
 using LundBot.Presentation.Api.Common;
-using LundBot.Presentation.Config;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Options;
 
 namespace LundBot.Presentation.Api.Leaderboards
 {
@@ -13,11 +11,7 @@ namespace LundBot.Presentation.Api.Leaderboards
     {
         private readonly ILeaderboardService _leaderboardService;
 
-        public LeaderboardController(
-            IOptions<DeveloperEnvironmentConfig> devConfig,
-            ILeaderboardService leaderboardService
-        )
-            : base(devConfig)
+        public LeaderboardController(ILeaderboardService leaderboardService)
         {
             _leaderboardService = leaderboardService;
         }
@@ -30,10 +24,13 @@ namespace LundBot.Presentation.Api.Leaderboards
 
             if (!success)
             {
-                return StatusCode(500, "Failed to refresh leaderboard.");
+                return StatusCode(
+                    StatusCodes.Status500InternalServerError,
+                    new { message = "Failed to refresh leaderboard." }
+                );
             }
 
-            return Ok("Leaderboard refreshed successfully.");
+            return NoContent();
         }
     }
 }

@@ -1,47 +1,9 @@
-using LundBot.Infrastructure.Utils;
-using LundBot.Presentation.Config;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Options;
-using Microsoft.Extensions.Primitives;
 
 namespace LundBot.Presentation.Api.Common
 {
     public abstract class AbstractBaseController : ControllerBase
     {
-        private readonly DeveloperEnvironmentConfig _devConfig;
-
-        public AbstractBaseController(IOptions<DeveloperEnvironmentConfig> devConfig)
-        {
-            _devConfig = devConfig.Value;
-        }
-
-        private protected string GetRequestorIpAddress(HttpRequest request)
-        {
-            if (EnvironmentUtils.IsDevelopment() && _devConfig.GenerateIpAddresses)
-            {
-                Random random = new Random();
-                return $"{random.Next(1, 256)}.{random.Next(0, 256)}.{random.Next(0, 256)}.{random.Next(1, 255)}";
-            }
-
-            if (
-                request.Headers.TryGetValue("X-Forwarded-For", out StringValues forwarded)
-                && !StringValues.IsNullOrEmpty(forwarded)
-            )
-            {
-                string? first = forwarded.ToString().Split(',').Select(s => s.Trim()).FirstOrDefault();
-                if (!string.IsNullOrEmpty(first))
-                {
-                    return first;
-                }
-            }
-
-            var remoteIp = request.HttpContext.Connection.RemoteIpAddress;
-            if (remoteIp != null)
-            {
-                return remoteIp.ToString();
-            }
-
-            return "0.0.0.0";
-        }
+        public AbstractBaseController() { }
     }
 }

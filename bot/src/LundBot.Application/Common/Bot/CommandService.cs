@@ -6,15 +6,11 @@ namespace LundBot.Application.Common.Bot
     {
         private readonly IDiscordCommandService _discordCommandService;
 
+        private readonly ILogger _logger = Log.ForContext<CommandService>();
+
         public CommandService(IDiscordCommandService discordCommandService)
         {
             _discordCommandService = discordCommandService;
-        }
-
-        public Task LogRegisteredCommandsForGuildsAsync()
-        {
-            // TODO: Not actually implemented. This Method is required to be implemented to startup the application.
-            return Task.CompletedTask;
         }
 
         public async Task<bool> RefreshCommandsAsync()
@@ -22,20 +18,24 @@ namespace LundBot.Application.Common.Bot
             return await _discordCommandService.RefreshCommandsAsync();
         }
 
-        public Task<bool> RegisterCommandsAsync()
+        public async Task<bool> UnregisterAllCommands(ulong? guildId = null)
         {
-            // TODO: Not actually implemented. This Method is required to be implemented to startup the application.
-            return Task.FromResult(true);
+            if (guildId is null)
+            {
+                return await _discordCommandService.DeleteAllGlobalApplicationCommandsAsync();
+            }
+
+            return await _discordCommandService.DeleteAllGuildApplicationCommandsAsync(guildId.Value);
         }
 
-        public Task<bool> UnregisterAllCommands(bool global = false)
+        public async Task<bool> UnregisterCommand(ulong commandId, ulong? guildId = null)
         {
-            throw new NotImplementedException();
-        }
+            if (guildId is null)
+            {
+                return await _discordCommandService.DeleteGlobalApplicationCommandAsync(commandId);
+            }
 
-        public Task<bool> UnregisterCommand(string commandId, bool global = false)
-        {
-            throw new NotImplementedException();
+            return await _discordCommandService.DeleteGuildApplicationCommandAsync(guildId.Value, commandId);
         }
     }
 }

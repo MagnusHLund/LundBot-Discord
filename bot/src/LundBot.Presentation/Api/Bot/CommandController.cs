@@ -1,9 +1,7 @@
 using LundBot.Application.Common.Bot;
 using LundBot.Presentation.Api.Common;
-using LundBot.Presentation.Config;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Options;
 
 namespace LundBot.Presentation.Api.Bot
 {
@@ -13,8 +11,7 @@ namespace LundBot.Presentation.Api.Bot
     {
         private readonly ICommandService _commandService;
 
-        public CommandController(IOptions<DeveloperEnvironmentConfig> devConfig, ICommandService commandService)
-            : base(devConfig)
+        public CommandController(ICommandService commandService)
         {
             _commandService = commandService;
         }
@@ -33,14 +30,14 @@ namespace LundBot.Presentation.Api.Bot
                 );
             }
 
-            return Ok(new { message = "Commands synchronized successfully." });
+            return NoContent();
         }
 
         [Authorize]
         [HttpDelete("unregister/all")]
-        public async Task<IActionResult> UnregisterAllCommands([FromQuery] bool global = false)
+        public async Task<IActionResult> UnregisterAllCommands([FromQuery] ulong? guildId = null)
         {
-            bool success = await _commandService.UnregisterAllCommands(global);
+            bool success = await _commandService.UnregisterAllCommands(guildId);
 
             if (!success)
             {
@@ -50,24 +47,27 @@ namespace LundBot.Presentation.Api.Bot
                 );
             }
 
-            return Ok(new { message = "All commands have been unregistered." });
+            return NoContent();
         }
 
         [Authorize]
-        [HttpDelete("unregister/{id}")]
-        public async Task<IActionResult> UnregisterCommand([FromRoute] string id, [FromQuery] bool global = false)
+        [HttpDelete("unregister/{commandId}")]
+        public async Task<IActionResult> UnregisterCommand(
+            [FromRoute] ulong commandId,
+            [FromQuery] ulong? guildId = null
+        )
         {
-            bool success = await _commandService.UnregisterCommand(id, global);
+            bool success = await _commandService.UnregisterCommand(commandId, guildId);
 
             if (!success)
             {
                 return StatusCode(
                     StatusCodes.Status500InternalServerError,
-                    new { message = $"Failed to unregister command with ID {id}." }
+                    new { message = $"Failed to unregister command with ID {commandId}." }
                 );
             }
 
-            return Ok(new { message = $"Command with ID {id} has been unregistered." });
+            return NoContent();
         }
     }
 }

@@ -3,9 +3,8 @@ using DSharpPlus.Commands;
 using DSharpPlus.Commands.ArgumentModifiers;
 using DSharpPlus.Commands.ContextChecks;
 using DSharpPlus.Entities;
-using LundBot.Application.Features.Leaderboards;
+using LundBot.Application.Features.Leaderboards.Contracts;
 using LundBot.Domain.Leaderboards;
-using LundBot.Infrastructure.Utils;
 using LundBot.Presentation.Discord.Bot;
 using LundBot.Presentation.Discord.Interactions;
 

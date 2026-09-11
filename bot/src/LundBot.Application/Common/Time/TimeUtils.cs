@@ -1,4 +1,4 @@
-namespace LundBot.Infrastructure.Utils
+namespace LundBot.Application.Common.Time
 {
     public static class TimeUtils
     {

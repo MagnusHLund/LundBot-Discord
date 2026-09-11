@@ -32,6 +32,11 @@ namespace LundBot.Infrastructure.Discord.Messages
 
                 if (message is null || message.Channel is null || message.Author is null)
                 {
+                    _logger.Warning(
+                        "Message with ID {MessageId} not found in channel {ChannelId}.",
+                        messageId,
+                        channelId
+                    );
                     return null;
                 }
 
@@ -49,14 +54,32 @@ namespace LundBot.Infrastructure.Discord.Messages
             }
         }
 
-        public async Task<DiscordMessageDto?> SendMessageAsync(ulong channelId, string content)
+        public async Task<DiscordMessageDto?> SendMessageAsync(
+            ulong channelId,
+            DiscordMessageBuilderDto messageBuilderDto
+        )
         {
             _logger.Information("Sending message to channel {ChannelId}...", channelId);
 
             try
             {
+                DiscordMessageBuilder messageBuilder = DiscordMessageBuilderMapper.Map(messageBuilderDto);
+
+                if (messageBuilderDto.StickerIds is not null)
+                {
+                    List<Task<DiscordMessageSticker>> stickerTasks = new List<Task<DiscordMessageSticker>>();
+
+                    foreach (ulong sticker in messageBuilderDto.StickerIds)
+                    {
+                        stickerTasks.Add(_discordClient.GetStickerAsync(sticker));
+                    }
+
+                    DiscordMessageSticker[] stickers = await Task.WhenAll(stickerTasks);
+                    messageBuilder.WithStickers(stickers);
+                }
+
                 DiscordChannel channel = await _discordClient.GetChannelAsync(channelId);
-                DiscordMessage message = await channel.SendMessageAsync(content);
+                DiscordMessage message = await channel.SendMessageAsync(messageBuilder);
 
                 return message.Map();
             }

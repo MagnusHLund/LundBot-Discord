@@ -12,7 +12,7 @@ namespace LundBot.Presentation
 
             builder.AddLogger();
 
-            builder.Services.AddApplication();
+            builder.Services.AddApplication(builder.Configuration);
             builder.Services.AddPresentation(builder.Configuration);
             builder.Services.AddInfrastructure(builder.Configuration);
 

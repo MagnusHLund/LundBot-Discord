@@ -2,8 +2,8 @@ using System.Reflection;
 using DSharpPlus;
 using LundBot.Application.Common.Bot;
 using LundBot.Application.Discord.Bot;
-using LundBot.Infrastructure.Utils;
 using LundBot.Presentation.Config;
+using LundBot.Presentation.Discord.Commands;
 using Microsoft.Extensions.Options;
 
 namespace LundBot.Presentation.Discord.Bot
@@ -12,19 +12,25 @@ namespace LundBot.Presentation.Discord.Bot
     {
         private readonly ServerConfig _serverConfig;
         private readonly ICommandService _commandsService;
+        private readonly IHostEnvironment _hostEnvironment;
         private readonly IDiscordBotService _discordBotService;
+        private readonly IDiscordCommandRegistration _discordCommandRegistration;
 
         private readonly ILogger _logger = Log.ForContext<DiscordBotBackgroundService>();
 
         public DiscordBotBackgroundService(
             IOptions<ServerConfig> serverConfig,
             ICommandService commandsService,
-            IDiscordBotService discordBotService
+            IDiscordBotService discordBotService,
+            IDiscordCommandRegistration discordCommandRegistration,
+            IHostEnvironment hostEnvironment
         )
         {
             _serverConfig = serverConfig.Value;
             _commandsService = commandsService;
             _discordBotService = discordBotService;
+            _discordCommandRegistration = discordCommandRegistration;
+            _hostEnvironment = hostEnvironment;
         }
 
         protected override async Task ExecuteAsync(CancellationToken cancellationToken)
@@ -44,7 +50,7 @@ namespace LundBot.Presentation.Discord.Bot
             _logger.Information(
                 "Initializing Bot version {Version} in {Environment} mode... (DSharpPlus version: {DSharpPlusVersion})",
                 _serverConfig.Version,
-                EnvironmentUtils.GetEnvironment(),
+                _hostEnvironment.EnvironmentName,
                 dSharpPlusVersion
             );
 
@@ -53,7 +59,7 @@ namespace LundBot.Presentation.Discord.Bot
 
             do
             {
-                bool successRegisterCommands = await _commandsService.RegisterCommandsAsync();
+                bool successRegisterCommands = await _discordCommandRegistration.RegisterCommandsAsync();
                 bool successConnectToDiscord = await _discordBotService.ConnectToDiscordAsync();
 
                 retry = !successRegisterCommands || !successConnectToDiscord;
@@ -66,8 +72,6 @@ namespace LundBot.Presentation.Discord.Bot
                     await Task.Delay(GetDelay(retries));
                 }
             } while (retry);
-
-            await _commandsService.LogRegisteredCommandsForGuildsAsync();
 
             _logger.Information("Bot initialization is complete!");
         }

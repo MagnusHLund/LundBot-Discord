@@ -5,7 +5,7 @@ namespace LundBot.Application.Discord.Messages
     public interface IDiscordMessageService
     {
         Task<DiscordMessageDto?> GetMessageAsync(ulong messageId, ulong channelId);
-        Task<DiscordMessageDto?> SendMessageAsync(ulong channelId, string content);
+        Task<DiscordMessageDto?> SendMessageAsync(ulong channelId, DiscordMessageBuilderDto messageBuilderDto);
         Task<DiscordMessageDto?> SendMessageWithComponentsAsync(
             ulong channelId,
             string content,

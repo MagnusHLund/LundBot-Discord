@@ -9,7 +9,7 @@ using LundBot.Application.Discord.Moderation;
 using LundBot.Application.Discord.Roles;
 using LundBot.Application.Discord.Stickers;
 using LundBot.Application.Discord.Users;
-using LundBot.Application.Features.Leaderboards;
+using LundBot.Application.Features.Leaderboards.Contracts;
 using LundBot.Application.Features.MemberJoin;
 using LundBot.Application.Features.WebsiteTraffic;
 using LundBot.Infrastructure.Caching;
@@ -110,7 +110,7 @@ namespace LundBot.Infrastructure
             IConfiguration configuration
         )
         {
-            services.Configure<DiscordConfig>(configuration.GetSection("Discord"));
+            services.Configure<DiscordIntegrationConfig>(configuration.GetSection("Discord"));
 
             return services;
         }

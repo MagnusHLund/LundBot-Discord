@@ -1,8 +1,7 @@
 using LundBot.Application.Discord.Channels;
-using LundBot.Application.Discord.Users;
 using LundBot.Domain.Leaderboards;
 
-namespace LundBot.Application.Features.Leaderboards
+namespace LundBot.Application.Features.Leaderboards.Contracts
 {
     public interface ILeaderboardService
     {
@@ -12,15 +11,14 @@ namespace LundBot.Application.Features.Leaderboards
             string message,
             LeaderboardTypeEnum leaderboardType
         );
+
         Task<bool> RemoveLeaderboardAsync(ulong channelId);
-        Task<bool> UpvoteUserOnLeaderboardAsync(
-            ulong channelId,
-            DiscordUserDto userUpvoting,
-            DiscordUserDto targetUser
-        );
-        Task<bool> RegisterWarningOnLeaderboardAsync(ulong channelId, DiscordUserDto targetUser);
+
         Task<bool> RefreshLeaderboardAsync(ulong channelId, ulong guildId);
+
+        Task<bool> UpdateLeaderboardMessageAsync(Leaderboard leaderboard, DiscordChannelDto channel);
+
         ValueTask<List<Leaderboard>> GetLeaderboardsForGuildAsync(ulong guildId);
-        Task UpdateLeaderboardMessageAsync(Leaderboard leaderboard, DiscordChannelDto channel);
+        Task<Leaderboard> GetLeaderboardAsync(ulong channelId, ulong guildId);
     }
 }

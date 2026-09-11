@@ -2,9 +2,10 @@ using DSharpPlus;
 using DSharpPlus.Commands;
 using DSharpPlus.Extensions;
 using LundBot.Presentation.Api.Authentication;
-using LundBot.Presentation.Api.Bot.Middleware;
+using LundBot.Presentation.Api.Middleware;
 using LundBot.Presentation.Config;
 using LundBot.Presentation.Discord.Bot;
+using LundBot.Presentation.Discord.Commands;
 using LundBot.Presentation.Discord.Events;
 using LundBot.Presentation.Discord.Interactions;
 using LundBot.Presentation.Discord.Leaderboards.BackgroundServices;
@@ -22,7 +23,7 @@ namespace LundBot.Presentation
             services.AddConfiguration(configuration);
             services.AddDiscord(configuration);
 
-            services.AddAuthentication();
+            services.AddApiAuthentication();
 
             services.AddBackgroundServices();
             services.AddServices();
@@ -59,6 +60,8 @@ namespace LundBot.Presentation
             services.AddDiscordClient(discordToken, intents);
             services.AddCommandsExtension((ServiceProvider, extension) => { });
 
+            services.AddSingleton<IDiscordCommandRegistration, DiscordCommandRegistration>();
+
             return services;
         }
 
@@ -92,6 +95,8 @@ namespace LundBot.Presentation
         )
         {
             services.Configure<ServerConfig>(configuration.GetSection("Server"));
+            services.Configure<DiscordCommandConfig>(configuration.GetSection("Discord"));
+            services.Configure<DiscordKickConfig>(configuration.GetSection("Discord"));
             services.Configure<DeveloperEnvironmentConfig>(configuration.GetSection("DeveloperEnvironment"));
 
             return services;
@@ -105,7 +110,7 @@ namespace LundBot.Presentation
             return services;
         }
 
-        private static IServiceCollection AddAuthentication(this IServiceCollection services)
+        private static IServiceCollection AddApiAuthentication(this IServiceCollection services)
         {
             services
                 .AddAuthentication("ApiKey")

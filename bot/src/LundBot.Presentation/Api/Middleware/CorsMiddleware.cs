@@ -1,10 +1,11 @@
-using LundBot.Infrastructure.Utils;
+using Microsoft.Extensions.Primitives;
 
-namespace LundBot.Presentation.Api.Bot.Middleware
+namespace LundBot.Presentation.Api.Middleware
 {
     public sealed class CorsMiddleware
     {
         private readonly RequestDelegate _next;
+        private readonly IHostEnvironment _hostEnvironment;
 
         private static readonly HashSet<string> AllowedOrigins = new()
         {
@@ -13,9 +14,10 @@ namespace LundBot.Presentation.Api.Bot.Middleware
             "https://infinitewarfarecommunity.com",
         };
 
-        public CorsMiddleware(RequestDelegate next)
+        public CorsMiddleware(RequestDelegate next, IHostEnvironment hostEnvironment)
         {
             _next = next;
+            _hostEnvironment = hostEnvironment;
         }
 
         public async Task InvokeAsync(HttpContext context)
@@ -39,14 +41,14 @@ namespace LundBot.Presentation.Api.Bot.Middleware
             await _next(context).ConfigureAwait(false);
         }
 
-        private static bool IsOriginAllowed(string origin)
+        private bool IsOriginAllowed(string origin)
         {
             if (AllowedOrigins.Contains(origin))
             {
                 return true;
             }
 
-            if (EnvironmentUtils.IsDevelopment())
+            if (_hostEnvironment.IsDevelopment())
             {
                 return true;
             }

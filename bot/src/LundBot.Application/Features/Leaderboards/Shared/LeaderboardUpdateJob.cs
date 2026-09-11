@@ -1,7 +1,7 @@
 using LundBot.Application.Discord.Channels;
 using LundBot.Domain.Leaderboards;
 
-namespace LundBot.Application.Features.Leaderboards
+namespace LundBot.Application.Features.Leaderboards.Shared
 {
     public sealed class LeaderboardUpdateJob
     {

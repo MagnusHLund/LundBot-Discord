@@ -3,7 +3,7 @@ using DSharpPlus.Commands;
 using DSharpPlus.Commands.ContextChecks;
 using DSharpPlus.Commands.Processors.SlashCommands.ArgumentModifiers;
 using DSharpPlus.Entities;
-using LundBot.Application.Features.Leaderboards;
+using LundBot.Application.Features.Leaderboards.Contracts;
 using LundBot.Presentation.Discord.Bot;
 using LundBot.Presentation.Discord.Interactions;
 using LundBot.Presentation.Discord.Leaderboards.AutoCompletes;
