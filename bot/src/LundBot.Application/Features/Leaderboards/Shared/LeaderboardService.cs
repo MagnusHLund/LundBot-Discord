@@ -275,10 +275,7 @@ namespace LundBot.Application.Features.Leaderboards.Shared
 
             if (!doesLeaderboardExist)
             {
-                throw new CommandException(
-                    $"There is no leaderboard in <#{channelId}> to remove.",
-                    showMessageToUser: true
-                );
+                throw new CommandException($"There is no leaderboard in <#{channelId}>.", showMessageToUser: true);
             }
 
             return leaderboard!;
@@ -303,29 +300,42 @@ namespace LundBot.Application.Features.Leaderboards.Shared
             }
 
             int rank = 1;
-            foreach (var score in topScores)
+
+            foreach (LeaderboardScore score in topScores)
             {
-                DiscordMemberDto? member;
+                string? displayName;
+                string? username;
 
-                member = await _discordMemberService.GetMemberAsync(guildId, score.DiscordUserId);
+                DiscordMemberDto? member = await _discordMemberService.GetMemberAsync(score.DiscordUserId, guildId);
 
-                if (member is null)
+                if (member is not null)
                 {
-                    member = await _discordUserService.GetUserAsync(score.DiscordUserId) as DiscordMemberDto;
+                    displayName = member.DisplayName ?? member.GlobalName ?? member.Username;
 
-                    if (member is null)
+                    username = member.Username;
+                }
+                else
+                {
+                    DiscordUserDto? user = await _discordUserService.GetUserAsync(score.DiscordUserId);
+
+                    if (user is null)
                     {
                         _logger.Warning(
                             "Failed to retrieve Discord user with ID {DiscordUserId} for leaderboard score with ID {ScoreId}. Skipping this score.",
                             score.DiscordUserId,
                             score.Id
                         );
+
                         continue;
                     }
+
+                    displayName = user.GlobalName ?? user.Username;
+                    username = user.Username;
                 }
 
-                string displayName = member.DisplayName ?? member.GlobalName ?? member.Username;
-                sb.AppendLine($"{rank}. **{score.Score}** - **{displayName}** ({member.Username})");
+                string leaderboardEntry = $"{rank}. **{score.Score}** - **{displayName}** ({username})";
+
+                sb.AppendLine(leaderboardEntry);
                 rank++;
             }
 
