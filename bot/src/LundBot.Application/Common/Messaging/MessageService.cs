@@ -83,7 +83,20 @@ namespace LundBot.Application.Common.Messaging
                     continue;
                 }
 
-                await _discordMessageService.DeleteMessageAsync(discordMessage.MessageId, channelId);
+                bool wasDiscordMessageRemoved = await _discordMessageService.DeleteMessageAsync(
+                    discordMessage.MessageId,
+                    channelId
+                );
+
+                if (!wasDiscordMessageRemoved)
+                {
+                    _logger.Error(
+                        "Failed to delete message with ID {MessageId} in channel {ChannelId}.",
+                        discordMessage.MessageId,
+                        channelId
+                    );
+                    return false;
+                }
             }
 
             await _messageRepository.DeleteManyAsync(existing.Select(x => x.Id));
