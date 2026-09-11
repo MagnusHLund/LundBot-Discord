@@ -171,10 +171,22 @@ namespace LundBot.Application.Common.Messaging
                         channelId
                     );
 
-                    if (discordMessage is null)
+                    if (discordMessage is not null)
                     {
+                        await _discordMessageService.ModifyMessageAsync(
+                            discordMessage.MessageId,
+                            channelId,
+                            newContent
+                        );
+
                         continue;
                     }
+
+                    _logger.Warning(
+                        "Discord message with ID {MessageId} was not found in channel {ChannelId}. Creating a replacement.",
+                        existingMessage.DiscordMessageId,
+                        channelId
+                    );
 
                     DiscordMessageDto? replacement = await _discordMessageService.SendMessageAsync(
                         channelId,
@@ -188,17 +200,19 @@ namespace LundBot.Application.Common.Messaging
                             existingMessage.DiscordMessageId,
                             channelId
                         );
+
                         continue;
                     }
 
                     existingMessage.DiscordMessageId = replacement.MessageId;
-                    await _discordMessageService.ModifyMessageAsync(discordMessage.MessageId, channelId, newContent);
+
+                    await _messageRepository.UpdateAsync(existingMessage);
                 }
                 catch (Exception ex)
                 {
                     _logger.Warning(
                         ex,
-                        "Failed to update Discord message with ID {MessageId} in channel {ChannelId}. It may have been deleted or is inaccessible. Attempting to create a new message.",
+                        "Failed to synchronize Discord message with ID {MessageId} in channel {ChannelId}.",
                         existingMessage.DiscordMessageId,
                         channelId
                     );
