@@ -126,13 +126,22 @@ namespace LundBot.Application.Features.Leaderboards.Shared
                 channel.GuildId
             );
 
-            await _messageService.SynchronizeDiscordMessagesAsync(
+            bool syncResult = await _messageService.SynchronizeDiscordMessagesAsync(
                 leaderboardMessage,
                 Enumerable.Empty<LeaderboardMessage>(),
                 channel.ChannelId
             );
 
-            var existingLeaderboards = await GetLeaderboardsForGuildAsync(channel.GuildId);
+            if (!syncResult)
+            {
+                _logger.Warning(
+                    "Failed to synchronize leaderboard messages for channel {ChannelId} in guild {GuildId}.",
+                    channel.ChannelId,
+                    channel.GuildId
+                );
+            }
+
+            List<Leaderboard> existingLeaderboards = await GetLeaderboardsForGuildAsync(channel.GuildId);
             existingLeaderboards.Add(leaderboard);
 
             _cacheService.Update<List<Leaderboard>>(
@@ -210,9 +219,8 @@ namespace LundBot.Application.Features.Leaderboards.Shared
 
             var existingMessages = await _leaderboardMessageRepository.GetMessagesForLeaderboardAsync(leaderboard.Id);
 
-            await _leaderboardRepository.RemoveLeaderboardAsync(channelId, channel.GuildId);
-
-            await _messageService.DeleteMessagesForChannelAsync(existingMessages, channelId);
+            bool leaderboardRemoved = await _leaderboardRepository.RemoveLeaderboardAsync(channelId, channel.GuildId);
+            bool messagesDeleted = await _messageService.DeleteMessagesForChannelAsync(existingMessages, channelId);
 
             var existingLeaderboards = await GetLeaderboardsForGuildAsync(channel.GuildId);
             existingLeaderboards.RemoveAll(l => l.Id == leaderboard.Id);
@@ -221,7 +229,26 @@ namespace LundBot.Application.Features.Leaderboards.Shared
                 CacheKeys.LeaderboardsPerGuild(channel.GuildId),
                 _ => existingLeaderboards
             );
-            return true;
+
+            if (!leaderboardRemoved)
+            {
+                _logger.Warning(
+                    "Failed to remove leaderboard in channel {ChannelId} for server {GuildId}",
+                    channelId,
+                    channel.GuildId
+                );
+            }
+
+            if (!messagesDeleted)
+            {
+                _logger.Warning(
+                    "Failed to delete messages for leaderboard in channel {ChannelId} for server {GuildId}",
+                    channelId,
+                    channel.GuildId
+                );
+            }
+
+            return leaderboardRemoved && messagesDeleted;
         }
 
         public async ValueTask<List<Leaderboard>> GetLeaderboardsForGuildAsync(ulong guildId)
@@ -267,43 +294,21 @@ namespace LundBot.Application.Features.Leaderboards.Shared
             {
                 DiscordMemberDto? member;
 
-                try
-                {
-                    member = await _discordMemberService.GetMemberAsync(guildId, score.DiscordUserId);
-                }
-                catch (Exception ex)
-                {
-                    _logger.Warning(
-                        ex,
-                        "Failed to retrieve Discord member with ID {DiscordUserId} for leaderboard score with ID {ScoreId}. Trying to fetch User instead.",
-                        score.DiscordUserId,
-                        score.Id
-                    );
+                member = await _discordMemberService.GetMemberAsync(guildId, score.DiscordUserId);
 
-                    try
-                    {
-                        member = await _discordUserService.GetUserAsync(score.DiscordUserId) as DiscordMemberDto;
-                    }
-                    catch (Exception ex2)
+                if (member is null)
+                {
+                    member = await _discordUserService.GetUserAsync(score.DiscordUserId) as DiscordMemberDto;
+
+                    if (member is null)
                     {
                         _logger.Warning(
-                            ex2,
                             "Failed to retrieve Discord user with ID {DiscordUserId} for leaderboard score with ID {ScoreId}. Skipping this score.",
                             score.DiscordUserId,
                             score.Id
                         );
                         continue;
                     }
-                }
-
-                if (member is null)
-                {
-                    _logger.Warning(
-                        "Discord member with ID {DiscordUserId} for leaderboard score with ID {ScoreId} could not be found. Skipping this score.",
-                        score.DiscordUserId,
-                        score.Id
-                    );
-                    continue;
                 }
 
                 string displayName = member.DisplayName ?? member.GlobalName ?? member.Username;
@@ -348,8 +353,31 @@ namespace LundBot.Application.Features.Leaderboards.Shared
                 );
             }
 
-            await _leaderboardScoreSourceRepository.AddScoreAsync(userId, targetUserId, leaderboard.Id);
-            await _leaderboardScoreRepository.IncrementScoreAsync(targetUserId, leaderboard.Id);
+            bool addScoreResult = await _leaderboardScoreSourceRepository.AddScoreAsync(
+                userId,
+                targetUserId,
+                leaderboard.Id
+            );
+            bool incrementScoreResult = await _leaderboardScoreRepository.IncrementScoreAsync(
+                targetUserId,
+                leaderboard.Id
+            );
+
+            if (!addScoreResult)
+            {
+                throw new CommandException(
+                    $"Failed to add score for user with ID {targetUserId} in leaderboard with ID {leaderboard.Id}.",
+                    showMessageToUser: true
+                );
+            }
+
+            if (!incrementScoreResult)
+            {
+                throw new CommandException(
+                    $"Failed to increment score for user with ID {targetUserId} in leaderboard with ID {leaderboard.Id}.",
+                    showMessageToUser: true
+                );
+            }
 
             LeaderboardUpdateJob leaderboardUpdateJob = new LeaderboardUpdateJob
             {
