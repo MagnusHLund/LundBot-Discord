@@ -106,13 +106,21 @@ namespace LundBot.Application.Features.Leaderboards.Shared
                 }
             }
 
-            Leaderboard leaderboard = await _leaderboardRepository.CreateLeaderboardAsync(
+            Leaderboard? leaderboard = await _leaderboardRepository.CreateLeaderboardAsync(
                 channel.ChannelId,
                 channel.GuildId,
                 title,
                 message,
                 leaderboardType
             );
+
+            if (leaderboard is null)
+            {
+                throw new CommandException(
+                    $"Failed to create leaderboard in channel <#{channel.ChannelId}>.",
+                    showMessageToUser: true
+                );
+            }
 
             _messageService.MessageFactory.SetLeaderboardId(leaderboard.Id);
 

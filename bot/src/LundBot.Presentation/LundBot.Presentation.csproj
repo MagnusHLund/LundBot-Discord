@@ -35,11 +35,6 @@
   </ItemGroup>
 
 
-  <!-- Remove default logging -->
-  <ItemGroup>
-    <Using Remove="Microsoft.Extensions.Logging" />
-  </ItemGroup>
-
   <!-- Project references -->
   <ItemGroup>
     <ProjectReference Include="..\LundBot.Application\LundBot.Application.csproj" />

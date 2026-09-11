@@ -5,7 +5,7 @@ namespace LundBot.Application.Features.Leaderboards.Contracts
     public interface ILeaderboardRepository
     {
         Task<(bool, Leaderboard?)> DoesLeaderboardExistAsync(ulong channelId, ulong guildId);
-        Task<Leaderboard> CreateLeaderboardAsync(
+        Task<Leaderboard?> CreateLeaderboardAsync(
             ulong channelId,
             ulong guildId,
             string title,
