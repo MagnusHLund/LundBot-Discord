@@ -14,7 +14,7 @@ namespace LundBot.Infrastructure.Discord.Moderation
             _discordClient = discordClient;
         }
 
-        public async Task<bool> KickMemberAsync(ulong guildId, ulong memberId, string reason)
+        public async Task<bool> KickMemberAsync(ulong memberId, ulong guildId, string reason)
         {
             _logger.Information("Kicking member {MemberId} from guild {GuildId}...", memberId, guildId);
 
