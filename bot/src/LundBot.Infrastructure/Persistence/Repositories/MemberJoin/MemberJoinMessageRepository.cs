@@ -2,6 +2,7 @@ using LundBot.Application.Common.Exceptions;
 using LundBot.Application.Features.MemberJoin;
 using LundBot.Domain.MemberJoin;
 using Microsoft.EntityFrameworkCore;
+using MySqlConnector;
 
 namespace LundBot.Infrastructure.Persistence.Repositories.MemberJoin
 {
@@ -34,6 +35,12 @@ namespace LundBot.Infrastructure.Persistence.Repositories.MemberJoin
                 await _context.SaveChangesAsync();
                 return true;
             }
+            catch (DbUpdateException ex) when (IsUniqueConstraintViolation(ex))
+            {
+                _context.Entry(entity).State = EntityState.Detached;
+
+                return await UpdateExistingByDiscordUserIdAsync(entity, ex);
+            }
             catch (Exception ex)
             {
                 _logger.Error(ex, "Error creating MemberJoinMessage: {Entity}", entity);
@@ -41,11 +48,48 @@ namespace LundBot.Infrastructure.Persistence.Repositories.MemberJoin
             }
         }
 
+        private async Task<bool> UpdateExistingByDiscordUserIdAsync(MemberJoinMessage entity, Exception originalEx)
+        {
+            try
+            {
+                var existingEntity = await _context.MemberJoinMessages.SingleOrDefaultAsync(wm =>
+                    wm.DiscordUserId == entity.DiscordUserId
+                );
+
+                if (existingEntity is null)
+                {
+                    _logger.Error(
+                        originalEx,
+                        "Unique-key conflict creating MemberJoinMessage for DiscordUserId {DiscordUserId}, "
+                            + "but no existing row was found to update.",
+                        entity.DiscordUserId
+                    );
+
+                    return false;
+                }
+
+                existingEntity.DiscordMessageId = entity.DiscordMessageId;
+                await _context.SaveChangesAsync();
+                return true;
+            }
+            catch (Exception ex)
+            {
+                _logger.Error(ex, "Error updating MemberJoinMessage after unique-key conflict: {Entity}", entity);
+                return false;
+            }
+        }
+
+        private static bool IsUniqueConstraintViolation(DbUpdateException ex) =>
+            ex.InnerException is MySqlException { Number: 1062 };
+
         public async Task<bool> DeleteManyAsync(IEnumerable<int> ids)
         {
             try
             {
-                var entitiesToDelete = _context.MemberJoinMessages.Where(e => ids.Contains(e.Id));
+                List<MemberJoinMessage> entitiesToDelete = await _context
+                    .MemberJoinMessages.Where(e => ids.Contains(e.Id))
+                    .ToListAsync();
+
                 _context.MemberJoinMessages.RemoveRange(entitiesToDelete);
                 await _context.SaveChangesAsync();
                 return true;
@@ -86,8 +130,17 @@ namespace LundBot.Infrastructure.Persistence.Repositories.MemberJoin
 
         public async Task<bool> UpdateAsync(MemberJoinMessage entity)
         {
-            // Does not need implementation for MemberJoinMessage
-            throw new NotImplementedException();
+            try
+            {
+                _context.MemberJoinMessages.Update(entity);
+                await _context.SaveChangesAsync();
+                return true;
+            }
+            catch (Exception ex)
+            {
+                _logger.Error(ex, "Error updating MemberJoinMessage: {Entity}", entity);
+                return false;
+            }
         }
     }
 }

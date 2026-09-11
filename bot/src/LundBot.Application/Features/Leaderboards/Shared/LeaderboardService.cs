@@ -1,3 +1,4 @@
+using System.Collections.Concurrent;
 using System.Text;
 using LundBot.Application.Common.Caching;
 using LundBot.Application.Common.Exceptions;
@@ -28,6 +29,8 @@ namespace LundBot.Application.Features.Leaderboards.Shared
         private readonly int _topScoreLimit;
 
         private readonly ILogger _logger = Log.ForContext<LeaderboardService>();
+
+        private static readonly ConcurrentDictionary<ulong, SemaphoreSlim> _guildLeaderboardCreationLocks = new();
 
         public LeaderboardService(
             IDiscordUserService discordUserService,
@@ -78,41 +81,55 @@ namespace LundBot.Application.Features.Leaderboards.Shared
                 message
             );
 
-            var (doesLeaderboardExist, _) = await _leaderboardRepository.DoesLeaderboardExistAsync(
-                channel.ChannelId,
-                channel.GuildId
+            SemaphoreSlim guildLock = _guildLeaderboardCreationLocks.GetOrAdd(
+                channel.GuildId,
+                _ => new SemaphoreSlim(1, 1)
             );
+            await guildLock.WaitAsync();
 
-            if (doesLeaderboardExist)
-            {
-                throw new CommandException(
-                    $"There can only be one leaderboard per channel. <#{channel.ChannelId}> already has a leaderboard.",
-                    showMessageToUser: true
-                );
-            }
+            Leaderboard? leaderboard;
 
-            if (leaderboardType == LeaderboardTypeEnum.Invite)
+            try
             {
-                var (inviteLeaderboardExists, _) = await _leaderboardRepository.DoesInviteLeaderboardExistOnServerAsync(
+                var (doesLeaderboardExist, _) = await _leaderboardRepository.DoesLeaderboardExistAsync(
+                    channel.ChannelId,
                     channel.GuildId
                 );
 
-                if (inviteLeaderboardExists)
+                if (doesLeaderboardExist)
                 {
                     throw new CommandException(
-                        $"There can only be one invite leaderboard per server. <#{channel.GuildId}> already has an invite leaderboard.",
+                        $"There can only be one leaderboard per channel. <#{channel.ChannelId}> already has a leaderboard.",
                         showMessageToUser: true
                     );
                 }
-            }
 
-            Leaderboard? leaderboard = await _leaderboardRepository.CreateLeaderboardAsync(
-                channel.ChannelId,
-                channel.GuildId,
-                title,
-                message,
-                leaderboardType
-            );
+                if (leaderboardType == LeaderboardTypeEnum.Invite)
+                {
+                    var (inviteLeaderboardExists, _) =
+                        await _leaderboardRepository.DoesInviteLeaderboardExistOnServerAsync(channel.GuildId);
+
+                    if (inviteLeaderboardExists)
+                    {
+                        throw new CommandException(
+                            $"There can only be one invite leaderboard per server. <#{channel.GuildId}> already has an invite leaderboard.",
+                            showMessageToUser: true
+                        );
+                    }
+                }
+
+                leaderboard = await _leaderboardRepository.CreateLeaderboardAsync(
+                    channel.ChannelId,
+                    channel.GuildId,
+                    title,
+                    message,
+                    leaderboardType
+                );
+            }
+            finally
+            {
+                guildLock.Release();
+            }
 
             if (leaderboard is null)
             {
@@ -140,10 +157,13 @@ namespace LundBot.Application.Features.Leaderboards.Shared
             if (!syncResult)
             {
                 _logger.Warning(
-                    "Failed to synchronize leaderboard messages for channel {ChannelId} in guild {GuildId}.",
+                    "Failed to synchronize leaderboard messages for channel {ChannelId} in guild {GuildId}. Rolling back leaderboard creation so the operation can be retried.",
                     channel.ChannelId,
                     channel.GuildId
                 );
+
+                await _leaderboardRepository.RemoveLeaderboardAsync(channel.ChannelId, channel.GuildId);
+
                 return false;
             }
 
@@ -225,8 +245,20 @@ namespace LundBot.Application.Features.Leaderboards.Shared
 
             var existingMessages = await _leaderboardMessageRepository.GetMessagesForLeaderboardAsync(leaderboard.Id);
 
-            bool leaderboardRemoved = await _leaderboardRepository.RemoveLeaderboardAsync(channelId, channel.GuildId);
             bool messagesDeleted = await _messageService.DeleteMessagesForChannelAsync(existingMessages, channelId);
+
+            if (!messagesDeleted)
+            {
+                _logger.Warning(
+                    "Failed to delete messages for leaderboard in channel {ChannelId} for server {GuildId}. Leaving leaderboard in place so the operation can be retried.",
+                    channelId,
+                    channel.GuildId
+                );
+
+                return false;
+            }
+
+            bool leaderboardRemoved = await _leaderboardRepository.RemoveLeaderboardAsync(channelId, channel.GuildId);
 
             var existingLeaderboards = await GetLeaderboardsForGuildAsync(channel.GuildId);
             existingLeaderboards.RemoveAll(l => l.Id == leaderboard.Id);
@@ -245,16 +277,7 @@ namespace LundBot.Application.Features.Leaderboards.Shared
                 );
             }
 
-            if (!messagesDeleted)
-            {
-                _logger.Warning(
-                    "Failed to delete messages for leaderboard in channel {ChannelId} for server {GuildId}",
-                    channelId,
-                    channel.GuildId
-                );
-            }
-
-            return leaderboardRemoved && messagesDeleted;
+            return leaderboardRemoved;
         }
 
         public async ValueTask<List<Leaderboard>> GetLeaderboardsForGuildAsync(ulong guildId)

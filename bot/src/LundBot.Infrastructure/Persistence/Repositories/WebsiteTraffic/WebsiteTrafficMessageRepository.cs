@@ -35,7 +35,7 @@ namespace LundBot.Infrastructure.Persistence.Repositories.WebsiteTraffic
         )
         {
             return await _context
-                .WebsiteTrafficMessages.Where(w => w.CreatedAt >= startDate && w.CreatedAt <= endDate)
+                .WebsiteTrafficMessages.Where(w => w.CreatedAt >= startDate && w.CreatedAt < endDate)
                 .ToListAsync();
         }
 

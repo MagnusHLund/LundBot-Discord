@@ -1,4 +1,5 @@
 using LundBot.Application.Common.Caching;
+using LundBot.Application.Common.Persistence;
 using LundBot.Application.Discord.Bot;
 using LundBot.Application.Discord.Channels;
 using LundBot.Application.Discord.Commands;
@@ -90,6 +91,8 @@ namespace LundBot.Infrastructure
 
         private static IServiceCollection AddRepositories(this IServiceCollection services)
         {
+            services.AddScoped<IUnitOfWork, UnitOfWork>();
+
             services.AddScoped<ILeaderboardScoreSourceRepository, LeaderboardScoreSourceRepository>();
             services.AddScoped<IWebsiteTrafficMessageRepository, WebsiteTrafficMessageRepository>();
             services.AddScoped<ILeaderboardMessageRepository, LeaderboardMessageRepository>();

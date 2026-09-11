@@ -1,4 +1,5 @@
 using LundBot.Application.Common.Exceptions;
+using LundBot.Application.Common.Persistence;
 using LundBot.Application.Discord.Channels;
 using LundBot.Application.Discord.Users;
 using LundBot.Application.Features.Leaderboards.Contracts;
@@ -10,7 +11,6 @@ namespace LundBot.Application.Features.Leaderboards.Types
     public sealed class UpvoteLeaderboardService : AbstractLeaderboardService, IUpvoteLeaderboardService
     {
         private readonly IDiscordChannelService _discordChannelService;
-        private readonly ILeaderboardScoreSourceRepository _leaderboardScoreSourceRepository;
 
         private readonly ILogger _logger = Log.ForContext<UpvoteLeaderboardService>();
 
@@ -19,18 +19,19 @@ namespace LundBot.Application.Features.Leaderboards.Types
             ILeaderboardQueue leaderboardQueue,
             ILeaderboardScoreRepository leaderboardScoreRepository,
             ILeaderboardScoreSourceRepository leaderboardScoreSourceRepository,
-            ILeaderboardService leaderboardService
+            ILeaderboardService leaderboardService,
+            IUnitOfWork unitOfWork
         )
             : base(
                 discordChannelService,
                 leaderboardQueue,
                 leaderboardScoreRepository,
                 leaderboardScoreSourceRepository,
-                leaderboardService
+                leaderboardService,
+                unitOfWork
             )
         {
             _discordChannelService = discordChannelService;
-            _leaderboardScoreSourceRepository = leaderboardScoreSourceRepository;
         }
 
         public async Task<bool> UpvoteUserAsync(ulong channelId, DiscordUserDto userUpvoting, DiscordUserDto targetUser)
@@ -58,13 +59,9 @@ namespace LundBot.Application.Features.Leaderboards.Types
                 );
             }
 
-            bool hasAlreadyUpvoted = await _leaderboardScoreSourceRepository.HasUserGivenScoreToTargetAsync(
-                userUpvoting.UserId,
-                targetUser.UserId,
-                leaderboard.Id
-            );
+            bool wasScoreAdded = await TryAddScoreOnceToLeaderboardAsync(userUpvoting.UserId, targetUser.UserId, leaderboard);
 
-            if (hasAlreadyUpvoted)
+            if (!wasScoreAdded)
             {
                 throw new CommandException(
                     $"You have already upvoted {targetUser.Username} on the leaderboard in <#{channelId}>.",
@@ -72,7 +69,6 @@ namespace LundBot.Application.Features.Leaderboards.Types
                 );
             }
 
-            await AddScoreToLeaderboardAsync(userUpvoting.UserId, targetUser.UserId, leaderboard);
             return true;
         }
     }

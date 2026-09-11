@@ -1,6 +1,7 @@
 using LundBot.Application.Common.Bot;
 using LundBot.Application.Common.Caching;
 using LundBot.Application.Common.Messaging;
+using LundBot.Application.Common.Persistence;
 using LundBot.Application.Discord.Channels;
 using LundBot.Application.Discord.Members;
 using LundBot.Application.Discord.Roles;
@@ -77,7 +78,8 @@ namespace LundBot.Application
                 serviceProvider.GetRequiredService<ILeaderboardScoreRepository>(),
                 serviceProvider.GetRequiredService<IDiscordChannelService>(),
                 serviceProvider.GetRequiredService<ILeaderboardQueue>(),
-                CreateLeaderboardService(serviceProvider, DefaultTopScoreLimit)
+                CreateLeaderboardService(serviceProvider, DefaultTopScoreLimit),
+                serviceProvider.GetRequiredService<IUnitOfWork>()
             ));
             services.AddScoped<IInviteLeaderboardService>(serviceProvider =>
                 serviceProvider.GetRequiredService<InviteLeaderboardService>()
@@ -88,7 +90,8 @@ namespace LundBot.Application
                 serviceProvider.GetRequiredService<ILeaderboardQueue>(),
                 serviceProvider.GetRequiredService<ILeaderboardScoreRepository>(),
                 serviceProvider.GetRequiredService<ILeaderboardScoreSourceRepository>(),
-                CreateLeaderboardService(serviceProvider, DefaultTopScoreLimit)
+                CreateLeaderboardService(serviceProvider, DefaultTopScoreLimit),
+                serviceProvider.GetRequiredService<IUnitOfWork>()
             ));
             services.AddScoped<IUpvoteLeaderboardService>(serviceProvider =>
                 serviceProvider.GetRequiredService<UpvoteLeaderboardService>()
@@ -99,7 +102,8 @@ namespace LundBot.Application
                 serviceProvider.GetRequiredService<ILeaderboardQueue>(),
                 serviceProvider.GetRequiredService<ILeaderboardScoreRepository>(),
                 serviceProvider.GetRequiredService<ILeaderboardScoreSourceRepository>(),
-                CreateLeaderboardService(serviceProvider, WarnTopScoreLimit)
+                CreateLeaderboardService(serviceProvider, WarnTopScoreLimit),
+                serviceProvider.GetRequiredService<IUnitOfWork>()
             ));
             services.AddScoped<IWarnLeaderboardService>(serviceProvider =>
                 serviceProvider.GetRequiredService<WarnLeaderboardService>()

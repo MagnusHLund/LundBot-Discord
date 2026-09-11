@@ -1,4 +1,5 @@
 using LundBot.Application.Common.Exceptions;
+using LundBot.Application.Common.Persistence;
 using LundBot.Application.Discord.Channels;
 using LundBot.Application.Features.Leaderboards.Contracts;
 using LundBot.Application.Features.Leaderboards.Shared;
@@ -17,14 +18,16 @@ namespace LundBot.Application.Features.Leaderboards.Types
             ILeaderboardQueue leaderboardQueue,
             ILeaderboardScoreRepository leaderboardScoreRepository,
             ILeaderboardScoreSourceRepository leaderboardScoreSourceRepository,
-            ILeaderboardService leaderboardService
+            ILeaderboardService leaderboardService,
+            IUnitOfWork unitOfWork
         )
             : base(
                 discordChannelService,
                 leaderboardQueue,
                 leaderboardScoreRepository,
                 leaderboardScoreSourceRepository,
-                leaderboardService
+                leaderboardService,
+                unitOfWork
             )
         {
             _discordChannelService = discordChannelService;

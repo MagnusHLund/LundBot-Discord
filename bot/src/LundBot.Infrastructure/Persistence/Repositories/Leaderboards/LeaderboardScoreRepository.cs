@@ -2,6 +2,7 @@ using LundBot.Application.Common.Exceptions;
 using LundBot.Application.Features.Leaderboards.Contracts;
 using LundBot.Domain.Leaderboards;
 using Microsoft.EntityFrameworkCore;
+using MySqlConnector;
 
 namespace LundBot.Infrastructure.Persistence.Repositories.Leaderboards
 {
@@ -19,27 +20,20 @@ namespace LundBot.Infrastructure.Persistence.Repositories.Leaderboards
         {
             try
             {
-                var leaderboardScore = await _context.LeaderboardScores.FirstOrDefaultAsync(ls =>
-                    ls.DiscordUserId == userId && ls.LeaderboardId == leaderboardId
-                );
+                int rowsAffected = await _context
+                    .LeaderboardScores.Where(ls => ls.DiscordUserId == userId && ls.LeaderboardId == leaderboardId)
+                    .ExecuteUpdateAsync(setters =>
+                        setters
+                            .SetProperty(ls => ls.Score, ls => ls.Score + 1)
+                            .SetProperty(ls => ls.UpdatedAt, _ => DateTime.UtcNow)
+                    );
 
-                if (leaderboardScore != null)
+                if (rowsAffected > 0)
                 {
-                    leaderboardScore.Score += 1;
-                }
-                else
-                {
-                    leaderboardScore = new LeaderboardScore
-                    {
-                        DiscordUserId = userId,
-                        LeaderboardId = leaderboardId,
-                        Score = 1,
-                    };
-                    _context.LeaderboardScores.Add(leaderboardScore);
+                    return true;
                 }
 
-                await _context.SaveChangesAsync();
-                return true;
+                return await CreateInitialScoreAsync(userId, leaderboardId);
             }
             catch (Exception ex)
             {
@@ -47,6 +41,40 @@ namespace LundBot.Infrastructure.Persistence.Repositories.Leaderboards
                 return false;
             }
         }
+
+        private async Task<bool> CreateInitialScoreAsync(ulong userId, int leaderboardId)
+        {
+            LeaderboardScore leaderboardScore = new LeaderboardScore
+            {
+                DiscordUserId = userId,
+                LeaderboardId = leaderboardId,
+                Score = 1,
+            };
+
+            try
+            {
+                _context.LeaderboardScores.Add(leaderboardScore);
+                await _context.SaveChangesAsync();
+                return true;
+            }
+            catch (DbUpdateException ex) when (IsUniqueConstraintViolation(ex))
+            {
+                _context.Entry(leaderboardScore).State = EntityState.Detached;
+
+                int rowsAffected = await _context
+                    .LeaderboardScores.Where(ls => ls.DiscordUserId == userId && ls.LeaderboardId == leaderboardId)
+                    .ExecuteUpdateAsync(setters =>
+                        setters
+                            .SetProperty(ls => ls.Score, ls => ls.Score + 1)
+                            .SetProperty(ls => ls.UpdatedAt, _ => DateTime.UtcNow)
+                    );
+
+                return rowsAffected > 0;
+            }
+        }
+
+        private static bool IsUniqueConstraintViolation(DbUpdateException ex) =>
+            ex.InnerException is MySqlException { Number: 1062 };
 
         public async Task<IEnumerable<LeaderboardScore>> GetTopScoresAsync(int leaderboardId, int limit)
         {

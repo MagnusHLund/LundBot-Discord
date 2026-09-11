@@ -20,24 +20,24 @@ namespace LundBot.Infrastructure.Persistence.Repositories.WebsiteTraffic
         )
         {
             return await _context
-                .WebsiteTraffic.Where(w => w.CreatedAt >= startDate && w.CreatedAt <= endDate)
+                .WebsiteTraffic.Where(w => w.CreatedAt >= startDate && w.CreatedAt < endDate)
                 .ToListAsync();
         }
 
         public async Task<bool> RegisterInviteLinkClickAsync(byte[] hashedIpAddress)
         {
-            var websiteVisit = await _context
-                .WebsiteTraffic.Where(w => w.HashedIp == hashedIpAddress)
-                .FirstOrDefaultAsync();
-
-            if (websiteVisit == null)
-            {
-                _logger.Warning("No website visit found for user. Cannot register invite link click.");
-                return false;
-            }
-
             try
             {
+                var websiteVisit = await _context
+                    .WebsiteTraffic.Where(w => w.HashedIp == hashedIpAddress)
+                    .FirstOrDefaultAsync();
+
+                if (websiteVisit == null)
+                {
+                    _logger.Warning("No website visit found for user. Cannot register invite link click.");
+                    return false;
+                }
+
                 websiteVisit.ClickedInviteButton = true;
                 await _context.SaveChangesAsync();
             }
