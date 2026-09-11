@@ -45,6 +45,7 @@ namespace LundBot.Application.Features.Leaderboards.Types
                 leaderboardScoreSourceRepository
             )
         {
+            _topScoreLimit = 1000;
             _discordChannelService = discordChannelService;
         }
 

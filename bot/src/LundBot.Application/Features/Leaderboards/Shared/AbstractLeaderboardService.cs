@@ -12,7 +12,7 @@ namespace LundBot.Application.Features.Leaderboards.Shared
 {
     public abstract class AbstractLeaderboardService : IAbstractLeaderboardService
     {
-        private const int TOP_UPVOTE_SCORES_LIMIT = 100;
+        private protected int _topScoreLimit = 100;
 
         private readonly ICacheService _cacheService;
         private readonly ILeaderboardQueue _leaderboardQueue;
@@ -153,10 +153,7 @@ namespace LundBot.Application.Features.Leaderboards.Shared
 
             Leaderboard leaderboard = await GetLeaderboardAsync(channelId, channel.GuildId);
 
-            var topUpvoteScores = await _leaderboardScoreRepository.GetTopScoresAsync(
-                leaderboard.Id,
-                TOP_UPVOTE_SCORES_LIMIT
-            );
+            var topUpvoteScores = await _leaderboardScoreRepository.GetTopScoresAsync(leaderboard.Id, _topScoreLimit);
 
             string leaderboardMessage = await GenerateLeaderboardMessageAsync(
                 topUpvoteScores,
@@ -177,10 +174,7 @@ namespace LundBot.Application.Features.Leaderboards.Shared
 
         public async Task<bool> UpdateLeaderboardMessageAsync(Leaderboard leaderboard, DiscordChannelDto channel)
         {
-            var topUpvoteScores = await _leaderboardScoreRepository.GetTopScoresAsync(
-                leaderboard.Id,
-                TOP_UPVOTE_SCORES_LIMIT
-            );
+            var topUpvoteScores = await _leaderboardScoreRepository.GetTopScoresAsync(leaderboard.Id, _topScoreLimit);
 
             string leaderboardMessage = await GenerateLeaderboardMessageAsync(
                 topUpvoteScores,
