@@ -136,6 +136,7 @@ namespace LundBot.Application.Features.Leaderboards.Shared
                     channel.ChannelId,
                     channel.GuildId
                 );
+                return false;
             }
 
             List<Leaderboard> existingLeaderboards = await GetLeaderboardsForGuildAsync(channel.GuildId);
