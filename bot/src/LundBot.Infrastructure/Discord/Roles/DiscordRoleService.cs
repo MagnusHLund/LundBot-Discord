@@ -40,7 +40,7 @@ namespace LundBot.Infrastructure.Discord.Roles
                     roleId,
                     guildId
                 );
-                return false;
+                throw;
             }
         }
 
@@ -67,7 +67,7 @@ namespace LundBot.Infrastructure.Discord.Roles
                     memberId,
                     guildId
                 );
-                return false;
+                throw;
             }
         }
 
@@ -108,7 +108,7 @@ namespace LundBot.Infrastructure.Discord.Roles
                     memberId,
                     guildId
                 );
-                return false;
+                throw;
             }
         }
 
@@ -135,7 +135,7 @@ namespace LundBot.Infrastructure.Discord.Roles
                     memberId,
                     guildId
                 );
-                return false;
+                throw;
             }
         }
     }
