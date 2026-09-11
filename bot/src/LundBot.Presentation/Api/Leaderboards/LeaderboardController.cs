@@ -1,5 +1,6 @@
 using LundBot.Application.Features.Leaderboards.Contracts;
 using LundBot.Presentation.Api.Common;
+using LundBot.Presentation.Api.Common.Validation;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -18,7 +19,10 @@ namespace LundBot.Presentation.Api.Leaderboards
 
         [Authorize]
         [HttpPost("refresh")]
-        public async Task<IActionResult> RefreshLeaderboard([FromQuery] ulong channelId, [FromQuery] ulong guildId)
+        public async Task<IActionResult> RefreshLeaderboard(
+            [FromQuery, DiscordId] ulong channelId,
+            [FromQuery, DiscordId] ulong guildId
+        )
         {
             bool success = await _leaderboardService.RefreshLeaderboardAsync(channelId, guildId);
 

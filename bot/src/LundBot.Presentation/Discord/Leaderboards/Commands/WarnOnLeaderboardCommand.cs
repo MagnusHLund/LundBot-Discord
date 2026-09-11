@@ -41,6 +41,14 @@ namespace LundBot.Presentation.Discord.Leaderboards.Commands
                 return;
             }
 
+            if (
+                !await IsValidDiscordIdAsync(context, channelId, "channel")
+                || !await IsValidDiscordIdAsync(context, user.Id, "user")
+            )
+            {
+                return;
+            }
+
             DiscordUserDto targetUser = new DiscordUserDto(user.Id, user.Username, user.GlobalName);
 
             await TaskWithErrorHandlingAsync(

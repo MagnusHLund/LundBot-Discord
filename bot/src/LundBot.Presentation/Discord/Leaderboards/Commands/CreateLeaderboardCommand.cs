@@ -3,6 +3,7 @@ using DSharpPlus.Commands;
 using DSharpPlus.Commands.ArgumentModifiers;
 using DSharpPlus.Commands.ContextChecks;
 using DSharpPlus.Entities;
+using LundBot.Application.Common.Validation;
 using LundBot.Application.Features.Leaderboards.Contracts;
 using LundBot.Domain.Leaderboards;
 using LundBot.Presentation.Discord.Bot;
@@ -31,7 +32,7 @@ namespace LundBot.Presentation.Discord.Leaderboards.Commands
             [Parameter("Channel")]
             [Description("The Channel that the leaderboard will use")]
             [ChannelTypes(DiscordChannelType.Text)]
-                DiscordChannel Channel,
+                DiscordChannel channel,
             [Parameter("type")] [Description("The type of the leaderboard.")] LeaderboardTypeEnum type,
             [Parameter("title")]
             [Description("The title of the leaderboard. eg 'Top Upvoted Users'. Max 64 characters.")]
@@ -48,13 +49,36 @@ namespace LundBot.Presentation.Discord.Leaderboards.Commands
                 return;
             }
 
+            if (!await IsValidDiscordIdAsync(context, channel.Id, "channel"))
+            {
+                return;
+            }
+
             title = title.Trim();
             message = message != null ? message.Trim() : string.Empty;
 
+            if (!ValidationUtils.IsValidLengthString(title, 64, 1))
+            {
+                await SendResponseAsync(context, "The title must contain between 1 and 64 characters.");
+                return;
+            }
+
+            if (!ValidationUtils.IsValidLengthString(message, 256))
+            {
+                await SendResponseAsync(context, "The message cannot exceed 256 characters.");
+                return;
+            }
+
+            if (!Enum.IsDefined(type))
+            {
+                await SendResponseAsync(context, "The leaderboard type is invalid.");
+                return;
+            }
+
             await TaskWithErrorHandlingAsync(
                 context,
-                () => _leaderboardService.CreateLeaderboardAsync(Channel.Id, title, message, type),
-                $"{type} Leaderboard created successfully, in {Channel.Mention}."
+                () => _leaderboardService.CreateLeaderboardAsync(channel.Id, title, message, type),
+                $"{type} Leaderboard created successfully, in {channel.Mention}."
             );
         }
     }
