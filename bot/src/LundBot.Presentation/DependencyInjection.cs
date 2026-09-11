@@ -34,6 +34,7 @@ namespace LundBot.Presentation
 
         public static WebApplication AddMiddleware(this WebApplication app)
         {
+            app.UseMiddleware<ExceptionHandlingMiddleware>();
             app.UseMiddleware<CorsMiddleware>();
 
             return app;

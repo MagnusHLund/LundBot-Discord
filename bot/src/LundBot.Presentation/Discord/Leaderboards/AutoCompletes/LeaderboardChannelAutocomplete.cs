@@ -10,6 +10,8 @@ namespace LundBot.Presentation.Discord.Leaderboards.AutoCompletes
     {
         private protected readonly ILeaderboardService _leaderboardService;
 
+        private readonly ILogger _logger = Log.ForContext<LeaderboardChannelAutocomplete>();
+
         public LeaderboardChannelAutocomplete(ILeaderboardService leaderboardService)
         {
             _leaderboardService = leaderboardService;
@@ -26,7 +28,7 @@ namespace LundBot.Presentation.Discord.Leaderboards.AutoCompletes
                 return Enumerable.Empty<DiscordAutoCompleteChoice>();
             }
 
-            var leaderboards = await _leaderboardService.GetLeaderboardsForGuildAsync(guildId.Value);
+            IEnumerable<Leaderboard> leaderboards = await GetLeaderboardChoicesForGuildAsync(guildId.Value);
 
             return leaderboards.Select(l => new DiscordAutoCompleteChoice(l.Title, l.DiscordChannelId));
         }
@@ -36,7 +38,17 @@ namespace LundBot.Presentation.Discord.Leaderboards.AutoCompletes
             LeaderboardTypeEnum? type = null
         )
         {
-            IEnumerable<Leaderboard> leaderboards = await _leaderboardService.GetLeaderboardsForGuildAsync(guildId);
+            IEnumerable<Leaderboard> leaderboards;
+
+            try
+            {
+                leaderboards = await _leaderboardService.GetLeaderboardsForGuildAsync(guildId);
+            }
+            catch (Exception ex)
+            {
+                _logger.Error(ex, "Error retrieving leaderboards for guild {GuildId} for autocomplete.", guildId);
+                return Enumerable.Empty<Leaderboard>();
+            }
 
             if (type.HasValue)
             {

@@ -1,3 +1,4 @@
+using LundBot.Application.Common.Persistence;
 using LundBot.Application.Discord.Channels;
 using LundBot.Application.Discord.Guilds;
 using LundBot.Application.Discord.Roles;
@@ -14,7 +15,6 @@ namespace LundBot.Application.Features.Leaderboards.Types
         private readonly IHostEnvironment _hostEnvironment;
         private readonly IDiscordRoleService _discordRoleService;
         private readonly ILeaderboardRepository _leaderboardRepository;
-        private readonly ILeaderboardScoreSourceRepository _leaderboardScoreSourceRepository;
 
         private readonly ILogger _logger = Log.ForContext<InviteLeaderboardService>();
 
@@ -26,20 +26,21 @@ namespace LundBot.Application.Features.Leaderboards.Types
             ILeaderboardScoreRepository leaderboardScoreRepository,
             IDiscordChannelService discordChannelService,
             ILeaderboardQueue leaderboardQueue,
-            ILeaderboardService leaderboardService
+            ILeaderboardService leaderboardService,
+            IUnitOfWork unitOfWork
         )
             : base(
                 discordChannelService,
                 leaderboardQueue,
                 leaderboardScoreRepository,
                 leaderboardScoreSourceRepository,
-                leaderboardService
+                leaderboardService,
+                unitOfWork
             )
         {
             _hostEnvironment = hostEnvironment;
             _discordRoleService = discordRoleService;
             _leaderboardRepository = leaderboardRepository;
-            _leaderboardScoreSourceRepository = leaderboardScoreSourceRepository;
         }
 
         public async Task<bool> RegisterSuccessfullyInvitedUserAsync(
@@ -77,13 +78,9 @@ namespace LundBot.Application.Features.Leaderboards.Types
                 return false;
             }
 
-            bool hasAlreadyBeenInvited = await _leaderboardScoreSourceRepository.HasUserGivenScoreToTargetAsync(
-                userJoined.UserId,
-                userInvitedBy.UserId,
-                leaderboard!.Id
-            );
+            bool wasScoreAdded = await TryAddScoreOnceToLeaderboardAsync(userJoined.UserId, userInvitedBy.UserId, leaderboard!);
 
-            if (hasAlreadyBeenInvited)
+            if (!wasScoreAdded)
             {
                 _logger.Information(
                     "User {UserJoinedId} has already been invited by {UserInvitedById} on the invite leaderboard in guild {GuildId}, skipping registration",
@@ -94,7 +91,6 @@ namespace LundBot.Application.Features.Leaderboards.Types
                 return false;
             }
 
-            await AddScoreToLeaderboardAsync(userJoined.UserId, userInvitedBy.UserId, leaderboard);
             return true;
         }
     }
