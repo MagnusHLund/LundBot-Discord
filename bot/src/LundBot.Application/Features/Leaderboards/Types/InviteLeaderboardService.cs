@@ -94,8 +94,8 @@ namespace LundBot.Application.Features.Leaderboards.Types
             }
 
             bool hasAlreadyBeenInvited = await _leaderboardScoreSourceRepository.HasUserGivenScoreToTargetAsync(
-                userInvitedBy.UserId,
                 userJoined.UserId,
+                userInvitedBy.UserId,
                 leaderboard!.Id
             );
 
