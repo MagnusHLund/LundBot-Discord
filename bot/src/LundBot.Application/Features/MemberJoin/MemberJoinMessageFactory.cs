@@ -3,7 +3,7 @@ using LundBot.Domain.MemberJoin;
 
 namespace LundBot.Application.Features.MemberJoin
 {
-    public class MemberJoinMessageFactory : IMessageEntityFactory<MemberJoinMessage>
+    public sealed class MemberJoinMessageFactory : IMessageEntityFactory<MemberJoinMessage>
     {
         private ulong _joinedUserId;
 

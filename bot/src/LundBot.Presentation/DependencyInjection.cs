@@ -95,7 +95,7 @@ namespace LundBot.Presentation
         )
         {
             services.Configure<ServerConfig>(configuration.GetSection("Server"));
-services.Configure<DiscordCommandConfig>(configuration.GetSection("Discord"));
+            services.Configure<DiscordCommandConfig>(configuration.GetSection("Discord"));
             services.Configure<DiscordKickConfig>(configuration.GetSection("Discord"));
             services.Configure<DeveloperEnvironmentConfig>(configuration.GetSection("DeveloperEnvironment"));
 
