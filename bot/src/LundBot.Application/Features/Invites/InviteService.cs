@@ -79,8 +79,7 @@ namespace LundBot.Application.Features.Invites
             using var scope = _serviceProvider.CreateScope();
             var leaderboardService = scope.ServiceProvider.GetRequiredService<IInviteLeaderboardService>();
 
-            await leaderboardService.RegisterSuccessfullyInvitedUserAsync(guild, userJoined, inviter);
-            return true;
+return await leaderboardService.RegisterSuccessfullyInvitedUserAsync(guild, userJoined, inviter);
         }
     }
 }
