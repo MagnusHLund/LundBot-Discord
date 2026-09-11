@@ -73,10 +73,6 @@ namespace LundBot.Application.Features.Leaderboards.Shared
                 targetUserId,
                 leaderboard.Id
             );
-            bool incrementScoreResult = await _leaderboardScoreRepository.IncrementScoreAsync(
-                targetUserId,
-                leaderboard.Id
-            );
 
             if (!addScoreResult)
             {
@@ -85,6 +81,11 @@ namespace LundBot.Application.Features.Leaderboards.Shared
                     showMessageToUser: true
                 );
             }
+
+            bool incrementScoreResult = await _leaderboardScoreRepository.IncrementScoreAsync(
+                targetUserId,
+                leaderboard.Id
+            );
 
             if (!incrementScoreResult)
             {
