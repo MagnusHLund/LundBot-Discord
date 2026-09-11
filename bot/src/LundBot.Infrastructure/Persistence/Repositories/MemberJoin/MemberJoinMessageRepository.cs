@@ -1,3 +1,4 @@
+using LundBot.Application.Common.Exceptions;
 using LundBot.Application.Features.MemberJoin;
 using LundBot.Domain.MemberJoin;
 using Microsoft.EntityFrameworkCore;
@@ -75,7 +76,11 @@ namespace LundBot.Infrastructure.Persistence.Repositories.MemberJoin
                     "Error retrieving MemberJoinMessage for DiscordUserId: {DiscordUserId}",
                     joinedUserId
                 );
-                return null;
+
+                throw new RepositoryException(
+                    $"Failed to retrieve the welcome message for Discord user ID {joinedUserId}.",
+                    ex
+                );
             }
         }
 

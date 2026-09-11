@@ -1,3 +1,4 @@
+using LundBot.Application.Common.Exceptions;
 using LundBot.Application.Features.Leaderboards.Contracts;
 using LundBot.Domain.Leaderboards;
 using Microsoft.EntityFrameworkCore;
@@ -42,7 +43,11 @@ namespace LundBot.Infrastructure.Persistence.Repositories.Leaderboards
                     "Error retrieving LeaderboardMessagesEntities for leaderboard ID: {LeaderboardId}",
                     leaderboardId
                 );
-                return new List<LeaderboardMessage>();
+
+                throw new RepositoryException(
+                    $"Failed to retrieve leaderboard messages for leaderboard ID {leaderboardId}.",
+                    ex
+                );
             }
         }
 

@@ -1,3 +1,4 @@
+using LundBot.Application.Common.Exceptions;
 using LundBot.Application.Features.Leaderboards.Contracts;
 using LundBot.Domain.Leaderboards;
 using Microsoft.EntityFrameworkCore;
@@ -61,7 +62,11 @@ namespace LundBot.Infrastructure.Persistence.Repositories.Leaderboards
             catch (Exception ex)
             {
                 _logger.Error(ex, "An error occurred while retrieving top scores.");
-                return Enumerable.Empty<LeaderboardScore>();
+
+                throw new RepositoryException(
+                    $"Failed to retrieve top scores for leaderboard ID {leaderboardId}.",
+                    ex
+                );
             }
         }
     }

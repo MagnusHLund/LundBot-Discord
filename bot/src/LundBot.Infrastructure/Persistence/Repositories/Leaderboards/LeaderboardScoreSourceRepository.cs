@@ -1,3 +1,4 @@
+using LundBot.Application.Common.Exceptions;
 using LundBot.Application.Features.Leaderboards.Contracts;
 using LundBot.Domain.Leaderboards;
 using Microsoft.EntityFrameworkCore;
@@ -33,7 +34,7 @@ namespace LundBot.Infrastructure.Persistence.Repositories.Leaderboards
                     targetUserId,
                     leaderboardId
                 );
-                throw new Exception("An error occurred while checking score status.", ex);
+                throw new RepositoryException("An error occurred while checking score status.", ex);
             }
         }
 

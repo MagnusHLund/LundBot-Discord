@@ -1,3 +1,4 @@
+using LundBot.Application.Common.Exceptions;
 using LundBot.Application.Features.Leaderboards.Contracts;
 using LundBot.Domain.Leaderboards;
 using Microsoft.EntityFrameworkCore;
@@ -33,7 +34,10 @@ namespace LundBot.Infrastructure.Persistence.Repositories.Leaderboards
                     guildId
                 );
 
-                return (false, null);
+                throw new RepositoryException(
+                    $"Failed to check if a leaderboard exists for channel ID {channelId} and guild ID {guildId}.",
+                    ex
+                );
             }
         }
 
@@ -113,7 +117,11 @@ namespace LundBot.Infrastructure.Persistence.Repositories.Leaderboards
             catch (Exception ex)
             {
                 _logger.Error(ex, "Error checking if invite leaderboard exists for guild ID: {GuildId}", guildId);
-                return (false, null);
+
+                throw new RepositoryException(
+                    $"Failed to check if an invite leaderboard exists for guild ID {guildId}.",
+                    ex
+                );
             }
         }
 
@@ -126,7 +134,8 @@ namespace LundBot.Infrastructure.Persistence.Repositories.Leaderboards
             catch (Exception ex)
             {
                 _logger.Error(ex, "Error retrieving leaderboards for guild ID: {GuildId}", guildId);
-                return new List<Leaderboard>();
+
+                throw new RepositoryException($"Failed to retrieve leaderboards for guild ID {guildId}.", ex);
             }
         }
     }
