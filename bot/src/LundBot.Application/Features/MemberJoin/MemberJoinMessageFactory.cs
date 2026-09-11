@@ -9,7 +9,7 @@ namespace LundBot.Application.Features.MemberJoin
 
         public MemberJoinMessage Create(ulong discordMessageId)
         {
-            throw new NotImplementedException();
+            return new MemberJoinMessage(_joinedUserId, discordMessageId);
         }
 
         public void SetJoinedUserId(ulong joinedUserId)
