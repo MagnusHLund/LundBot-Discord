@@ -224,6 +224,11 @@ namespace LundBot.Infrastructure.Persistence
                 isMySql,
                 "tinyint(1)"
             );
+            ConfigureMySqlColumnType(
+                entity.Property(e => e.WebsiteTrafficAnalyticsChannelId).IsRequired(),
+                isMySql,
+                "int unsigned"
+            );
 
             ConfigureMySqlColumnType(
                 entity.Property(e => e.CreatedAt).HasDefaultValueSql(GetCreatedAtDefaultSql(isMySql)),
@@ -231,7 +236,17 @@ namespace LundBot.Infrastructure.Persistence
                 "datetime(3)"
             );
 
-            entity.HasIndex(e => e.HashedIp).IsUnique().HasDatabaseName("UniqueIp");
+            entity
+                .HasIndex(e => new { e.HashedIp, e.WebsiteTrafficAnalyticsChannelId })
+                .IsUnique()
+                .HasDatabaseName("UniqueIp");
+
+            entity
+                .HasOne(e => e.Channel)
+                .WithMany()
+                .HasForeignKey(e => e.WebsiteTrafficAnalyticsChannelId)
+                .OnDelete(DeleteBehavior.Cascade)
+                .HasConstraintName("fk_website_traffic_channels");
         }
 
         private static void ConfigureWebsiteTrafficMessages(
@@ -267,29 +282,6 @@ namespace LundBot.Infrastructure.Persistence
                 .HasConstraintName("fk_website_traffic_messages_channels");
         }
 
-        private static void ConfigureMemberJoinMessages(EntityTypeBuilder<MemberJoinMessage> entity, bool isMySql)
-        {
-            entity.ToTable("MemberJoinMessages");
-
-            entity.HasKey(e => e.Id);
-            ConfigureMySqlColumnType(
-                entity.Property(e => e.Id).HasColumnName("MemberJoinMessageId").ValueGeneratedOnAdd(),
-                isMySql,
-                "int unsigned"
-            );
-
-            ConfigureMySqlColumnType(entity.Property(e => e.DiscordMessageId).IsRequired(), isMySql, "bigint unsigned");
-            ConfigureMySqlColumnType(entity.Property(e => e.DiscordUserId).IsRequired(), isMySql, "bigint unsigned");
-
-            ConfigureMySqlColumnType(
-                entity.Property(e => e.CreatedAt).HasDefaultValueSql(GetCreatedAtDefaultSql(isMySql)),
-                isMySql,
-                "datetime(3)"
-            );
-
-            entity.HasIndex(e => e.DiscordUserId).IsUnique().HasDatabaseName("MemberJoinMessages_index_1");
-        }
-
         private static void ConfigureWebsiteTrafficChannels(
             EntityTypeBuilder<WebsiteTrafficAnalyticsChannel> entity,
             bool isMySql
@@ -315,6 +307,29 @@ namespace LundBot.Infrastructure.Persistence
 
             entity.HasIndex(e => e.ChannelId).HasDatabaseName("WebsiteTrafficAnalyticsChannels_index_1");
             entity.HasIndex(e => e.GuildId).IsUnique().HasDatabaseName("WebsiteTrafficAnalyticsChannels_index_2");
+        }
+
+        private static void ConfigureMemberJoinMessages(EntityTypeBuilder<MemberJoinMessage> entity, bool isMySql)
+        {
+            entity.ToTable("MemberJoinMessages");
+
+            entity.HasKey(e => e.Id);
+            ConfigureMySqlColumnType(
+                entity.Property(e => e.Id).HasColumnName("MemberJoinMessageId").ValueGeneratedOnAdd(),
+                isMySql,
+                "int unsigned"
+            );
+
+            ConfigureMySqlColumnType(entity.Property(e => e.DiscordMessageId).IsRequired(), isMySql, "bigint unsigned");
+            ConfigureMySqlColumnType(entity.Property(e => e.DiscordUserId).IsRequired(), isMySql, "bigint unsigned");
+
+            ConfigureMySqlColumnType(
+                entity.Property(e => e.CreatedAt).HasDefaultValueSql(GetCreatedAtDefaultSql(isMySql)),
+                isMySql,
+                "datetime(3)"
+            );
+
+            entity.HasIndex(e => e.DiscordUserId).IsUnique().HasDatabaseName("MemberJoinMessages_index_1");
         }
 
         private static string GetCreatedAtDefaultSql(bool isMySql) =>

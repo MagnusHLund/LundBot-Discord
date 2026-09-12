@@ -17,20 +17,32 @@ namespace LundBot.Infrastructure.Persistence.Repositories.WebsiteTraffic
 
         public async Task<List<WebsiteTrafficAnalytics>> GetWebsiteTrafficEntitiesForPeriodAsync(
             DateTime startDate,
-            DateTime endDate
+            DateTime endDate,
+            int websiteTrafficAnalyticsChannelId
         )
         {
             return await _context
-                .WebsiteTraffic.Where(w => w.CreatedAt >= startDate && w.CreatedAt < endDate)
+                .WebsiteTraffic.Where(w =>
+                    w.WebsiteTrafficAnalyticsChannelId == websiteTrafficAnalyticsChannelId
+                    && w.CreatedAt >= startDate
+                    && w.CreatedAt < endDate
+                )
+                .OrderBy(w => w.CreatedAt)
                 .ToListAsync();
         }
 
-        public async Task<bool> RegisterInviteLinkClickAsync(byte[] hashedIpAddress)
+        public async Task<bool> RegisterInviteLinkClickAsync(
+            byte[] hashedIpAddress,
+            int websiteTrafficAnalyticsChannelId
+        )
         {
             try
             {
                 var websiteVisit = await _context
-                    .WebsiteTraffic.Where(w => w.HashedIp == hashedIpAddress)
+                    .WebsiteTraffic.Where(w =>
+                        w.HashedIp == hashedIpAddress
+                        && w.WebsiteTrafficAnalyticsChannelId == websiteTrafficAnalyticsChannelId
+                    )
                     .FirstOrDefaultAsync();
 
                 if (websiteVisit == null)
@@ -50,12 +62,16 @@ namespace LundBot.Infrastructure.Persistence.Repositories.WebsiteTraffic
             }
         }
 
-        public async Task<bool> RegisterWebsiteVisitAsync(byte[] hashedIpAddress)
+        public async Task<bool> RegisterWebsiteVisitAsync(
+            byte[] hashedIpAddress,
+            int websiteTrafficAnalyticsChannelId
+        )
         {
             WebsiteTrafficAnalytics websiteVisit = new WebsiteTrafficAnalytics
             {
                 HashedIp = hashedIpAddress,
                 ClickedInviteButton = false,
+                WebsiteTrafficAnalyticsChannelId = websiteTrafficAnalyticsChannelId,
             };
 
             try

@@ -51,63 +51,88 @@ namespace LundBot.Application.Features.WebsiteTraffic
 
         public async Task<bool> RegisterWebsiteVisitAsync(string ipAddress, ulong guildId)
         {
+            WebsiteTrafficAnalyticsChannel? trafficChannel =
+                await _websiteTrafficChannelRepository.GetWebsiteTrafficChannelAsync(guildId);
+
+            if (trafficChannel is null)
+            {
+                _logger.Warning("Website traffic channel not found for guild ID: {GuildId}", guildId);
+                return false;
+            }
+
             byte[] hashedIpAddress = HashUtils.HashString(ipAddress);
-            bool success = await _websiteTrafficRepository.RegisterWebsiteVisitAsync(hashedIpAddress);
+            bool success = await _websiteTrafficRepository.RegisterWebsiteVisitAsync(
+                hashedIpAddress,
+                trafficChannel.Id
+            );
 
             if (!success)
             {
                 return false;
             }
 
-            await UpdateWebsiteStatsMessageAsync(guildId);
+            await UpdateWebsiteStatsMessageAsync(trafficChannel);
 
             return true;
         }
 
         public async Task<bool> RegisterInviteLinkClickAsync(string ipAddress, ulong guildId)
         {
+            WebsiteTrafficAnalyticsChannel? trafficChannel =
+                await _websiteTrafficChannelRepository.GetWebsiteTrafficChannelAsync(guildId);
+
+            if (trafficChannel is null)
+            {
+                _logger.Warning("Website traffic channel not found for guild ID: {GuildId}", guildId);
+                return false;
+            }
+
             byte[] hashedIpAddress = HashUtils.HashString(ipAddress);
-            bool success = await _websiteTrafficRepository.RegisterInviteLinkClickAsync(hashedIpAddress);
+            bool success = await _websiteTrafficRepository.RegisterInviteLinkClickAsync(
+                hashedIpAddress,
+                trafficChannel.Id
+            );
 
             if (!success)
             {
                 return false;
             }
 
-            await UpdateWebsiteStatsMessageAsync(guildId);
+            await UpdateWebsiteStatsMessageAsync(trafficChannel);
 
             return true;
         }
 
-        private async Task UpdateWebsiteStatsMessageAsync(ulong guildId)
+        private async Task UpdateWebsiteStatsMessageAsync(WebsiteTrafficAnalyticsChannel trafficChannel)
         {
-            string message = await GenerateWebsiteStatsMessageAsync();
+            string message = await GenerateWebsiteStatsMessageAsync(trafficChannel.Id);
 
             (DateTime startOfWeek, DateTime endOfWeek) = TimeUtils.GetCurrentUtcWeekBounds();
 
             List<WebsiteTrafficAnalyticsMessage> existingMessages =
-                await _websiteTrafficMessageRepository.GetWebsiteTrafficMessagesForPeriodAsync(startOfWeek, endOfWeek);
+                await _websiteTrafficMessageRepository.GetWebsiteTrafficMessagesForPeriodAsync(
+                    startOfWeek,
+                    endOfWeek,
+                    trafficChannel.Id
+                );
 
-            WebsiteTrafficAnalyticsChannel? channel =
-                await _websiteTrafficChannelRepository.GetWebsiteTrafficChannelAsync(guildId);
+            _messageService.MessageFactory.SetWebsiteTrafficAnalyticsChannelId(trafficChannel.Id);
 
-            if (channel is null)
-            {
-                _logger.Warning("Website traffic channel not found for guild ID: {GuildId}", guildId);
-                return;
-            }
-
-            ulong channelId = channel.ChannelId;
+            ulong channelId = trafficChannel.ChannelId;
 
             await _messageService.SynchronizeDiscordMessagesAsync(message, existingMessages, channelId);
         }
 
-        private async Task<string> GenerateWebsiteStatsMessageAsync()
+        private async Task<string> GenerateWebsiteStatsMessageAsync(int websiteTrafficAnalyticsChannelId)
         {
             (DateTime startOfWeek, DateTime endOfWeek) = TimeUtils.GetCurrentUtcWeekBounds();
 
             List<WebsiteTrafficAnalytics> websiteTrafficEntities =
-                await _websiteTrafficRepository.GetWebsiteTrafficEntitiesForPeriodAsync(startOfWeek, endOfWeek);
+                await _websiteTrafficRepository.GetWebsiteTrafficEntitiesForPeriodAsync(
+                    startOfWeek,
+                    endOfWeek,
+                    websiteTrafficAnalyticsChannelId
+                );
 
             int totalVisits = websiteTrafficEntities.Count;
             int totalInviteClicks = websiteTrafficEntities.Count(w => w.ClickedInviteButton);
@@ -120,8 +145,6 @@ namespace LundBot.Application.Features.WebsiteTraffic
             messageBuilder.AppendLine($"Invite Clicks: {totalInviteClicks}");
             messageBuilder.AppendLine();
             messageBuilder.AppendLine("## Entries");
-            messageBuilder.AppendLine("```text");
-            messageBuilder.AppendLine("#   Created At               | Invite");
 
             for (int i = 0; i < websiteTrafficEntities.Count; i++)
             {
@@ -129,11 +152,9 @@ namespace LundBot.Application.Features.WebsiteTraffic
                 string clickedInvite = traffic.ClickedInviteButton ? "✔️" : "❌";
 
                 messageBuilder.AppendLine(
-                    $"{i + 1, -3} {traffic.CreatedAt:dd-MM-yyyy HH:mm:ss} UTC  | {clickedInvite}"
+                    $"{i + 1}. {traffic.CreatedAt:dd-MM-yyyy HH:mm:ss} UTC | invite={clickedInvite}"
                 );
             }
-
-            messageBuilder.AppendLine("```");
 
             return messageBuilder.ToString().Trim();
         }

@@ -4,6 +4,7 @@ using LundBot.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace LundBot.Infrastructure.Persistence.Migrations
 {
     [DbContext(typeof(LundBotDbContext))]
-    partial class LundBotDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260912111104_Moved ip unique key to be per guild level instead of just limiting each website visit to all guilds from the same ip")]
+    partial class Movedipuniquekeytobeperguildlevelinsteadofjustlimitingeachwebsitevisittoallguildsfromthesameip
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
