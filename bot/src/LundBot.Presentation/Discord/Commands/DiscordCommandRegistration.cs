@@ -4,7 +4,6 @@ using LundBot.Presentation.Config;
 using LundBot.Presentation.Discord.Bot;
 using LundBot.Presentation.Discord.InfiniteWarfare.Maps;
 using LundBot.Presentation.Discord.Leaderboards.Commands;
-using LundBot.Presentation.Discord.WebsiteTraffic;
 using Microsoft.Extensions.Options;
 
 namespace LundBot.Presentation.Discord.Commands
@@ -69,8 +68,6 @@ namespace LundBot.Presentation.Discord.Commands
                 commands.AddCommands<WarnOnLeaderboardCommand>();
                 commands.AddCommands<RemoveLeaderboardCommand>();
                 commands.AddCommands<UpvoteUserOnLeaderboardCommand>();
-                commands.AddCommands<CreateWebsiteTrafficChannelCommand>();
-                commands.AddCommands<RemoveWebsiteTrafficChannelCommand>();
 
                 return;
             }
@@ -81,8 +78,6 @@ namespace LundBot.Presentation.Discord.Commands
             commands.AddCommands<WarnOnLeaderboardCommand>(guildId.Value);
             commands.AddCommands<RemoveLeaderboardCommand>(guildId.Value);
             commands.AddCommands<UpvoteUserOnLeaderboardCommand>(guildId.Value);
-            commands.AddCommands<CreateWebsiteTrafficChannelCommand>(guildId.Value);
-            commands.AddCommands<RemoveWebsiteTrafficChannelCommand>(guildId.Value);
         }
     }
 }
