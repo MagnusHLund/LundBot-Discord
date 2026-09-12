@@ -1,0 +1,8 @@
+@LundBot_HostAddress = https://discord.lundbot69.com
+@api_key = MWuxCLuzJGU4sidKs3uDFcWcnUYw0mOA9nZKpbvLYULLxKRNo8jT2HAoyjfa6XJCOlOc7BZ3L56ot3gcLi2JztzcYf3bNPOlCPc6TFcOSfnrRyNmN9dzi50LBKHBtsfL
+@Discord_ChannelId = 1531984767170646097
+@Discord_GuildId = 1045687794477056060
+
+POST {{LundBot_HostAddress}}/api/leaderboard/refresh?channelid={{Discord_ChannelId}}&guildid={{Discord_GuildId}}
+Accept: application/json
+Authorization: Bearer {{api_key}}

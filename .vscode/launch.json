@@ -5,13 +5,13 @@
       "name": "Docker: Attach to .NET Core",
       "type": "coreclr",
       "request": "attach",
-      "processId": "23",
+      "processId": "${command:pickRemoteProcess}",
       "sourceFileMap": {
-        "/app": "${workspaceFolder}/bot/src"
+        "/app": "${workspaceFolder}/bot"
       },
       "pipeTransport": {
         "pipeProgram": "docker",
-        "pipeArgs": ["exec", "-i", "lundbot-discord"],
+        "pipeArgs": ["exec", "-i", "lundbot-discord-dev"],
         "debuggerPath": "/vsdbg/vsdbg",
         "pipeCwd": "${workspaceFolder}",
         "quoteArgs": false
