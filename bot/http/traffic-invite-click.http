@@ -1,4 +1,10 @@
 @LundBot_HostAddress = http://localhost:3000
+@Discord_GuildId = 123456789012345678
 
 POST {{LundBot_HostAddress}}/api/traffic/invite-click
 Accept: application/json
+Content-Type: application/json
+
+{
+    "guildId": {{Discord_GuildId}}
+}

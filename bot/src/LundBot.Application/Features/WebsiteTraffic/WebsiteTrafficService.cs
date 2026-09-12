@@ -11,16 +11,19 @@ namespace LundBot.Application.Features.WebsiteTraffic
     {
         private readonly IWebsiteTrafficRepository _websiteTrafficRepository;
         private readonly IWebsiteTrafficMessageRepository _websiteTrafficMessageRepository;
+        private readonly IWebsiteTrafficChannelRepository _websiteTrafficChannelRepository;
         private readonly IMessageService<
             WebsiteTrafficAnalyticsMessage,
             IWebsiteTrafficMessageRepository,
             WebsiteTrafficMessageFactory
         > _messageService;
-        private readonly WebsiteTrafficConfig _discordConfig;
+
+        private readonly ILogger _logger = Log.ForContext<WebsiteTrafficService>();
 
         public WebsiteTrafficService(
             IWebsiteTrafficRepository websiteTrafficRepository,
             IWebsiteTrafficMessageRepository websiteTrafficMessageRepository,
+            IWebsiteTrafficChannelRepository websiteTrafficChannelRepository,
             IOptions<WebsiteTrafficConfig> discordConfig,
             IMessageService<
                 WebsiteTrafficAnalyticsMessage,
@@ -31,11 +34,22 @@ namespace LundBot.Application.Features.WebsiteTraffic
         {
             _websiteTrafficRepository = websiteTrafficRepository;
             _websiteTrafficMessageRepository = websiteTrafficMessageRepository;
-            _discordConfig = discordConfig.Value;
+            _websiteTrafficChannelRepository = websiteTrafficChannelRepository;
             _messageService = messageService;
         }
 
-        public async Task<bool> RegisterWebsiteVisitAsync(string ipAddress)
+        public async Task<bool> CreateWebsiteTrafficChannelAsync(ulong channelId, ulong guildId)
+        {
+            var channel = await _websiteTrafficChannelRepository.CreateWebsiteTrafficChannelAsync(channelId, guildId);
+            return channel is not null;
+        }
+
+        public async Task<bool> RemoveWebsiteTrafficChannelAsync(ulong guildId)
+        {
+            return await _websiteTrafficChannelRepository.RemoveWebsiteTrafficChannelAsync(guildId);
+        }
+
+        public async Task<bool> RegisterWebsiteVisitAsync(string ipAddress, ulong guildId)
         {
             byte[] hashedIpAddress = HashUtils.HashString(ipAddress);
             bool success = await _websiteTrafficRepository.RegisterWebsiteVisitAsync(hashedIpAddress);
@@ -45,12 +59,12 @@ namespace LundBot.Application.Features.WebsiteTraffic
                 return false;
             }
 
-            await UpdateWebsiteStatsMessageAsync();
+            await UpdateWebsiteStatsMessageAsync(guildId);
 
             return true;
         }
 
-        public async Task<bool> RegisterInviteLinkClickAsync(string ipAddress)
+        public async Task<bool> RegisterInviteLinkClickAsync(string ipAddress, ulong guildId)
         {
             byte[] hashedIpAddress = HashUtils.HashString(ipAddress);
             bool success = await _websiteTrafficRepository.RegisterInviteLinkClickAsync(hashedIpAddress);
@@ -60,12 +74,12 @@ namespace LundBot.Application.Features.WebsiteTraffic
                 return false;
             }
 
-            await UpdateWebsiteStatsMessageAsync();
+            await UpdateWebsiteStatsMessageAsync(guildId);
 
             return true;
         }
 
-        private async Task UpdateWebsiteStatsMessageAsync()
+        private async Task UpdateWebsiteStatsMessageAsync(ulong guildId)
         {
             string message = await GenerateWebsiteStatsMessageAsync();
 
@@ -74,8 +88,16 @@ namespace LundBot.Application.Features.WebsiteTraffic
             List<WebsiteTrafficAnalyticsMessage> existingMessages =
                 await _websiteTrafficMessageRepository.GetWebsiteTrafficMessagesForPeriodAsync(startOfWeek, endOfWeek);
 
-            // TODO: This could get set with a owner-only command and stored in database. Could also be cached per guild.
-            ulong channelId = _discordConfig.WebTrafficChannelId;
+            WebsiteTrafficAnalyticsChannel? channel =
+                await _websiteTrafficChannelRepository.GetWebsiteTrafficChannelAsync(guildId);
+
+            if (channel is null)
+            {
+                _logger.Warning("Website traffic channel not found for guild ID: {GuildId}", guildId);
+                return;
+            }
+
+            ulong channelId = channel.ChannelId;
 
             await _messageService.SynchronizeDiscordMessagesAsync(message, existingMessages, channelId);
         }

@@ -1,5 +1,6 @@
 using LundBot.Application.Features.WebsiteTraffic;
 using LundBot.Domain.WebsiteTraffic;
+using LundBot.Infrastructure.Utils;
 using Microsoft.EntityFrameworkCore;
 
 namespace LundBot.Infrastructure.Persistence.Repositories.WebsiteTraffic
@@ -40,14 +41,13 @@ namespace LundBot.Infrastructure.Persistence.Repositories.WebsiteTraffic
 
                 websiteVisit.ClickedInviteButton = true;
                 await _context.SaveChangesAsync();
+                return true;
             }
             catch (Exception ex)
             {
                 _logger.Error(ex, "Error registering invite link click for user.");
                 return false;
             }
-
-            return true;
         }
 
         public async Task<bool> RegisterWebsiteVisitAsync(byte[] hashedIpAddress)
@@ -62,14 +62,18 @@ namespace LundBot.Infrastructure.Persistence.Repositories.WebsiteTraffic
             {
                 _context.WebsiteTraffic.Add(websiteVisit);
                 await _context.SaveChangesAsync();
+                return true;
+            }
+            catch (DbUpdateException ex) when (DatabaseUtils.IsUniqueConstraintViolation(ex))
+            {
+                _logger.Warning("Ip has already been registered");
+                return false;
             }
             catch (Exception ex)
             {
                 _logger.Error(ex, "Error registering website visit for user.");
                 return false;
             }
-
-            return true;
         }
     }
 }

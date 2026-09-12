@@ -1,5 +1,6 @@
 using LundBot.Application.Features.WebsiteTraffic;
 using LundBot.Presentation.Api.Common;
+using LundBot.Presentation.Api.Traffic.Dtos;
 using LundBot.Presentation.Config;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
@@ -27,10 +28,10 @@ namespace LundBot.Presentation.Api.Traffic
         }
 
         [HttpPost("visit")]
-        public async Task<IActionResult> VisitedWebsite()
+        public async Task<IActionResult> VisitedWebsite([FromBody] TrafficRequestDto requestDto)
         {
             string ipAddress = GetRequestorIpAddress(Request);
-            bool success = await _websiteTrafficService.RegisterWebsiteVisitAsync(ipAddress);
+            bool success = await _websiteTrafficService.RegisterWebsiteVisitAsync(ipAddress, requestDto.GuildId);
 
             if (!success)
             {
@@ -41,10 +42,10 @@ namespace LundBot.Presentation.Api.Traffic
         }
 
         [HttpPost("invite-click")]
-        public async Task<IActionResult> ClickedInviteLink()
+        public async Task<IActionResult> ClickedInviteLink([FromBody] TrafficRequestDto requestDto)
         {
             string ipAddress = GetRequestorIpAddress(Request);
-            bool success = await _websiteTrafficService.RegisterInviteLinkClickAsync(ipAddress);
+            bool success = await _websiteTrafficService.RegisterInviteLinkClickAsync(ipAddress, requestDto.GuildId);
 
             if (!success)
             {

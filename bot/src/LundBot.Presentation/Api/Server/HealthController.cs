@@ -24,7 +24,7 @@ namespace LundBot.Presentation.Api.Server
         {
             string version = _serverConfig.Version;
 
-            ServerHealthResponse response = new ServerHealthResponse { Status = "Healthy", Version = version };
+            ServerHealthResponseDto response = new ServerHealthResponseDto { Status = "Healthy", Version = version };
             return Ok(response);
         }
     }

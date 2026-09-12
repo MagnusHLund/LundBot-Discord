@@ -6,6 +6,7 @@ using LundBot.Presentation.Api.Middleware;
 using LundBot.Presentation.Config;
 using LundBot.Presentation.Discord.Bot;
 using LundBot.Presentation.Discord.Commands;
+using LundBot.Presentation.Discord.Commands.Checks;
 using LundBot.Presentation.Discord.Events;
 using LundBot.Presentation.Discord.Interactions;
 using LundBot.Presentation.Discord.Leaderboards.BackgroundServices;
@@ -59,7 +60,10 @@ namespace LundBot.Presentation
             DiscordIntents intents = DiscordIntents.AllUnprivileged | DiscordIntents.GuildMembers;
 
             services.AddDiscordClient(discordToken, intents);
-            services.AddCommandsExtension((ServiceProvider, extension) => { });
+            services.AddCommandsExtension((_, extension) =>
+            {
+                extension.AddCheck<RequireGuildOwnerCheck>();
+            });
 
             services.AddSingleton<IDiscordCommandRegistration, DiscordCommandRegistration>();
 
