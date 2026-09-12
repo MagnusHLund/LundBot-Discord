@@ -15,6 +15,7 @@ namespace LundBot.Infrastructure.Persistence
         public DbSet<WebsiteTrafficAnalytics> WebsiteTraffic { get; set; } = null!;
         public DbSet<WebsiteTrafficAnalyticsMessage> WebsiteTrafficMessages { get; set; } = null!;
         public DbSet<MemberJoinMessage> MemberJoinMessages { get; set; } = null!;
+        public DbSet<WebsiteTrafficAnalyticsChannel> WebsiteTrafficAnalyticsChannels { get; set; } = null!;
 
         public LundBotDbContext() { }
 
@@ -32,6 +33,7 @@ namespace LundBot.Infrastructure.Persistence
             ConfigureWebsiteTraffic(modelBuilder.Entity<WebsiteTrafficAnalytics>(), isMySql);
             ConfigureWebsiteTrafficMessages(modelBuilder.Entity<WebsiteTrafficAnalyticsMessage>(), isMySql);
             ConfigureMemberJoinMessages(modelBuilder.Entity<MemberJoinMessage>(), isMySql);
+            ConfigureWebsiteTrafficChannels(modelBuilder.Entity<WebsiteTrafficAnalyticsChannel>(), isMySql);
         }
 
         private static void ConfigureLeaderboards(EntityTypeBuilder<Leaderboard> entity, bool isMySql)
@@ -222,6 +224,11 @@ namespace LundBot.Infrastructure.Persistence
                 isMySql,
                 "tinyint(1)"
             );
+            ConfigureMySqlColumnType(
+                entity.Property(e => e.WebsiteTrafficAnalyticsChannelId).IsRequired(),
+                isMySql,
+                "int unsigned"
+            );
 
             ConfigureMySqlColumnType(
                 entity.Property(e => e.CreatedAt).HasDefaultValueSql(GetCreatedAtDefaultSql(isMySql)),
@@ -229,7 +236,17 @@ namespace LundBot.Infrastructure.Persistence
                 "datetime(3)"
             );
 
-            entity.HasIndex(e => e.HashedIp).IsUnique().HasDatabaseName("UniqueIp");
+            entity
+                .HasIndex(e => new { e.HashedIp, e.WebsiteTrafficAnalyticsChannelId })
+                .IsUnique()
+                .HasDatabaseName("UniqueIp");
+
+            entity
+                .HasOne(e => e.Channel)
+                .WithMany()
+                .HasForeignKey(e => e.WebsiteTrafficAnalyticsChannelId)
+                .OnDelete(DeleteBehavior.Cascade)
+                .HasConstraintName("fk_website_traffic_channels");
         }
 
         private static void ConfigureWebsiteTrafficMessages(
@@ -255,6 +272,41 @@ namespace LundBot.Infrastructure.Persistence
             );
 
             entity.HasIndex(e => e.DiscordMessageId).IsUnique().HasDatabaseName("WebsiteTrafficMessage_index_1");
+
+            entity
+                .HasOne(e => e.Channel)
+                .WithMany()
+                .HasForeignKey(e => e.WebsiteTrafficAnalyticsChannelId)
+                .HasPrincipalKey(e => e.Id)
+                .OnDelete(DeleteBehavior.Cascade)
+                .HasConstraintName("fk_website_traffic_messages_channels");
+        }
+
+        private static void ConfigureWebsiteTrafficChannels(
+            EntityTypeBuilder<WebsiteTrafficAnalyticsChannel> entity,
+            bool isMySql
+        )
+        {
+            entity.ToTable("WebsiteTrafficAnalyticsChannels");
+
+            entity.HasKey(e => e.Id);
+            ConfigureMySqlColumnType(
+                entity.Property(e => e.Id).HasColumnName("WebsiteTrafficAnalyticsChannelId").ValueGeneratedOnAdd(),
+                isMySql,
+                "int unsigned"
+            );
+
+            ConfigureMySqlColumnType(entity.Property(e => e.ChannelId).IsRequired(), isMySql, "bigint unsigned");
+            ConfigureMySqlColumnType(entity.Property(e => e.GuildId).IsRequired(), isMySql, "bigint unsigned");
+
+            ConfigureMySqlColumnType(
+                entity.Property(e => e.CreatedAt).HasDefaultValueSql(GetCreatedAtDefaultSql(isMySql)),
+                isMySql,
+                "datetime(3)"
+            );
+
+            entity.HasIndex(e => e.ChannelId).HasDatabaseName("WebsiteTrafficAnalyticsChannels_index_1");
+            entity.HasIndex(e => e.GuildId).IsUnique().HasDatabaseName("WebsiteTrafficAnalyticsChannels_index_2");
         }
 
         private static void ConfigureMemberJoinMessages(EntityTypeBuilder<MemberJoinMessage> entity, bool isMySql)

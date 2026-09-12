@@ -34,7 +34,6 @@
     <PackageReference Include="DSharpPlus.Interactivity" Version="5.0.0-nightly-02602" />
   </ItemGroup>
 
-
   <!-- Project references -->
   <ItemGroup>
     <ProjectReference Include="..\LundBot.Application\LundBot.Application.csproj" />

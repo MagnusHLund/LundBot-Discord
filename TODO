@@ -7,8 +7,10 @@
 5. Stop storing Roles in appsettings. Add it to the database, along with the role to kick. Role to kick would then be registered using a command.
 6. Remove MemberJoin messages after 30 days in the database only, as they can be considered irrelevant at that point
 7. Remove MemberJoin messages, in both database and discord chat, if the user leaves the guild
+8. Could probably optimize performance for database, using AsNoTracking
 
 ## Before next deployment
 
 1. Database backup
 2. Move appsettings files to correct directory
+3. Update infinitewarfarecommunity.com to send the guild id in its network requests to the API

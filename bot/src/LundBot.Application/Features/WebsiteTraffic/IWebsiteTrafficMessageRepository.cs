@@ -7,7 +7,8 @@ namespace LundBot.Application.Features.WebsiteTraffic
     {
         Task<List<WebsiteTrafficAnalyticsMessage>> GetWebsiteTrafficMessagesForPeriodAsync(
             DateTime startDate,
-            DateTime endDate
+            DateTime endDate,
+            int websiteTrafficAnalyticsChannelId
         );
     }
 }

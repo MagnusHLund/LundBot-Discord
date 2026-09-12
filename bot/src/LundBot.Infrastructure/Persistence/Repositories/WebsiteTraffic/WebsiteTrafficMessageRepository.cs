@@ -31,11 +31,17 @@ namespace LundBot.Infrastructure.Persistence.Repositories.WebsiteTraffic
 
         public async Task<List<WebsiteTrafficAnalyticsMessage>> GetWebsiteTrafficMessagesForPeriodAsync(
             DateTime startDate,
-            DateTime endDate
+            DateTime endDate,
+            int websiteTrafficAnalyticsChannelId
         )
         {
             return await _context
-                .WebsiteTrafficMessages.Where(w => w.CreatedAt >= startDate && w.CreatedAt < endDate)
+                .WebsiteTrafficMessages.Where(w =>
+                    w.WebsiteTrafficAnalyticsChannelId == websiteTrafficAnalyticsChannelId
+                    && w.CreatedAt >= startDate
+                    && w.CreatedAt < endDate
+                )
+                .OrderBy(w => w.CreatedAt)
                 .ToListAsync();
         }
 

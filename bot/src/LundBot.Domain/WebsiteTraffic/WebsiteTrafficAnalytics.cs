@@ -10,5 +10,9 @@ namespace LundBot.Domain.WebsiteTraffic
     {
         public byte[] HashedIp { get; set; } = null!;
         public bool ClickedInviteButton { get; set; }
+
+        public int WebsiteTrafficAnalyticsChannelId { get; set; }
+
+        public WebsiteTrafficAnalyticsChannel Channel { get; set; } = null!;
     }
 }

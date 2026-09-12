@@ -1,8 +1,8 @@
 using LundBot.Application.Common.Exceptions;
 using LundBot.Application.Features.Leaderboards.Contracts;
 using LundBot.Domain.Leaderboards;
+using LundBot.Infrastructure.Utils;
 using Microsoft.EntityFrameworkCore;
-using MySqlConnector;
 
 namespace LundBot.Infrastructure.Persistence.Repositories.Leaderboards
 {
@@ -57,7 +57,7 @@ namespace LundBot.Infrastructure.Persistence.Repositories.Leaderboards
                 await _context.SaveChangesAsync();
                 return true;
             }
-            catch (DbUpdateException ex) when (IsUniqueConstraintViolation(ex))
+            catch (DbUpdateException ex) when (DatabaseUtils.IsUniqueConstraintViolation(ex))
             {
                 _context.Entry(leaderboardScore).State = EntityState.Detached;
 
@@ -72,9 +72,6 @@ namespace LundBot.Infrastructure.Persistence.Repositories.Leaderboards
                 return rowsAffected > 0;
             }
         }
-
-        private static bool IsUniqueConstraintViolation(DbUpdateException ex) =>
-            ex.InnerException is MySqlException { Number: 1062 };
 
         public async Task<IEnumerable<LeaderboardScore>> GetTopScoresAsync(int leaderboardId, int limit)
         {
@@ -91,10 +88,7 @@ namespace LundBot.Infrastructure.Persistence.Repositories.Leaderboards
             {
                 _logger.Error(ex, "An error occurred while retrieving top scores.");
 
-                throw new RepositoryException(
-                    $"Failed to retrieve top scores for leaderboard ID {leaderboardId}.",
-                    ex
-                );
+                throw new RepositoryException($"Failed to retrieve top scores for leaderboard ID {leaderboardId}.", ex);
             }
         }
     }

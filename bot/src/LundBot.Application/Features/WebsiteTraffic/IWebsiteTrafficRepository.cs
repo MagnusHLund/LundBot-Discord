@@ -4,11 +4,12 @@ namespace LundBot.Application.Features.WebsiteTraffic
 {
     public interface IWebsiteTrafficRepository
     {
-        Task<bool> RegisterWebsiteVisitAsync(byte[] hashedIpAddress);
-        Task<bool> RegisterInviteLinkClickAsync(byte[] hashedIpAddress);
+        Task<bool> RegisterWebsiteVisitAsync(byte[] hashedIpAddress, int websiteTrafficAnalyticsChannelId);
+        Task<bool> RegisterInviteLinkClickAsync(byte[] hashedIpAddress, int websiteTrafficAnalyticsChannelId);
         Task<List<WebsiteTrafficAnalytics>> GetWebsiteTrafficEntitiesForPeriodAsync(
             DateTime startDate,
-            DateTime endDate
+            DateTime endDate,
+            int websiteTrafficAnalyticsChannelId
         );
     }
 }

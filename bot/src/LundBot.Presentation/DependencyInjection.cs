@@ -59,7 +59,7 @@ namespace LundBot.Presentation
             DiscordIntents intents = DiscordIntents.AllUnprivileged | DiscordIntents.GuildMembers;
 
             services.AddDiscordClient(discordToken, intents);
-            services.AddCommandsExtension((ServiceProvider, extension) => { });
+            services.AddCommandsExtension((_, extension) => { });
 
             services.AddSingleton<IDiscordCommandRegistration, DiscordCommandRegistration>();
 

@@ -4,7 +4,7 @@
 
 This bot is written for the [Infinite Warfare PC](https://discord.gg/FycARMT2YR) (IWPC) discord server.<br>
 The functionality of this bot is therefore focused on that server's needs.<br>
-However the functionality is mostly generic enough, to be used on any discord server.
+However the functionality is generic enough, to be used on any discord server and multiple servers at once.
 
 You can read more about the discord server on our [website](https://infinitewarfarecommunity.com).
 
@@ -27,7 +27,6 @@ You can read more about the discord server on our [website](https://infinitewarf
   "Discord": {
     "Token": "",
     "FastUpdateGuildIds": [0],
-    "WebTrafficChannelId": 0,
     "ShouldRegisterGlobalCommands": false,
     "RoleIdToAutoKick": 0
   },

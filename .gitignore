@@ -247,4 +247,4 @@ _Pvt_Extensions
 *.liveclass
 
 # Production http files
-**/http/*.prod.http
+**/http/**/*.prod.http
