@@ -11,7 +11,7 @@ namespace LundBot.Presentation.Api.Common.Validation
 
         public override bool IsValid(object? value)
         {
-            return value is null || value is ulong id && ValidationUtils.IsValidDiscordId(id);
+            return value is ulong id && ValidationUtils.IsValidDiscordId(id);
         }
     }
 }
