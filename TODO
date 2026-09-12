@@ -8,10 +8,6 @@
 6. Remove MemberJoin messages after 30 days in the database only, as they can be considered irrelevant at that point
 7. Remove MemberJoin messages, in both database and discord chat, if the user leaves the guild
 
-## Refactor related
-
-1. Add validation of command and API input
-
 ## Before next deployment
 
 1. Database backup

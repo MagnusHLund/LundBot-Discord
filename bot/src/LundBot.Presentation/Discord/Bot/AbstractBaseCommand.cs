@@ -1,5 +1,6 @@
 using DSharpPlus.Commands;
 using LundBot.Application.Common.Exceptions;
+using LundBot.Application.Common.Validation;
 using LundBot.Presentation.Discord.Interactions;
 
 namespace LundBot.Presentation.Discord.Bot
@@ -25,6 +26,21 @@ namespace LundBot.Presentation.Discord.Bot
         )
         {
             await _discordInteractionService.SendResponseAsync(context, content, showOnlyToUser);
+        }
+
+        private protected async Task<bool> IsValidDiscordIdAsync(
+            CommandContext context,
+            ulong id,
+            string parameterName
+        )
+        {
+            if (ValidationUtils.IsValidDiscordId(id))
+            {
+                return true;
+            }
+
+            await SendResponseAsync(context, $"The {parameterName} must be a valid Discord ID.");
+            return false;
         }
 
         private protected async Task TaskWithErrorHandlingAsync(

@@ -39,6 +39,14 @@ namespace LundBot.Presentation.Discord.Leaderboards.Commands
                 return;
             }
 
+            if (
+                !await IsValidDiscordIdAsync(context, channelId, "channel")
+                || !await IsValidDiscordIdAsync(context, user.Id, "user")
+            )
+            {
+                return;
+            }
+
             DiscordUserDto userUpvoting = new DiscordUserDto(
                 context.User.Id,
                 context.User.Username,

@@ -40,6 +40,11 @@ namespace LundBot.Presentation.Discord.Leaderboards.Commands
                 return;
             }
 
+            if (!await IsValidDiscordIdAsync(context, channelId, "channel"))
+            {
+                return;
+            }
+
             if (!confirm)
             {
                 await SendResponseAsync(
