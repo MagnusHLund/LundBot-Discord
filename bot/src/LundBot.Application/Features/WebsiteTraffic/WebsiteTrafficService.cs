@@ -3,7 +3,6 @@ using LundBot.Application.Common.Messaging;
 using LundBot.Application.Common.Security.Hashing;
 using LundBot.Application.Common.Time;
 using LundBot.Domain.WebsiteTraffic;
-using Microsoft.Extensions.Options;
 
 namespace LundBot.Application.Features.WebsiteTraffic
 {
@@ -24,7 +23,6 @@ namespace LundBot.Application.Features.WebsiteTraffic
             IWebsiteTrafficRepository websiteTrafficRepository,
             IWebsiteTrafficMessageRepository websiteTrafficMessageRepository,
             IWebsiteTrafficChannelRepository websiteTrafficChannelRepository,
-            IOptions<WebsiteTrafficConfig> discordConfig,
             IMessageService<
                 WebsiteTrafficAnalyticsMessage,
                 IWebsiteTrafficMessageRepository,

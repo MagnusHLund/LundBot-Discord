@@ -27,7 +27,6 @@ namespace LundBot.Application
         {
             services.AddServices();
             services.AddFactories();
-            services.AddConfiguration(configuration);
 
             return services;
         }
@@ -129,15 +128,5 @@ namespace LundBot.Application
                 serviceProvider.GetRequiredService<ICacheService>(),
                 topScoreLimit
             );
-
-        private static IServiceCollection AddConfiguration(
-            this IServiceCollection services,
-            IConfiguration configuration
-        )
-        {
-            services.Configure<WebsiteTrafficConfig>(configuration.GetSection("Discord"));
-
-            return services;
-        }
     }
 }
