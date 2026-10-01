@@ -8,6 +8,7 @@
 6. Remove MemberJoin messages after 30 days in the database only, as they can be considered irrelevant at that point
 7. Remove MemberJoin messages, in both database and discord chat, if the user leaves the guild
 8. Could probably optimize performance for database, using AsNoTracking
+9. Report system, which creates new channel per report case, so you can communicate directly with the reporter. Like a ticket system.
 
 ## Before next deployment
 
