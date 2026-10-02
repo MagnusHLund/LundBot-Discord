@@ -12,6 +12,7 @@ using LundBot.Application.Discord.Stickers;
 using LundBot.Application.Discord.Users;
 using LundBot.Application.Features.Leaderboards.Contracts;
 using LundBot.Application.Features.MemberJoin;
+using LundBot.Application.Features.Moderation;
 using LundBot.Application.Features.WebsiteTraffic;
 using LundBot.Infrastructure.Caching;
 using LundBot.Infrastructure.Discord.Bot;
@@ -28,6 +29,7 @@ using LundBot.Infrastructure.Discord.Users;
 using LundBot.Infrastructure.Persistence;
 using LundBot.Infrastructure.Persistence.Repositories.Leaderboards;
 using LundBot.Infrastructure.Persistence.Repositories.MemberJoin;
+using LundBot.Infrastructure.Persistence.Repositories.Moderation;
 using LundBot.Infrastructure.Persistence.Repositories.WebsiteTraffic;
 using LundBot.Infrastructure.Queues;
 using Microsoft.EntityFrameworkCore;
@@ -100,6 +102,7 @@ namespace LundBot.Infrastructure
             services.AddScoped<IMemberJoinMessageRepository, MemberJoinMessageRepository>();
             services.AddScoped<ILeaderboardScoreRepository, LeaderboardScoreRepository>();
             services.AddScoped<IWebsiteTrafficRepository, WebsiteTrafficRepository>();
+            services.AddScoped<IAutoKickRolesRepository, AutoKickRolesRepository>();
             services.AddScoped<ILeaderboardRepository, LeaderboardRepository>();
 
             services.AddScoped<WebsiteTrafficMessageRepository>();

@@ -1,0 +1,14 @@
+@LundBot_HostAddress = http://localhost:3000
+@api_key = test
+@Discord_GuildId  = 123456789012345678
+@Discord_RoleId  = 123456789012345678
+
+DELETE {{LundBot_HostAddress}}/api/moderation/kick/roles/unassign
+Accept: application/json
+Content-Type: application/json
+Authorization: Bearer {{api_key}}
+
+{
+    "guildId": {{Discord_GuildId}},
+    "roleId": {{Discord_RoleId}}
+}

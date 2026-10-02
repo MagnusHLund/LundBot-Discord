@@ -51,12 +51,7 @@ namespace LundBot.Presentation.Discord.Events
             string kickReason =
                 $"You have been automatically kicked due to picking the \"{roleToKick?.Name ?? "Unknown"}\" role. This community is PC only. Feel free to join back, if you own IW on PC or plan to purchase it on PC";
 
-            await _moderationActionsService.KickUserDueToRoleAssignmentAsync(
-                eventArgs.Guild.Id,
-                eventArgs.Member.Id,
-                roleToKickDto,
-                kickReason
-            );
+            await _moderationActionsService.KickUserDueToRoleAssignmentAsync(eventArgs.Guild.Id, eventArgs.Member.Id);
         }
     }
 }
