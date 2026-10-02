@@ -1,6 +1,7 @@
 using DSharpPlus;
 using DSharpPlus.Entities;
 using LundBot.Application.Discord.Roles;
+using LundBot.Infrastructure.Discord.Roles.Mappings;
 
 namespace LundBot.Infrastructure.Discord.Roles
 {
@@ -13,6 +14,27 @@ namespace LundBot.Infrastructure.Discord.Roles
         public DiscordRoleService(DiscordClient discordClient)
         {
             _discordClient = discordClient;
+        }
+
+        public async Task<IReadOnlyList<DiscordRoleDto>?> GetAllRolesForMemberAsync(ulong memberId, ulong guildId)
+        {
+            try
+            {
+                DiscordGuild guild = await _discordClient.GetGuildAsync(guildId);
+                DiscordMember member = await guild.GetMemberAsync(memberId);
+
+                return member.Roles.Select(role => DiscordRoleMapper.Map(role)).ToList();
+            }
+            catch (Exception ex)
+            {
+                _logger.Error(
+                    ex,
+                    "Failed to get all roles for member {MemberId} in guild {GuildId}",
+                    memberId,
+                    guildId
+                );
+                throw;
+            }
         }
 
         public async Task<bool> DoesMemberHaveRoleAsync(ulong memberId, ulong guildId, ulong roleId)

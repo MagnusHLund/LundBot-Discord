@@ -1,5 +1,6 @@
 using LundBot.Domain.Leaderboards;
 using LundBot.Domain.MemberJoin;
+using LundBot.Domain.Moderation;
 using LundBot.Domain.WebsiteTraffic;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
@@ -16,6 +17,7 @@ namespace LundBot.Infrastructure.Persistence
         public DbSet<WebsiteTrafficAnalyticsMessage> WebsiteTrafficMessages { get; set; } = null!;
         public DbSet<MemberJoinMessage> MemberJoinMessages { get; set; } = null!;
         public DbSet<WebsiteTrafficAnalyticsChannel> WebsiteTrafficAnalyticsChannels { get; set; } = null!;
+        public DbSet<AutoKickRole> AutoKickRoles { get; set; } = null!;
 
         public LundBotDbContext() { }
 
@@ -34,6 +36,7 @@ namespace LundBot.Infrastructure.Persistence
             ConfigureWebsiteTrafficMessages(modelBuilder.Entity<WebsiteTrafficAnalyticsMessage>(), isMySql);
             ConfigureMemberJoinMessages(modelBuilder.Entity<MemberJoinMessage>(), isMySql);
             ConfigureWebsiteTrafficChannels(modelBuilder.Entity<WebsiteTrafficAnalyticsChannel>(), isMySql);
+            ConfigureAutoKickRoles(modelBuilder.Entity<AutoKickRole>(), isMySql);
         }
 
         private static void ConfigureLeaderboards(EntityTypeBuilder<Leaderboard> entity, bool isMySql)
@@ -330,6 +333,30 @@ namespace LundBot.Infrastructure.Persistence
             );
 
             entity.HasIndex(e => e.DiscordUserId).IsUnique().HasDatabaseName("MemberJoinMessages_index_1");
+        }
+
+        private static void ConfigureAutoKickRoles(EntityTypeBuilder<AutoKickRole> entity, bool isMySql)
+        {
+            entity.ToTable("RolesThatTriggerKicks");
+
+            entity.HasKey(e => e.Id);
+            ConfigureMySqlColumnType(
+                entity.Property(e => e.Id).HasColumnName("AutoKickRoleId").ValueGeneratedOnAdd(),
+                isMySql,
+                "int unsigned"
+            );
+
+            ConfigureMySqlColumnType(entity.Property(e => e.GuildId).IsRequired(), isMySql, "bigint unsigned");
+            ConfigureMySqlColumnType(entity.Property(e => e.RoleId).IsRequired(), isMySql, "bigint unsigned");
+
+            ConfigureMySqlColumnType(
+                entity.Property(e => e.CreatedAt).HasDefaultValueSql(GetCreatedAtDefaultSql(isMySql)),
+                isMySql,
+                "datetime(3)"
+            );
+
+            entity.HasIndex(e => e.GuildId).HasDatabaseName("RolesThatTriggerKicks_index_1");
+            entity.HasIndex(e => e.RoleId).IsUnique().HasDatabaseName("RolesThatTriggerKicks_index_2");
         }
 
         private static string GetCreatedAtDefaultSql(bool isMySql) =>

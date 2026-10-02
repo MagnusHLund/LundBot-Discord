@@ -7,8 +7,10 @@ namespace LundBot.Application.Features.Moderation
         Task<bool> KickUserDueToRoleAssignmentAsync(
             ulong guildId,
             ulong userId,
-            DiscordRoleDto roleToKick,
-            string reason
+            IReadOnlyList<DiscordRoleDto>? memberRoles = null
         );
+
+        Task<bool> SetRoleToAutomaticallyKickAsync(ulong guildId, ulong roleId, string reason);
+        Task<bool> RemoveRoleFromAutomaticallyKickAsync(ulong guildId, ulong roleId);
     }
 }
