@@ -3,7 +3,7 @@ using LundBot.Application.Discord.Moderation;
 
 namespace LundBot.Infrastructure.Discord.Moderation
 {
-    public class DiscordModerationService : IDiscordModerationService
+    public sealed class DiscordModerationService : IDiscordModerationService
     {
         private readonly DiscordClient _discordClient;
 

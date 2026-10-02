@@ -54,11 +54,11 @@ dotnet_naming_rule.private_fields_should_have_prefix.severity = error
 dotnet_naming_rule.private_fields_should_have_prefix.symbols = private_fields
 dotnet_naming_rule.private_fields_should_have_prefix.style = prefix_underscore
 
-dotnet_naming_symbols.private_members.applicable_kinds = field
-dotnet_naming_symbols.private_members.applicable_accessibilities = private
-dotnet_naming_symbols.private_members.required_modifiers = readonly
+dotnet_naming_symbols.private_fields.applicable_kinds = field
+dotnet_naming_symbols.private_fields.applicable_accessibilities = private
 
-dotnet_naming_style.camel_case.capitalization = camel_case
+dotnet_naming_style.prefix_underscore.required_prefix = _
+dotnet_naming_style.prefix_underscore.capitalization = camel_case
 
 # File and code layout settings
 csharp_prefer_braces = true:suggestion

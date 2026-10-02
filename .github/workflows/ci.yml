@@ -5,15 +5,17 @@ on:
     branches: [main]
     paths:
       - 'bot/**'
+      - '.github/workflows/ci.yml'
       - '!**/*.md'
   pull_request:
     branches: [main]
     paths:
       - 'bot/**'
+      - '.github/workflows/ci.yml'
       - '!**/*.md'
 
 jobs:
-  build-and-test:
+  build-and-run:
     runs-on: ubuntu-latest
     services:
       mariadb:
@@ -65,12 +67,46 @@ jobs:
           kill $BOT_PID || true
           echo "✅ Runtime validation passed"
 
+  tests:
+    name: ${{ matrix.suite }} tests
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        suite: [Integration, Architecture]
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.0.x'
+
+      - name: Cache NuGet packages
+        uses: actions/cache@v4
+        with:
+          path: ~/.nuget/packages
+          key: ${{ runner.os }}-nuget-${{ hashFiles('**/*.csproj') }}
+          restore-keys: |
+            ${{ runner.os }}-nuget-
+
+      - name: Restore dependencies
+        run: dotnet restore ./bot/tests/LundBot.${{ matrix.suite }}Tests/LundBot.${{ matrix.suite }}Tests.csproj
+
       - name: Run tests
-        run: dotnet test ./bot/tests/LundBot.IntegrationTests/LundBot.IntegrationTests.csproj --configuration Release --logger "trx" --results-directory ./bot/tests/TestResults
+        id: tests
+        run: >-
+          dotnet test ./bot/tests/LundBot.${{ matrix.suite }}Tests/LundBot.${{ matrix.suite }}Tests.csproj
+          --configuration Release --no-restore
+          --logger "trx;LogFileName=tests.trx"
+          --results-directory "${{ github.workspace }}/artifacts/test-results/${{ matrix.suite }}"
 
       - name: Upload test results
         uses: actions/upload-artifact@v4
-        if: always()
+        if: ${{ always() && steps.tests.outcome != 'skipped' }}
         with:
-          name: test-results
-          path: ./bot/tests/TestResults
+          name: test-results-${{ matrix.suite }}
+          path: ${{ github.workspace }}/artifacts/test-results/${{ matrix.suite }}/*.trx
+          if-no-files-found: error
+          retention-days: 14

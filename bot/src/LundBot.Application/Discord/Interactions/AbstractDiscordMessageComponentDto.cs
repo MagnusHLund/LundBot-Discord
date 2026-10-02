@@ -1,11 +1,11 @@
 namespace LundBot.Application.Discord.Interactions
 {
-    public abstract record DiscordMessageComponentDto
+    public abstract record AbstractDiscordMessageComponentDto
     {
         public string CustomId { get; }
         public string Label { get; }
 
-        public DiscordMessageComponentDto(string customId, string label)
+        public AbstractDiscordMessageComponentDto(string customId, string label)
         {
             CustomId = customId;
             Label = label;

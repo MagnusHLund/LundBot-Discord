@@ -25,7 +25,7 @@ namespace LundBot.Application.Common.Messaging
         Task<DiscordMessageDto?> CreateMessageWithComponentsAsync(
             string content,
             DiscordChannelDto channel,
-            List<DiscordMessageComponentDto> components
+            List<AbstractDiscordMessageComponentDto> components
         );
 
         Task<DiscordMessageDto?> CreateMessageFromDiscordMessageBuilderAsync(

@@ -9,7 +9,7 @@ namespace LundBot.Application.Discord.Messages
         Task<DiscordMessageDto?> SendMessageWithComponentsAsync(
             ulong channelId,
             string content,
-            IReadOnlyCollection<DiscordMessageComponentDto> components
+            IReadOnlyCollection<AbstractDiscordMessageComponentDto> components
         );
         Task<DiscordMessageDto?> ModifyMessageAsync(ulong messageId, ulong channelId, string newContent);
         Task<bool> DeleteMessageAsync(ulong messageId, ulong channelId);

@@ -2,7 +2,7 @@ namespace LundBot.Application.Common.Validation
 {
     public static class ValidationUtils
     {
-        private static readonly DateTime DiscordEpoch = new(2015, 1, 1, 0, 0, 0, DateTimeKind.Utc);
+        private static readonly DateTime _discordEpoch = new(2015, 1, 1, 0, 0, 0, DateTimeKind.Utc);
 
         public static bool IsValidDiscordId(ulong id)
         {
@@ -16,7 +16,7 @@ namespace LundBot.Application.Common.Validation
             ulong timestampDelta = id >> 22;
 
             // 3. Calculate when this ID was actually generated
-            DateTime generatedTime = DiscordEpoch.AddMilliseconds(timestampDelta);
+            DateTime generatedTime = _discordEpoch.AddMilliseconds(timestampDelta);
 
             // 4. Time check: Must be generated after Discord launched,
             // and not in the future (allowing a 5-minute buffer for server clock drift)

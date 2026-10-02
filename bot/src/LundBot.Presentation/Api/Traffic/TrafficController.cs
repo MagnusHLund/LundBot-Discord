@@ -62,6 +62,7 @@ namespace LundBot.Presentation.Api.Traffic
             return NoContent();
         }
 
+        [AllowAnonymous]
         [HttpPost("visit")]
         public async Task<IActionResult> VisitedWebsite([FromBody] TrafficRequestDto requestDto)
         {
@@ -76,6 +77,7 @@ namespace LundBot.Presentation.Api.Traffic
             return NoContent();
         }
 
+        [AllowAnonymous]
         [HttpPost("invite-click")]
         public async Task<IActionResult> ClickedInviteLink([FromBody] TrafficRequestDto requestDto)
         {

@@ -12,6 +12,7 @@ namespace LundBot.Application.Common.Messaging
         where TFactory : IMessageEntityFactory<TEntity>
     {
         private readonly TRepository _messageRepository;
+        private readonly TFactory _messageFactory;
         private readonly IDiscordChannelService _discordChannelService;
         private readonly IDiscordMessageService _discordMessageService;
 
@@ -25,12 +26,12 @@ namespace LundBot.Application.Common.Messaging
         )
         {
             _messageRepository = messageRepository;
-            MessageFactory = messageFactory;
+            _messageFactory = messageFactory;
             _discordChannelService = discordChannelService;
             _discordMessageService = discordMessageService;
         }
 
-        public TFactory MessageFactory { get; }
+        public TFactory MessageFactory => _messageFactory;
 
         public async Task<bool> SynchronizeDiscordMessagesAsync(
             string message,
@@ -123,7 +124,7 @@ namespace LundBot.Application.Common.Messaging
         public async Task<DiscordMessageDto?> CreateMessageWithComponentsAsync(
             string content,
             DiscordChannelDto channel,
-            List<DiscordMessageComponentDto> components
+            List<AbstractDiscordMessageComponentDto> components
         )
         {
             DiscordMessageDto? discordMessage = await _discordMessageService.SendMessageWithComponentsAsync(

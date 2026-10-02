@@ -6,8 +6,8 @@ namespace LundBot.IntegrationTests.Api;
 
 public sealed class TrafficTrackingEndpointIntegrationTests : ApiIntegrationTestBase
 {
-    private const string VisitorIp = "198.51.100.20";
-    private const string OtherVisitorIp = "198.51.100.21";
+    private const string _visitorIp = "198.51.100.20";
+    private const string _otherVisitorIp = "198.51.100.21";
 
     [Fact]
     public async Task Visit_registers_visitor()
@@ -17,7 +17,7 @@ public sealed class TrafficTrackingEndpointIntegrationTests : ApiIntegrationTest
             ApiTestIds.GuildId,
             ApiTestIds.ChannelId
         );
-        using HttpRequestMessage request = CreateTrafficRequest("/api/traffic/visit", VisitorIp);
+        using HttpRequestMessage request = CreateTrafficRequest("/api/traffic/visit", _visitorIp);
 
         using HttpResponseMessage response = await Host.Client.SendAsync(request);
 
@@ -46,8 +46,8 @@ public sealed class TrafficTrackingEndpointIntegrationTests : ApiIntegrationTest
             ApiTestIds.GuildId,
             ApiTestIds.ChannelId
         );
-        await ApiTestData.SeedWebsiteVisitAsync(Host, trafficChannelId, VisitorIp);
-        using HttpRequestMessage request = CreateTrafficRequest("/api/traffic/visit", VisitorIp);
+        await ApiTestData.SeedWebsiteVisitAsync(Host, trafficChannelId, _visitorIp);
+        using HttpRequestMessage request = CreateTrafficRequest("/api/traffic/visit", _visitorIp);
 
         using HttpResponseMessage response = await Host.Client.SendAsync(request);
 
@@ -73,8 +73,8 @@ public sealed class TrafficTrackingEndpointIntegrationTests : ApiIntegrationTest
             ApiTestIds.GuildId,
             ApiTestIds.ChannelId
         );
-        await ApiTestData.SeedWebsiteVisitAsync(Host, trafficChannelId, VisitorIp);
-        using HttpRequestMessage request = CreateTrafficRequest("/api/traffic/invite-click", VisitorIp);
+        await ApiTestData.SeedWebsiteVisitAsync(Host, trafficChannelId, _visitorIp);
+        using HttpRequestMessage request = CreateTrafficRequest("/api/traffic/invite-click", _visitorIp);
 
         using HttpResponseMessage response = await Host.Client.SendAsync(request);
 
@@ -88,7 +88,7 @@ public sealed class TrafficTrackingEndpointIntegrationTests : ApiIntegrationTest
     public async Task InviteClick_fails_when_visitor_has_not_visited()
     {
         await ApiTestData.SeedTrafficChannelAsync(Host, ApiTestIds.GuildId, ApiTestIds.ChannelId);
-        using HttpRequestMessage request = CreateTrafficRequest("/api/traffic/invite-click", OtherVisitorIp);
+        using HttpRequestMessage request = CreateTrafficRequest("/api/traffic/invite-click", _otherVisitorIp);
 
         using HttpResponseMessage response = await Host.Client.SendAsync(request);
 

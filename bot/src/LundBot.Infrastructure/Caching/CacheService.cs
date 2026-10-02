@@ -5,7 +5,7 @@ namespace LundBot.Infrastructure.Caching
 {
     public sealed class CacheService : ICacheService
     {
-        private record CacheEntry
+        private sealed record CacheEntry
         {
             public object? Value { get; set; }
             public DateTime? Expiration { get; set; }

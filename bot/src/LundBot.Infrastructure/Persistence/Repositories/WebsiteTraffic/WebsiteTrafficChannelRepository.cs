@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace LundBot.Infrastructure.Persistence.Repositories.WebsiteTraffic
 {
-    public class WebsiteTrafficChannelRepository : IWebsiteTrafficChannelRepository
+    public sealed class WebsiteTrafficChannelRepository : IWebsiteTrafficChannelRepository
     {
         private readonly LundBotDbContext _context;
         private readonly ILogger _logger = Log.ForContext<WebsiteTrafficChannelRepository>();

@@ -2,17 +2,17 @@ namespace LundBot.Application.Common.Exceptions
 {
     public sealed class CommandException : Exception
     {
-        private readonly bool ShowMessageToUser;
+        private readonly bool _showMessageToUser;
 
         public CommandException(string message, bool showMessageToUser = false)
             : base(message)
         {
-            ShowMessageToUser = showMessageToUser;
+            _showMessageToUser = showMessageToUser;
         }
 
         public string GetMessage()
         {
-            if (ShowMessageToUser)
+            if (_showMessageToUser)
             {
                 return Message;
             }

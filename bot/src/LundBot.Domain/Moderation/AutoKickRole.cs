@@ -2,7 +2,7 @@ using LundBot.Domain.Common;
 
 namespace LundBot.Domain.Moderation
 {
-    public class AutoKickRole : AbstractEntity
+    public sealed class AutoKickRole : AbstractEntity
     {
         public ulong RoleId { get; set; }
         public ulong GuildId { get; set; }
