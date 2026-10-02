@@ -1,5 +1,6 @@
 using DSharpPlus;
 using DSharpPlus.EventArgs;
+using LundBot.Application.Discord.Roles;
 using LundBot.Application.Features.Moderation;
 
 namespace LundBot.Presentation.Discord.Events
@@ -25,7 +26,15 @@ namespace LundBot.Presentation.Discord.Events
                 eventArgs.Guild.Id
             );
 
-            await _moderationActionsService.KickUserDueToRoleAssignmentAsync(eventArgs.Guild.Id, eventArgs.Member.Id);
+            IReadOnlyList<DiscordRoleDto>? memberRoles = eventArgs
+                .Member.Roles.Select(role => new DiscordRoleDto(role.Id, role.Name))
+                .ToList();
+
+            await _moderationActionsService.KickUserDueToRoleAssignmentAsync(
+                eventArgs.Guild.Id,
+                eventArgs.Member.Id,
+                memberRoles
+            );
         }
     }
 }

@@ -21,7 +21,11 @@ namespace LundBot.Application.Features.Moderation
             _autoKickRolesRepository = autoKickRolesRepository;
         }
 
-        public async Task<bool> KickUserDueToRoleAssignmentAsync(ulong guildId, ulong userId)
+        public async Task<bool> KickUserDueToRoleAssignmentAsync(
+            ulong guildId,
+            ulong userId,
+            IReadOnlyList<DiscordRoleDto>? memberRoles = null
+        )
         {
             IReadOnlyList<AutoKickRole> rolesToKick = await _autoKickRolesRepository.GetAutoKickRoleAsync(guildId);
 
@@ -30,9 +34,19 @@ namespace LundBot.Application.Features.Moderation
                 return false;
             }
 
+            if (memberRoles is null || memberRoles.Count == 0)
+            {
+                memberRoles = await _discordRoleService.GetAllRolesForMemberAsync(userId, guildId);
+
+                if (memberRoles is null || memberRoles.Count == 0)
+                {
+                    return false;
+                }
+            }
+
             foreach (AutoKickRole role in rolesToKick)
             {
-                if (role != null && await _discordRoleService.DoesMemberHaveRoleAsync(userId, guildId, role.RoleId))
+                if (role != null && memberRoles.Any(r => r.RoleId == role.RoleId))
                 {
                     return await _discordModerationService.KickMemberAsync(userId, guildId, role.Reason);
                 }
