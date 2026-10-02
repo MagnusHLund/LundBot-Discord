@@ -32,11 +32,11 @@ namespace LundBot.Presentation.Discord.InfiniteWarfare.Maps
             }
             catch (Exception ex)
             {
-                await context.RespondAsync($"An error occurred: {ex.Message}");
+                await SendResponseAsync(context, $"An error occurred: {ex.Message}", showOnlyToUser: false);
                 return;
             }
 
-            await context.RespondAsync($"Random map: {randomMap}");
+            await SendResponseAsync(context, $"Random map: {randomMap}", showOnlyToUser: false);
         }
     }
 }

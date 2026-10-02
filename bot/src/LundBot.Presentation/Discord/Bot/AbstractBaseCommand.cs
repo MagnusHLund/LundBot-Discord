@@ -66,5 +66,39 @@ namespace LundBot.Presentation.Discord.Bot
                 );
             }
         }
+
+        private protected async Task TaskWithErrorHandlingAsync(
+            CommandContext context,
+            Func<Task<bool>> action,
+            string successMessage = "Command executed successfully."
+        )
+        {
+            try
+            {
+                bool success = await action();
+
+                if (!success)
+                {
+                    await SendResponseAsync(
+                        context,
+                        "An error occurred while processing your command. Please try again later."
+                    );
+                    return;
+                }
+
+                await SendResponseAsync(context, successMessage);
+            }
+            catch (CommandException ex)
+            {
+                await SendResponseAsync(context, ex.GetMessage());
+            }
+            catch (Exception)
+            {
+                await SendResponseAsync(
+                    context,
+                    "An error occurred while processing your command. Please try again later."
+                );
+            }
+        }
     }
 }
