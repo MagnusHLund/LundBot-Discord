@@ -37,23 +37,16 @@ namespace LundBot.Infrastructure.Persistence.Repositories.Moderation
             }
         }
 
-        public async Task<AutoKickRole?> GetAutoKickRoleAsync(ulong guildId, ulong roleId)
+        public async Task<List<AutoKickRole>> GetAutoKickRoleAsync(ulong guildId)
         {
             try
             {
-                return await _context.AutoKickRoles.FirstOrDefaultAsync(x =>
-                    x.GuildId == guildId && x.RoleId == roleId
-                );
+                return await _context.AutoKickRoles.Where(x => x.GuildId == guildId).ToListAsync();
             }
             catch (Exception ex)
             {
-                _logger.Error(
-                    ex,
-                    "Failed to get auto kick role for guild {GuildId} and role {RoleId}",
-                    guildId,
-                    roleId
-                );
-                return null;
+                _logger.Error(ex, "Failed to get auto kick roles for guild {GuildId}", guildId);
+                return new List<AutoKickRole>();
             }
         }
 

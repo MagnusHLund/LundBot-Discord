@@ -6,6 +6,6 @@ namespace LundBot.Application.Features.Moderation
     {
         Task<bool> AddAutoKickRoleAsync(ulong guildId, ulong roleId, string reason);
         Task<bool> RemoveAutoKickRoleAsync(ulong guildId, ulong roleId);
-        Task<AutoKickRole?> GetAutoKickRoleAsync(ulong guildId, ulong roleId);
+        Task<List<AutoKickRole>> GetAutoKickRoleAsync(ulong guildId);
     }
 }
