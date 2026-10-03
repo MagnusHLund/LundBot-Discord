@@ -5,7 +5,7 @@ using LundBot.Infrastructure.Discord.Roles.Mappings;
 
 namespace LundBot.Infrastructure.Discord.Roles
 {
-    public class DiscordRoleService : IDiscordRoleService
+    public sealed class DiscordRoleService : IDiscordRoleService
     {
         private readonly DiscordClient _discordClient;
 

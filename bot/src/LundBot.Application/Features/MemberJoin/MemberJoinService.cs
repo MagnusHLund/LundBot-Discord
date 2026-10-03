@@ -59,7 +59,7 @@ namespace LundBot.Application.Features.MemberJoin
             DiscordMessageDto? createdMessage = await _messageService.CreateMessageWithComponentsAsync(
                 welcomeMessage,
                 systemChannel,
-                new List<DiscordMessageComponentDto>
+                new List<AbstractDiscordMessageComponentDto>
                 {
                     new DiscordButtonDto(interactionId, content, DiscordButtonStyleEnum.Primary),
                 }

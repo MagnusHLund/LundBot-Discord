@@ -21,6 +21,8 @@ namespace LundBot.Presentation.Discord.InfiniteWarfare.Maps
             _randomMapService = randomMapService;
         }
 
+        // TODO: We could make this have a parameter for if the message should be shown only to the user.
+
         [Command("random-map")]
         [Description("Selects a random map from the list of maps.")]
         public async Task RandomMapAsync(CommandContext context)
@@ -34,11 +36,11 @@ namespace LundBot.Presentation.Discord.InfiniteWarfare.Maps
             catch (Exception ex)
             {
                 _logger.Error(ex, "An error occurred while selecting a random map.");
-                await context.RespondAsync("An error occurred while selecting a random map.");
+                await SendResponseAsync(context, "An error occurred while selecting a random map.");
                 return;
             }
 
-            await context.RespondAsync($"Random map: {randomMap}");
+            await SendResponseAsync(context, $"Random map: {randomMap}");
         }
     }
 }

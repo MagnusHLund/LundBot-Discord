@@ -108,7 +108,7 @@ namespace LundBot.Infrastructure.Discord.Messages
         public async Task<DiscordMessageDto?> SendMessageWithComponentsAsync(
             ulong channelId,
             string content,
-            IReadOnlyCollection<DiscordMessageComponentDto> components
+            IReadOnlyCollection<AbstractDiscordMessageComponentDto> components
         )
         {
             _logger.Information("Sending message with components to channel {ChannelId}...", channelId);
@@ -173,10 +173,10 @@ namespace LundBot.Infrastructure.Discord.Messages
 
         private static void AddComponentsToMessageBuilder(
             DiscordMessageBuilder builder,
-            IReadOnlyCollection<DiscordMessageComponentDto> components
+            IReadOnlyCollection<AbstractDiscordMessageComponentDto> components
         )
         {
-            foreach (DiscordMessageComponentDto component in components)
+            foreach (AbstractDiscordMessageComponentDto component in components)
             {
                 switch (component)
                 {

@@ -27,7 +27,7 @@ You can read more about the discord server on our [website](https://infinitewarf
   "Discord": {
     "Token": "",
     "FastUpdateGuildIds": [0],
-    "ShouldRegisterGlobalCommands": false,
+    "ShouldRegisterGlobalCommands": false
   },
   "Database": {
     "ConnectionString": "Server=lundbot-mariadb-dev;Port=3306;Database=LundBotDiscord;User=root;Password=password;"

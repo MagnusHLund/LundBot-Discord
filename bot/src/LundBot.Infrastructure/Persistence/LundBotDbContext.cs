@@ -1,9 +1,11 @@
+using System.Globalization;
 using LundBot.Domain.Leaderboards;
 using LundBot.Domain.MemberJoin;
 using LundBot.Domain.Moderation;
 using LundBot.Domain.WebsiteTraffic;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
+using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace LundBot.Infrastructure.Persistence
 {
@@ -27,6 +29,7 @@ namespace LundBot.Infrastructure.Persistence
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             bool isMySql = Database.ProviderName?.Contains("MySql", StringComparison.OrdinalIgnoreCase) ?? false;
+            bool isSqlite = Database.ProviderName?.Contains("Sqlite", StringComparison.OrdinalIgnoreCase) ?? false;
 
             ConfigureLeaderboards(modelBuilder.Entity<Leaderboard>(), isMySql);
             ConfigureLeaderboardScores(modelBuilder.Entity<LeaderboardScore>(), isMySql);
@@ -37,6 +40,24 @@ namespace LundBot.Infrastructure.Persistence
             ConfigureMemberJoinMessages(modelBuilder.Entity<MemberJoinMessage>(), isMySql);
             ConfigureWebsiteTrafficChannels(modelBuilder.Entity<WebsiteTrafficAnalyticsChannel>(), isMySql);
             ConfigureAutoKickRoles(modelBuilder.Entity<AutoKickRole>(), isMySql);
+
+            if (isSqlite)
+            {
+                ValueConverter<ulong, string> discordIdConverter = new ValueConverter<ulong, string>(
+                    value => value.ToString(CultureInfo.InvariantCulture),
+                    value => ulong.Parse(value, CultureInfo.InvariantCulture)
+                );
+
+                foreach (
+                    var property in modelBuilder
+                        .Model.GetEntityTypes()
+                        .SelectMany(entity => entity.GetProperties())
+                        .Where(property => property.ClrType == typeof(ulong))
+                )
+                {
+                    property.SetValueConverter(discordIdConverter);
+                }
+            }
         }
 
         private static void ConfigureLeaderboards(EntityTypeBuilder<Leaderboard> entity, bool isMySql)

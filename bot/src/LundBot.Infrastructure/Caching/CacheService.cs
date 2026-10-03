@@ -5,7 +5,7 @@ namespace LundBot.Infrastructure.Caching
 {
     public sealed class CacheService : ICacheService
     {
-        private record CacheEntry
+        private sealed record CacheEntry
         {
             public object? Value { get; set; }
             public DateTime? Expiration { get; set; }
@@ -16,7 +16,9 @@ namespace LundBot.Infrastructure.Caching
         public T? Get<T>(string key)
         {
             if (!_cache.TryGetValue(key, out var entry))
+            {
                 return default;
+            }
 
             if (entry.Expiration is not null && entry.Expiration < DateTime.UtcNow)
             {

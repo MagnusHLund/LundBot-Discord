@@ -5,4 +5,8 @@
     <Project Path="src/LundBot.Infrastructure/LundBot.Infrastructure.csproj" />
     <Project Path="src/LundBot.Presentation/LundBot.Presentation.csproj" />
   </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/LundBot.ArchitectureTests/LundBot.ArchitectureTests.csproj" />
+    <Project Path="tests/LundBot.IntegrationTests/LundBot.IntegrationTests.csproj" />
+  </Folder>
 </Solution>

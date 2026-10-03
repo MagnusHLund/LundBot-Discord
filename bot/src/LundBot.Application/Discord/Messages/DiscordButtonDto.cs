@@ -2,7 +2,7 @@ using LundBot.Application.Discord.Interactions;
 
 namespace LundBot.Application.Discord.Messages
 {
-    public sealed record DiscordButtonDto : DiscordMessageComponentDto
+    public sealed record DiscordButtonDto : AbstractDiscordMessageComponentDto
     {
         public DiscordButtonStyleEnum ButtonStyle { get; }
 

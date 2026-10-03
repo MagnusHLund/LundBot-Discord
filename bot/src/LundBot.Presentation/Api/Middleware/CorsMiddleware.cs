@@ -7,7 +7,7 @@ namespace LundBot.Presentation.Api.Middleware
         private readonly RequestDelegate _next;
         private readonly IHostEnvironment _hostEnvironment;
 
-        private static readonly HashSet<string> AllowedOrigins = new()
+        private static readonly HashSet<string> _allowedOrigins = new()
         {
             "https://lundbot69.com",
             "https://discord.lundbot69.com",
@@ -43,7 +43,7 @@ namespace LundBot.Presentation.Api.Middleware
 
         private bool IsOriginAllowed(string origin)
         {
-            if (AllowedOrigins.Contains(origin))
+            if (_allowedOrigins.Contains(origin))
             {
                 return true;
             }

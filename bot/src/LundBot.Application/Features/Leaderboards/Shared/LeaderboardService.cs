@@ -11,7 +11,7 @@ using LundBot.Domain.Leaderboards;
 
 namespace LundBot.Application.Features.Leaderboards.Shared
 {
-    public class LeaderboardService : ILeaderboardService
+    public sealed class LeaderboardService : ILeaderboardService
     {
         private readonly IDiscordUserService _discordUserService;
         private readonly IDiscordMemberService _discordMemberService;

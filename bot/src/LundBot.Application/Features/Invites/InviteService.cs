@@ -8,7 +8,7 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace LundBot.Application.Features.Invites
 {
-    public class InviteService : IInviteService
+    public sealed class InviteService : IInviteService
     {
         private readonly IDiscordGuildService _discordGuildService;
         private readonly ICacheService _cacheService;

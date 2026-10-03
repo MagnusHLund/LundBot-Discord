@@ -8,7 +8,7 @@ namespace LundBot.Presentation.Api.Moderation
 {
     [ApiController]
     [Route("api/[controller]")]
-    public class ModerationController : AbstractBaseController
+    public sealed class ModerationController : AbstractBaseController
     {
         private readonly IModerationActionService _moderationActionService;
 

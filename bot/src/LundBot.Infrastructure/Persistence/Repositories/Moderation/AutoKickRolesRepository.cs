@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace LundBot.Infrastructure.Persistence.Repositories.Moderation
 {
-    public class AutoKickRolesRepository : IAutoKickRolesRepository
+    public sealed class AutoKickRolesRepository : IAutoKickRolesRepository
     {
         private readonly LundBotDbContext _context;
 

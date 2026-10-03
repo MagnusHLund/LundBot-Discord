@@ -2,7 +2,7 @@ using LundBot.Presentation.Api.Common.Validation;
 
 namespace LundBot.Presentation.Api.Moderation.Dtos
 {
-    public class AssignRoleToKickRequestDto
+    public sealed class AssignRoleToKickRequestDto
     {
         [DiscordId]
         public required ulong GuildId { get; set; }
