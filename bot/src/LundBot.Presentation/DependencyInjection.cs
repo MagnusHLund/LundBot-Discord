@@ -140,6 +140,11 @@ namespace LundBot.Presentation
             services.Configure<ForwardedHeadersOptions>(options =>
             {
                 options.ForwardedHeaders = ForwardedHeaders.XForwardedFor;
+                if (knownProxies.Count == 0 && knownNetworks.Count == 0)
+                {
+                    return;
+                }
+
                 options.KnownProxies.Clear();
                 options.KnownIPNetworks.Clear();
 
