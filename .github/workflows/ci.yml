@@ -42,20 +42,21 @@ jobs:
             ${{ runner.os }}-nuget-
 
       - name: Restore dependencies
-        run: dotnet restore ./bot/src
+        run: dotnet restore ./bot/LundBot.slnx
 
       - name: Build solution
-        run: dotnet build ./bot/src --configuration Release --no-restore
+        run: dotnet build ./bot/LundBot.slnx --configuration Release --no-restore
 
       - name: Set runtime validation configuration
         run: |
           echo "Discord__Token=dummy" >> $GITHUB_ENV
           echo "Database__ConnectionString=Server=127.0.0.1;Port=3306;Database=LundBotDiscord;User=root;Password=password;" >> $GITHUB_ENV
+          echo "Server__ApiKey=dummy" >> $GITHUB_ENV
 
       - name: Runtime DI validation
         run: |
           echo "Starting runtime validation..."
-          dotnet run --project ./bot/src/LundBot.csproj --no-build --configuration Release &
+          dotnet run --project ./bot/src/LundBot.Presentation/LundBot.Presentation.csproj --no-build --configuration Release &
           BOT_PID=$!
           sleep 10
           if ! kill -0 $BOT_PID 2>/dev/null; then

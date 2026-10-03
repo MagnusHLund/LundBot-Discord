@@ -1,4 +1,0 @@
-@LundBot_HostAddress = http://localhost:3000
-
-POST {{LundBot_HostAddress}}/api/traffic/visit
-Accept: application/json

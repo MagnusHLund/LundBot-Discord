@@ -1,0 +1,110 @@
+using System.Net;
+using LundBot.Application.Features.WebsiteTraffic;
+using LundBot.Presentation.Api.Common;
+using LundBot.Presentation.Api.Common.Validation;
+using LundBot.Presentation.Api.Traffic.Dtos;
+using LundBot.Presentation.Config;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Options;
+
+namespace LundBot.Presentation.Api.Traffic
+{
+    [ApiController]
+    [Route("api/[controller]")]
+    public sealed class TrafficController : AbstractBaseController
+    {
+        private readonly IWebsiteTrafficService _websiteTrafficService;
+        private readonly DeveloperEnvironmentConfig _devConfig;
+        private readonly IHostEnvironment _hostEnvironment;
+
+        public TrafficController(
+            IOptions<DeveloperEnvironmentConfig> devConfig,
+            IWebsiteTrafficService websiteTrafficService,
+            IHostEnvironment hostEnvironment
+        )
+        {
+            _devConfig = devConfig.Value;
+            _websiteTrafficService = websiteTrafficService;
+            _hostEnvironment = hostEnvironment;
+        }
+
+        [Authorize]
+        [HttpPost("create-channel")]
+        public async Task<IActionResult> CreateTrafficChannel(
+            [FromBody] CreateWebsiteTrafficChannelRequestDto requestDto
+        )
+        {
+            bool success = await _websiteTrafficService.CreateWebsiteTrafficChannelAsync(
+                requestDto.ChannelId,
+                requestDto.GuildId
+            );
+
+            if (!success)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError);
+            }
+
+            return NoContent();
+        }
+
+        [Authorize]
+        [HttpDelete("remove-channel/{guildId}")]
+        public async Task<IActionResult> RemoveTrafficChannel([FromRoute, DiscordId] ulong guildId)
+        {
+            bool success = await _websiteTrafficService.RemoveWebsiteTrafficChannelAsync(guildId);
+
+            if (!success)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError);
+            }
+
+            return NoContent();
+        }
+
+        [HttpPost("visit")]
+        public async Task<IActionResult> VisitedWebsite([FromBody] TrafficRequestDto requestDto)
+        {
+            string ipAddress = GetRequestorIpAddress(Request);
+            bool success = await _websiteTrafficService.RegisterWebsiteVisitAsync(ipAddress, requestDto.GuildId);
+
+            if (!success)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError);
+            }
+
+            return NoContent();
+        }
+
+        [HttpPost("invite-click")]
+        public async Task<IActionResult> ClickedInviteLink([FromBody] TrafficRequestDto requestDto)
+        {
+            string ipAddress = GetRequestorIpAddress(Request);
+            bool success = await _websiteTrafficService.RegisterInviteLinkClickAsync(ipAddress, requestDto.GuildId);
+
+            if (!success)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError);
+            }
+
+            return NoContent();
+        }
+
+        private string GetRequestorIpAddress(HttpRequest request)
+        {
+            if (_hostEnvironment.IsDevelopment() && _devConfig.GenerateIpAddresses)
+            {
+                Random random = new Random();
+                return $"{random.Next(1, 256)}.{random.Next(0, 256)}.{random.Next(0, 256)}.{random.Next(1, 255)}";
+            }
+
+            IPAddress? remoteIp = request.HttpContext.Connection.RemoteIpAddress;
+            if (remoteIp != null)
+            {
+                return remoteIp.ToString();
+            }
+
+            return "0.0.0.0";
+        }
+    }
+}

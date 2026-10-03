@@ -1,0 +1,28 @@
+@LundBot_HostAddress = http://localhost:3000
+@api_key = test
+@command_id = 1234567890
+@guild_id = 1234567890
+
+### Unregister single command for global scope
+
+DELETE {{LundBot_HostAddress}}/api/command/unregister/{{command_id}}
+Accept: application/json
+Authorization: Bearer {{api_key}}
+
+### Unregister single command for a single guild
+
+DELETE {{LundBot_HostAddress}}/api/command/unregister/{{command_id}}?guildId={{guild_id}}
+Accept: application/json
+Authorization: Bearer {{api_key}}
+
+### Unregister all commands for global scope
+
+DELETE {{LundBot_HostAddress}}/api/command/unregister/all
+Accept: application/json
+Authorization: Bearer {{api_key}}
+
+### Unregister all commands for a single guild
+
+DELETE {{LundBot_HostAddress}}/api/command/unregister/all?guildId={{guild_id}}
+Accept: application/json
+Authorization: Bearer {{api_key}}

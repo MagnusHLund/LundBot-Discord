@@ -1,0 +1,31 @@
+using LundBot.Presentation.Api.Common;
+using LundBot.Presentation.Api.Server.Dtos;
+using LundBot.Presentation.Config;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Options;
+
+namespace LundBot.Presentation.Api.Server
+{
+    [ApiController]
+    [Route("api/[controller]")]
+    public sealed class HealthController : AbstractBaseController
+    {
+        private readonly ServerConfig _serverConfig;
+
+        public HealthController(IOptions<ServerConfig> serverConfig)
+        {
+            _serverConfig = serverConfig.Value;
+        }
+
+        [Authorize]
+        [HttpGet]
+        public IActionResult Get()
+        {
+            string version = _serverConfig.Version;
+
+            ServerHealthResponseDto response = new ServerHealthResponseDto { Status = "Healthy", Version = version };
+            return Ok(response);
+        }
+    }
+}

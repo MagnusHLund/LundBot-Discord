@@ -1,0 +1,80 @@
+using LundBot.Application.Common.Exceptions;
+using LundBot.Application.Common.Persistence;
+using LundBot.Application.Discord.Channels;
+using LundBot.Application.Discord.Users;
+using LundBot.Application.Features.Leaderboards.Contracts;
+using LundBot.Application.Features.Leaderboards.Shared;
+using LundBot.Domain.Leaderboards;
+
+namespace LundBot.Application.Features.Leaderboards.Types
+{
+    public sealed class UpvoteLeaderboardService : AbstractLeaderboardService, IUpvoteLeaderboardService
+    {
+        private readonly IDiscordChannelService _discordChannelService;
+
+        private readonly ILogger _logger = Log.ForContext<UpvoteLeaderboardService>();
+
+        public UpvoteLeaderboardService(
+            IDiscordChannelService discordChannelService,
+            ILeaderboardQueue leaderboardQueue,
+            ILeaderboardScoreRepository leaderboardScoreRepository,
+            ILeaderboardScoreSourceRepository leaderboardScoreSourceRepository,
+            ILeaderboardService leaderboardService,
+            IUnitOfWork unitOfWork
+        )
+            : base(
+                discordChannelService,
+                leaderboardQueue,
+                leaderboardScoreRepository,
+                leaderboardScoreSourceRepository,
+                leaderboardService,
+                unitOfWork
+            )
+        {
+            _discordChannelService = discordChannelService;
+        }
+
+        public async Task<bool> UpvoteUserAsync(
+            ulong channelId,
+            ulong guildId,
+            DiscordUserDto userUpvoting,
+            DiscordUserDto targetUser
+        )
+        {
+            DiscordChannelDto? channel = await _discordChannelService.GetChannelAsync(channelId);
+            if (channel is null || channel.GuildId != guildId)
+            {
+                throw new CommandException($"The channel <#{channelId}> could not be found.", showMessageToUser: true);
+            }
+
+            _logger.Information(
+                "User {UserUpvotingId} is upvoting user {UserTargetId} on the leaderboard in channel {ChannelId}",
+                userUpvoting.UserId,
+                targetUser.UserId,
+                channelId
+            );
+
+            Leaderboard leaderboard = await GetLeaderboardAsync(channelId, channel.GuildId);
+
+            if (leaderboard.LeaderboardType != LeaderboardTypeEnum.Upvote)
+            {
+                throw new CommandException(
+                    $"The leaderboard in <#{channelId}> is not an upvote leaderboard.",
+                    showMessageToUser: true
+                );
+            }
+
+            bool wasScoreAdded = await TryAddScoreOnceToLeaderboardAsync(userUpvoting.UserId, targetUser.UserId, leaderboard);
+
+            if (!wasScoreAdded)
+            {
+                throw new CommandException(
+                    $"You have already upvoted {targetUser.Username} on the leaderboard in <#{channelId}>.",
+                    showMessageToUser: true
+                );
+            }
+
+            return true;
+        }
+    }
+}

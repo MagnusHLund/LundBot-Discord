@@ -6,3 +6,9 @@ dist
 .gitignore
 README.md
 .env
+**/bin/
+**/obj/
+**/.vs/
+**/.idea/
+**/.vscode/
+**/Logs/

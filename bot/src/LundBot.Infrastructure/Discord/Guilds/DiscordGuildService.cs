@@ -1,0 +1,73 @@
+using DSharpPlus;
+using DSharpPlus.Entities;
+using LundBot.Application.Discord.Guilds;
+using LundBot.Application.Discord.Invites;
+using LundBot.Infrastructure.Discord.Guilds.Mappings;
+using LundBot.Infrastructure.Discord.Invites.Mappings;
+
+namespace LundBot.Infrastructure.Discord.Guilds
+{
+    public sealed class DiscordGuildService : IDiscordGuildService
+    {
+        private readonly DiscordClient _discordClient;
+
+        private readonly ILogger _logger = Log.ForContext<DiscordGuildService>();
+
+        public DiscordGuildService(DiscordClient discordClient)
+        {
+            _discordClient = discordClient;
+        }
+
+        public async Task<DiscordGuildDto?> GetGuildAsync(ulong guildId)
+        {
+            _logger.Information("Fetching guild with ID {GuildId}...", guildId);
+
+            try
+            {
+                DiscordGuild guild = await _discordClient.GetGuildAsync(guildId);
+                return guild.Map();
+            }
+            catch (Exception ex)
+            {
+                _logger.Error(ex, "Failed to fetch guild with ID {GuildId}", guildId);
+                return null;
+            }
+        }
+
+        public async Task<IReadOnlyList<DiscordInviteDto>> GetGuildInvitesAsync(ulong guildId)
+        {
+            _logger.Information("Fetching invites for guild with ID {GuildId}...", guildId);
+
+            try
+            {
+                DiscordGuild guild = await _discordClient.GetGuildAsync(guildId);
+                IReadOnlyList<DiscordInvite> invites = await guild.GetInvitesAsync();
+
+                return invites.Map();
+            }
+            catch (Exception ex)
+            {
+                _logger.Error(ex, "Failed to fetch invites for guild with ID {GuildId}.", guildId);
+                throw new LundBot.Application.Common.Exceptions.DiscordServiceException(
+                    $"Failed to fetch invites for Discord guild {guildId}.",
+                    ex
+                );
+            }
+        }
+
+        public bool IsBotInGuild(ulong guildId)
+        {
+            _logger.Information("Checking if guild with ID {GuildId} uses the bot...", guildId);
+
+            try
+            {
+                return _discordClient.Guilds.ContainsKey(guildId);
+            }
+            catch (Exception ex)
+            {
+                _logger.Error(ex, "Failed to check if guild with ID {GuildId} uses the bot", guildId);
+                return false;
+            }
+        }
+    }
+}

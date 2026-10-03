@@ -4,6 +4,8 @@ echo "ASPNETCORE_ENVIRONMENT=$ASPNETCORE_ENVIRONMENT"
 echo "COMPOSE_PROFILES=$COMPOSE_PROFILES"
 echo "USE_WATCH=$USE_WATCH"
 
+PROJECT="src/LundBot.Presentation/LundBot.Presentation.csproj"
+
 if [ "$ASPNETCORE_ENVIRONMENT" = "Development" ] || [ "$USE_WATCH" = "true" ]; then
     if [ ! -d "/vsdbg" ]; then
         echo "Installing vsdbg debugger..."
@@ -19,13 +21,13 @@ fi
 
 if [ "$USE_WATCH" = "true" ]; then
     echo "Starting in WATCH mode (Debug)..."
-    exec dotnet watch run --no-launch-profile --project src/LundBot.csproj --configuration Debug
+    exec dotnet watch run --no-launch-profile --project "$PROJECT" --configuration Debug
 else
     if [ "$ASPNETCORE_ENVIRONMENT" = "Development" ]; then
         echo "Starting in RUN mode (Debug)..."
-        exec dotnet run --no-launch-profile --project src/LundBot.csproj --configuration Debug
+        exec dotnet run --no-launch-profile --project "$PROJECT" --configuration Debug
     else
         echo "Starting in RUN mode (Release)..."
-        exec dotnet run --no-launch-profile --project src/LundBot.csproj --configuration Release
+        exec dotnet run --no-launch-profile --project "$PROJECT" --configuration Release
     fi
 fi

@@ -39,7 +39,7 @@ echo "Latest tag: $LATEST_TAG"
 
 git checkout $LATEST_TAG
 
-docker compose -f docker-compose.yml up -d --build
+docker compose -f docker-compose.yml up -d --build --force-recreate
 ```
 
 5. Run the newly created script. Wait until the pop up window closes itself.

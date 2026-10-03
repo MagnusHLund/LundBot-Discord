@@ -1,0 +1,438 @@
+using System.Text;
+using LundBot.Application.Common.Exceptions;
+using LundBot.Application.Discord.Channels;
+using LundBot.Application.Discord.Interactions;
+using LundBot.Application.Discord.Messages;
+using LundBot.Domain.Common;
+
+namespace LundBot.Application.Common.Messaging
+{
+    public sealed class MessageService<TEntity, TRepository, TFactory> : IMessageService<TEntity, TRepository, TFactory>
+        where TRepository : IMessageRepository<TEntity>
+        where TEntity : AbstractMessageEntity, new()
+        where TFactory : IMessageEntityFactory<TEntity>
+    {
+        private readonly TRepository _messageRepository;
+        private readonly IDiscordChannelService _discordChannelService;
+        private readonly IDiscordMessageService _discordMessageService;
+
+        private readonly ILogger _logger = Log.ForContext<MessageService<TEntity, TRepository, TFactory>>();
+
+        public MessageService(
+            TRepository messageRepository,
+            TFactory messageFactory,
+            IDiscordChannelService discordChannelService,
+            IDiscordMessageService discordMessageService
+        )
+        {
+            _messageRepository = messageRepository;
+            MessageFactory = messageFactory;
+            _discordChannelService = discordChannelService;
+            _discordMessageService = discordMessageService;
+        }
+
+        public TFactory MessageFactory { get; }
+
+        public async Task<bool> SynchronizeDiscordMessagesAsync(
+            string message,
+            IEnumerable<TEntity> existingMessages,
+            ulong channelId
+        )
+        {
+            if (string.IsNullOrWhiteSpace(message))
+            {
+                return true;
+            }
+
+            List<string> chunks = SplitMessageIntoChunks(message);
+            List<TEntity> existing = existingMessages.ToList();
+
+            DiscordChannelDto? channel = await _discordChannelService.GetChannelAsync(channelId);
+            if (channel is null)
+            {
+                _logger.Error("Channel with ID {ChannelId} not found. Cannot synchronize messages.", channelId);
+                return false;
+            }
+
+            int sharedLength = Math.Min(existing.Count, chunks.Count);
+
+            bool updated = await UpdateMessagesAsync(sharedLength, existing, chunks, channel.ChannelId);
+            bool created = await CreateNewMessagesAsync(chunks, existing, channel.ChannelId);
+            bool deleted = await DeleteExtraMessagesAsync(existing, chunks, channel.ChannelId);
+
+            return updated && created && deleted;
+        }
+
+        public async Task<bool> DeleteMessagesForChannelAsync(IEnumerable<TEntity> existingMessages, ulong channelId)
+        {
+            List<TEntity> existing = existingMessages.ToList();
+
+            foreach (TEntity message in existing)
+            {
+                DiscordMessageDto? discordMessage;
+                try
+                {
+                    discordMessage = await _discordMessageService.GetMessageAsync(message.DiscordMessageId, channelId);
+                }
+                catch (DiscordServiceException ex)
+                {
+                    _logger.Error(
+                        ex,
+                        "Could not confirm whether message with ID {MessageId} exists in channel {ChannelId}. "
+                            + "Aborting deletion to keep stored records intact.",
+                        message.DiscordMessageId,
+                        channelId
+                    );
+                    return false;
+                }
+
+                if (discordMessage is null)
+                {
+                    _logger.Warning(
+                        "Message with ID {MessageId} not found in channel {ChannelId}. It may have already been deleted.",
+                        message.DiscordMessageId,
+                        channelId
+                    );
+                    continue;
+                }
+
+                bool wasDiscordMessageRemoved = await _discordMessageService.DeleteMessageAsync(
+                    discordMessage.MessageId,
+                    channelId
+                );
+
+                if (!wasDiscordMessageRemoved)
+                {
+                    _logger.Error(
+                        "Failed to delete message with ID {MessageId} in channel {ChannelId}.",
+                        discordMessage.MessageId,
+                        channelId
+                    );
+                    return false;
+                }
+            }
+
+            bool deleted = await _messageRepository.DeleteManyAsync(existing.Select(x => x.Id));
+            if (!deleted)
+            {
+                _logger.Warning("Failed to delete stored message records for channel {ChannelId}.", channelId);
+            }
+            return deleted;
+        }
+
+        public async Task<bool> DeleteMessageByIdAsync(TEntity message, DiscordChannelDto channel)
+        {
+            DiscordMessageDto? discordMessage;
+            try
+            {
+                discordMessage = await _discordMessageService.GetMessageAsync(
+                    message.DiscordMessageId,
+                    channel.ChannelId
+                );
+            }
+            catch (DiscordServiceException ex)
+            {
+                _logger.Error(
+                    ex,
+                    "Could not confirm whether message with ID {MessageId} exists in channel {ChannelId}. "
+                        + "Aborting deletion.",
+                    message.DiscordMessageId,
+                    channel.ChannelId
+                );
+                return false;
+            }
+
+            if (discordMessage is null)
+            {
+                return false;
+            }
+
+bool discordMessageDeleted = await _discordMessageService.DeleteMessageAsync(
+    discordMessage.MessageId,
+    channel.ChannelId
+);
+
+if (!discordMessageDeleted)
+{
+    return false;
+}
+
+return await _messageRepository.DeleteManyAsync(new[] { message.Id });
+        }
+
+        public async Task<DiscordMessageDto?> CreateMessageWithComponentsAsync(
+            string content,
+            DiscordChannelDto channel,
+            List<DiscordMessageComponentDto> components
+        )
+        {
+            DiscordMessageDto? discordMessage = await _discordMessageService.SendMessageWithComponentsAsync(
+                channel.ChannelId,
+                content,
+                components
+            );
+
+            if (discordMessage is null)
+            {
+                return null;
+            }
+
+            return await PersistCreatedMessageAsync(discordMessage, channel.ChannelId);
+        }
+
+        public async Task<DiscordMessageDto?> CreateMessageFromDiscordMessageBuilderAsync(
+            DiscordMessageBuilderDto messageBuilder,
+            ulong channelId,
+            bool shouldSaveMessageInDatabase = false
+        )
+        {
+            DiscordMessageDto? discordMessage = await _discordMessageService.SendMessageAsync(
+                channelId,
+                messageBuilder
+            );
+
+            if (discordMessage is null)
+            {
+                return null;
+            }
+
+            if (shouldSaveMessageInDatabase)
+            {
+                return await PersistCreatedMessageAsync(discordMessage, channelId);
+            }
+
+            return discordMessage;
+        }
+
+        private async Task<DiscordMessageDto?> PersistCreatedMessageAsync(
+            DiscordMessageDto discordMessage,
+            ulong channelId
+        )
+        {
+            if (await _messageRepository.CreateAsync(MessageFactory.Create(discordMessage.MessageId)))
+            {
+                return discordMessage;
+            }
+
+            _logger.Error(
+                "Failed to store Discord message with ID {MessageId} in channel {ChannelId}. Removing the orphaned Discord message.",
+                discordMessage.MessageId,
+                channelId
+            );
+
+            bool removed = await _discordMessageService.DeleteMessageAsync(discordMessage.MessageId, channelId);
+            if (!removed)
+            {
+                _logger.Error(
+                    "Failed to remove orphaned Discord message with ID {MessageId} in channel {ChannelId}.",
+                    discordMessage.MessageId,
+                    channelId
+                );
+            }
+
+            return null;
+        }
+
+        private async Task<bool> UpdateMessagesAsync(
+            int sharedLength,
+            List<TEntity> existing,
+            List<string> chunks,
+            ulong channelId
+        )
+        {
+            bool success = true;
+            for (int i = 0; i < sharedLength; i++)
+            {
+                TEntity existingMessage = existing[i];
+                string newContent = chunks[i];
+
+                try
+                {
+                    DiscordMessageDto? discordMessage = await _discordMessageService.GetMessageAsync(
+                        existingMessage.DiscordMessageId,
+                        channelId
+                    );
+
+                    if (discordMessage is not null)
+                    {
+                        DiscordMessageDto? modified = await _discordMessageService.ModifyMessageAsync(
+                            discordMessage.MessageId,
+                            channelId,
+                            newContent
+                        );
+
+                        if (modified is null)
+                        {
+                            _logger.Warning(
+                                "Failed to update Discord message with ID {MessageId} in channel {ChannelId}.",
+                                discordMessage.MessageId,
+                                channelId
+                            );
+                            success = false;
+                        }
+                        continue;
+                    }
+
+                    _logger.Warning(
+                        "Discord message with ID {MessageId} was not found in channel {ChannelId}. Creating a replacement.",
+                        existingMessage.DiscordMessageId,
+                        channelId
+                    );
+
+                    DiscordMessageDto? replacement = await _discordMessageService.SendMessageAsync(
+                        channelId,
+                        new DiscordMessageBuilderDto(newContent)
+                    );
+
+                    if (replacement is null)
+                    {
+                        _logger.Warning(
+                            "Failed to create a replacement message for Discord message with ID {MessageId} in channel {ChannelId}.",
+                            existingMessage.DiscordMessageId,
+                            channelId
+                        );
+
+                        success = false;
+                        continue;
+                    }
+
+                    ulong originalDiscordMessageId = existingMessage.DiscordMessageId;
+                    existingMessage.DiscordMessageId = replacement.MessageId;
+
+                    if (!await _messageRepository.UpdateAsync(existingMessage))
+                    {
+                        existingMessage.DiscordMessageId = originalDiscordMessageId;
+                        await RemoveUnstoredReplacementAsync(replacement.MessageId, channelId);
+                        success = false;
+                    }
+                }
+                catch (Exception ex)
+                {
+                    _logger.Warning(
+                        ex,
+                        "Failed to synchronize Discord message with ID {MessageId} in channel {ChannelId}.",
+                        existingMessage.DiscordMessageId,
+                        channelId
+                    );
+                    success = false;
+                }
+            }
+            return success;
+        }
+
+        private async Task RemoveUnstoredReplacementAsync(ulong replacementMessageId, ulong channelId)
+        {
+            _logger.Error(
+                "Failed to store replacement message with ID {MessageId} in channel {ChannelId}. Removing the orphaned replacement.",
+                replacementMessageId,
+                channelId
+            );
+
+            bool removed = await _discordMessageService.DeleteMessageAsync(replacementMessageId, channelId);
+            if (!removed)
+            {
+                _logger.Error(
+                    "Failed to remove orphaned replacement message with ID {MessageId} in channel {ChannelId}.",
+                    replacementMessageId,
+                    channelId
+                );
+            }
+        }
+
+        private async Task<bool> CreateNewMessagesAsync(List<string> chunks, List<TEntity> existing, ulong channelId)
+        {
+            if (chunks.Count <= existing.Count)
+            {
+                return true;
+            }
+
+            bool success = true;
+            for (int i = existing.Count; i < chunks.Count; i++)
+            {
+                DiscordMessageDto? newMessage = await _discordMessageService.SendMessageAsync(
+                    channelId,
+                    new DiscordMessageBuilderDto(chunks[i])
+                );
+
+                if (newMessage is null)
+                {
+                    _logger.Warning("Failed to create a new message in channel {ChannelId}.", channelId);
+                    success = false;
+                    continue;
+                }
+
+                if (await PersistCreatedMessageAsync(newMessage, channelId) is null)
+                {
+                    success = false;
+                }
+            }
+            return success;
+        }
+
+        private async Task<bool> DeleteExtraMessagesAsync(List<TEntity> existing, List<string> chunks, ulong channelId)
+        {
+            if (existing.Count <= chunks.Count)
+            {
+                return true;
+            }
+
+            IEnumerable<TEntity> extras = existing.Skip(chunks.Count);
+            return await DeleteMessagesForChannelAsync(extras, channelId);
+        }
+
+        private static List<string> SplitMessageIntoChunks(string message)
+        {
+            const int MaxChunkSize = 1900;
+
+            if (message.Length <= MaxChunkSize)
+            {
+                return new List<string> { message };
+            }
+
+            List<string> chunks = new();
+            string[] lines = message.Split('\n');
+            StringBuilder currentChunk = new();
+
+            foreach (string line in lines)
+            {
+                string lineWithNewLine = line + "\n";
+
+                if (currentChunk.Length > 0 && currentChunk.Length + lineWithNewLine.Length > MaxChunkSize)
+                {
+                    chunks.Add(currentChunk.ToString().TrimEnd());
+                    currentChunk.Clear();
+                    currentChunk.Append(lineWithNewLine);
+                    continue;
+                }
+
+                if (lineWithNewLine.Length > MaxChunkSize)
+                {
+                    if (currentChunk.Length > 0)
+                    {
+                        chunks.Add(currentChunk.ToString().TrimEnd());
+                        currentChunk.Clear();
+                    }
+
+                    int start = 0;
+                    while (start < line.Length)
+                    {
+                        int length = Math.Min(MaxChunkSize, line.Length - start);
+                        chunks.Add(line.Substring(start, length));
+                        start += MaxChunkSize;
+                    }
+
+                    continue;
+                }
+
+                currentChunk.Append(lineWithNewLine);
+            }
+
+            if (currentChunk.Length > 0)
+            {
+                chunks.Add(currentChunk.ToString().TrimEnd());
+            }
+
+            return chunks.Count > 0 ? chunks : new List<string> { message };
+        }
+    }
+}

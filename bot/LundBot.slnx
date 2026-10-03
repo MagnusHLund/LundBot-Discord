@@ -1,0 +1,8 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/LundBot.Application/LundBot.Application.csproj" />
+    <Project Path="src/LundBot.Domain/LundBot.Domain.csproj" />
+    <Project Path="src/LundBot.Infrastructure/LundBot.Infrastructure.csproj" />
+    <Project Path="src/LundBot.Presentation/LundBot.Presentation.csproj" />
+  </Folder>
+</Solution>

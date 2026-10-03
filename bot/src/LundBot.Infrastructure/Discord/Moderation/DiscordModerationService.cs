@@ -1,0 +1,47 @@
+using DSharpPlus;
+using LundBot.Application.Discord.Moderation;
+
+namespace LundBot.Infrastructure.Discord.Moderation
+{
+    public class DiscordModerationService : IDiscordModerationService
+    {
+        private readonly DiscordClient _discordClient;
+
+        private readonly ILogger _logger = Log.ForContext<DiscordModerationService>();
+
+        public DiscordModerationService(DiscordClient discordClient)
+        {
+            _discordClient = discordClient;
+        }
+
+        public async Task<bool> KickMemberAsync(ulong memberId, ulong guildId, string reason)
+        {
+            _logger.Information("Kicking member {MemberId} from guild {GuildId}...", memberId, guildId);
+
+            try
+            {
+                var guild = await _discordClient.GetGuildAsync(guildId);
+                var member = await guild.GetMemberAsync(memberId);
+
+                if (member.IsPending == true)
+                {
+                    _logger.Information(
+                        "Member {MemberId} is completing onboarding in guild {GuildId}; skipping kick.",
+                        memberId,
+                        guildId
+                    );
+                    return false;
+                }
+
+                await member.RemoveAsync(reason);
+
+                return true;
+            }
+            catch (Exception ex)
+            {
+                _logger.Error(ex, "Failed to kick member {MemberId} from guild {GuildId}", memberId, guildId);
+                return false;
+            }
+        }
+    }
+}
