@@ -29,11 +29,7 @@ namespace LundBot.Application.Features.Invites
             _serviceProvider = serviceProvider;
         }
 
-        public async Task<bool> RegisterUserJoinedWithInviteAsync(
-            DiscordGuildDto guild,
-            DiscordUserDto userJoined,
-            DiscordUserDto invitedByUser
-        )
+        public async Task<bool> RegisterUserJoinedWithInviteAsync(DiscordGuildDto guild, DiscordUserDto userJoined)
         {
             SemaphoreSlim guildLock = _guildInviteLocks.GetOrAdd(guild.GuildId, _ => new SemaphoreSlim(1, 1));
 
