@@ -33,13 +33,18 @@ namespace LundBot.Presentation.Discord.Bot
             _hostEnvironment = hostEnvironment;
         }
 
-        protected override async Task ExecuteAsync(CancellationToken cancellationToken)
+        protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
-            await InitializeAsync();
-            await Task.Delay(Timeout.Infinite, cancellationToken);
+            bool initialized = await InitializeAsync(stoppingToken);
+            if (!initialized)
+            {
+                return;
+            }
+
+            await Task.Delay(Timeout.Infinite, stoppingToken);
         }
 
-        private async Task InitializeAsync()
+        private async Task<bool> InitializeAsync(CancellationToken stoppingToken)
         {
             string dSharpPlusVersion =
                 typeof(DiscordClient)
@@ -54,26 +59,39 @@ namespace LundBot.Presentation.Discord.Bot
                 dSharpPlusVersion
             );
 
-            bool retry;
             ushort retries = 0;
 
-            do
+            while (!stoppingToken.IsCancellationRequested)
             {
                 bool successRegisterCommands = await _discordCommandRegistration.RegisterCommandsAsync();
+                if (stoppingToken.IsCancellationRequested)
+                {
+                    break;
+                }
+
                 bool successConnectToDiscord = await _discordBotService.ConnectToDiscordAsync();
 
-                retry = !successRegisterCommands || !successConnectToDiscord;
-
-                if (retry)
+                if (successRegisterCommands && successConnectToDiscord)
                 {
-                    retries++;
-                    _logger.Warning("Initialization failed. Retrying... Attempt {Retries}", retries);
-
-                    await Task.Delay(GetDelay(retries));
+                    _logger.Information("Bot initialization is complete!");
+                    return true;
                 }
-            } while (retry);
 
-            _logger.Information("Bot initialization is complete!");
+                retries++;
+                _logger.Warning("Initialization failed. Retrying... Attempt {Retries}", retries);
+
+                try
+                {
+                    await Task.Delay(GetDelay(retries), stoppingToken);
+                }
+                catch (OperationCanceledException) when (stoppingToken.IsCancellationRequested)
+                {
+                    break;
+                }
+            }
+
+            _logger.Information("Bot initialization was cancelled because the host is shutting down.");
+            return false;
         }
 
         private static int GetDelay(ushort retries)

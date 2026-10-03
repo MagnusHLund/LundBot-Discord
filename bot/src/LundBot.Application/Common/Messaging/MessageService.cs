@@ -1,4 +1,5 @@
 using System.Text;
+using LundBot.Application.Common.Exceptions;
 using LundBot.Application.Discord.Channels;
 using LundBot.Application.Discord.Interactions;
 using LundBot.Application.Discord.Messages;
@@ -69,10 +70,22 @@ namespace LundBot.Application.Common.Messaging
 
             foreach (TEntity message in existing)
             {
-                DiscordMessageDto? discordMessage = await _discordMessageService.GetMessageAsync(
-                    message.DiscordMessageId,
-                    channelId
-                );
+                DiscordMessageDto? discordMessage;
+                try
+                {
+                    discordMessage = await _discordMessageService.GetMessageAsync(message.DiscordMessageId, channelId);
+                }
+                catch (DiscordServiceException ex)
+                {
+                    _logger.Error(
+                        ex,
+                        "Could not confirm whether message with ID {MessageId} exists in channel {ChannelId}. "
+                            + "Aborting deletion to keep stored records intact.",
+                        message.DiscordMessageId,
+                        channelId
+                    );
+                    return false;
+                }
 
                 if (discordMessage is null)
                 {
@@ -110,19 +123,42 @@ namespace LundBot.Application.Common.Messaging
 
         public async Task<bool> DeleteMessageByIdAsync(TEntity message, DiscordChannelDto channel)
         {
-            DiscordMessageDto? discordMessage = await _discordMessageService.GetMessageAsync(
-                message.DiscordMessageId,
-                channel.ChannelId
-            );
+            DiscordMessageDto? discordMessage;
+            try
+            {
+                discordMessage = await _discordMessageService.GetMessageAsync(
+                    message.DiscordMessageId,
+                    channel.ChannelId
+                );
+            }
+            catch (DiscordServiceException ex)
+            {
+                _logger.Error(
+                    ex,
+                    "Could not confirm whether message with ID {MessageId} exists in channel {ChannelId}. "
+                        + "Aborting deletion.",
+                    message.DiscordMessageId,
+                    channel.ChannelId
+                );
+                return false;
+            }
 
             if (discordMessage is null)
             {
                 return false;
             }
 
-            await _discordMessageService.DeleteMessageAsync(discordMessage.MessageId, channel.ChannelId);
-            await _messageRepository.DeleteManyAsync(new[] { message.Id });
-            return true;
+bool discordMessageDeleted = await _discordMessageService.DeleteMessageAsync(
+    discordMessage.MessageId,
+    channel.ChannelId
+);
+
+if (!discordMessageDeleted)
+{
+    return false;
+}
+
+return await _messageRepository.DeleteManyAsync(new[] { message.Id });
         }
 
         public async Task<DiscordMessageDto?> CreateMessageWithComponentsAsync(
@@ -142,8 +178,7 @@ namespace LundBot.Application.Common.Messaging
                 return null;
             }
 
-            await _messageRepository.CreateAsync(MessageFactory.Create(discordMessage.MessageId));
-            return discordMessage;
+            return await PersistCreatedMessageAsync(discordMessage, channel.ChannelId);
         }
 
         public async Task<DiscordMessageDto?> CreateMessageFromDiscordMessageBuilderAsync(
@@ -164,10 +199,39 @@ namespace LundBot.Application.Common.Messaging
 
             if (shouldSaveMessageInDatabase)
             {
-                await _messageRepository.CreateAsync(MessageFactory.Create(discordMessage.MessageId));
+                return await PersistCreatedMessageAsync(discordMessage, channelId);
             }
 
             return discordMessage;
+        }
+
+        private async Task<DiscordMessageDto?> PersistCreatedMessageAsync(
+            DiscordMessageDto discordMessage,
+            ulong channelId
+        )
+        {
+            if (await _messageRepository.CreateAsync(MessageFactory.Create(discordMessage.MessageId)))
+            {
+                return discordMessage;
+            }
+
+            _logger.Error(
+                "Failed to store Discord message with ID {MessageId} in channel {ChannelId}. Removing the orphaned Discord message.",
+                discordMessage.MessageId,
+                channelId
+            );
+
+            bool removed = await _discordMessageService.DeleteMessageAsync(discordMessage.MessageId, channelId);
+            if (!removed)
+            {
+                _logger.Error(
+                    "Failed to remove orphaned Discord message with ID {MessageId} in channel {ChannelId}.",
+                    discordMessage.MessageId,
+                    channelId
+                );
+            }
+
+            return null;
         }
 
         private async Task<bool> UpdateMessagesAsync(
@@ -233,15 +297,13 @@ namespace LundBot.Application.Common.Messaging
                         continue;
                     }
 
+                    ulong originalDiscordMessageId = existingMessage.DiscordMessageId;
                     existingMessage.DiscordMessageId = replacement.MessageId;
 
                     if (!await _messageRepository.UpdateAsync(existingMessage))
                     {
-                        _logger.Warning(
-                            "Failed to store replacement message with ID {MessageId} in channel {ChannelId}.",
-                            replacement.MessageId,
-                            channelId
-                        );
+                        existingMessage.DiscordMessageId = originalDiscordMessageId;
+                        await RemoveUnstoredReplacementAsync(replacement.MessageId, channelId);
                         success = false;
                     }
                 }
@@ -257,6 +319,25 @@ namespace LundBot.Application.Common.Messaging
                 }
             }
             return success;
+        }
+
+        private async Task RemoveUnstoredReplacementAsync(ulong replacementMessageId, ulong channelId)
+        {
+            _logger.Error(
+                "Failed to store replacement message with ID {MessageId} in channel {ChannelId}. Removing the orphaned replacement.",
+                replacementMessageId,
+                channelId
+            );
+
+            bool removed = await _discordMessageService.DeleteMessageAsync(replacementMessageId, channelId);
+            if (!removed)
+            {
+                _logger.Error(
+                    "Failed to remove orphaned replacement message with ID {MessageId} in channel {ChannelId}.",
+                    replacementMessageId,
+                    channelId
+                );
+            }
         }
 
         private async Task<bool> CreateNewMessagesAsync(List<string> chunks, List<TEntity> existing, ulong channelId)
@@ -281,13 +362,8 @@ namespace LundBot.Application.Common.Messaging
                     continue;
                 }
 
-                if (!await _messageRepository.CreateAsync(MessageFactory.Create(newMessage.MessageId)))
+                if (await PersistCreatedMessageAsync(newMessage, channelId) is null)
                 {
-                    _logger.Warning(
-                        "Failed to store new Discord message with ID {MessageId} in channel {ChannelId}.",
-                        newMessage.MessageId,
-                        channelId
-                    );
                     success = false;
                 }
             }

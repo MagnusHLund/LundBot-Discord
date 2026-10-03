@@ -53,7 +53,13 @@ namespace LundBot.Presentation.Discord.Leaderboards.Commands
 
             await TaskWithErrorHandlingAsync(
                 context,
-                () => _warnLeaderboardService.RegisterWarningAsync(channelId, context.User.Id, user.Id),
+                () =>
+                    _warnLeaderboardService.RegisterWarningAsync(
+                        channelId,
+                        context.Guild!.Id,
+                        context.User.Id,
+                        user.Id
+                    ),
                 $"Registered a warning for {targetUser.Username} on the leaderboard in <#{channelId}>."
             );
         }

@@ -1,6 +1,7 @@
 using LundBot.Application.Features.WebsiteTraffic;
 using LundBot.Domain.WebsiteTraffic;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.ChangeTracking;
 
 namespace LundBot.Infrastructure.Persistence.Repositories.WebsiteTraffic
 {
@@ -24,6 +25,7 @@ namespace LundBot.Infrastructure.Persistence.Repositories.WebsiteTraffic
             }
             catch (Exception ex)
             {
+                DetachFailedChange(entity);
                 _logger.Error(ex, "Error creating WebsiteTrafficMessagesEntity: {Entity}", entity);
                 return false;
             }
@@ -55,6 +57,7 @@ namespace LundBot.Infrastructure.Persistence.Repositories.WebsiteTraffic
             }
             catch (Exception ex)
             {
+                DetachFailedChange(entity);
                 _logger.Error(ex, "Error updating WebsiteTrafficMessagesEntity: {Entity}", entity);
                 return false;
             }
@@ -76,6 +79,15 @@ namespace LundBot.Infrastructure.Persistence.Repositories.WebsiteTraffic
             {
                 _logger.Error(ex, "Error deleting WebsiteTrafficMessagesEntities with IDs: {Ids}", ids);
                 return false;
+            }
+        }
+
+        private void DetachFailedChange(object entity)
+        {
+            EntityEntry entry = _context.Entry(entity);
+            if (entry.State != EntityState.Detached)
+            {
+                entry.State = EntityState.Detached;
             }
         }
     }

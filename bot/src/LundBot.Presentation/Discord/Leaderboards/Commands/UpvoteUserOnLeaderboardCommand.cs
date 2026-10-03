@@ -63,7 +63,13 @@ namespace LundBot.Presentation.Discord.Leaderboards.Commands
 
             await TaskWithErrorHandlingAsync(
                 context,
-                () => _upvoteLeaderboardService.UpvoteUserAsync(channelId, userUpvoting, targetUser),
+                () =>
+                    _upvoteLeaderboardService.UpvoteUserAsync(
+                        channelId,
+                        context.Guild!.Id,
+                        userUpvoting,
+                        targetUser
+                    ),
                 $"You have successfully upvoted {targetUser.Username} on the leaderboard in <#{channelId}>."
             );
         }

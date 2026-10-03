@@ -2,6 +2,7 @@ using LundBot.Application.Common.Exceptions;
 using LundBot.Application.Features.Leaderboards.Contracts;
 using LundBot.Domain.Leaderboards;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.ChangeTracking;
 
 namespace LundBot.Infrastructure.Persistence.Repositories.Leaderboards
 {
@@ -25,6 +26,7 @@ namespace LundBot.Infrastructure.Persistence.Repositories.Leaderboards
             }
             catch (Exception ex)
             {
+                DetachFailedChange(entity);
                 _logger.Error(ex, "Error creating LeaderboardMessagesEntity: {Entity}", entity);
                 return false;
             }
@@ -61,6 +63,7 @@ namespace LundBot.Infrastructure.Persistence.Repositories.Leaderboards
             }
             catch (Exception ex)
             {
+                DetachFailedChange(entity);
                 _logger.Error(ex, "Error updating LeaderboardMessagesEntity: {Entity}", entity);
                 return false;
             }
@@ -82,6 +85,15 @@ namespace LundBot.Infrastructure.Persistence.Repositories.Leaderboards
             {
                 _logger.Error(ex, "Error deleting LeaderboardMessagesEntities with IDs: {Ids}", ids);
                 return false;
+            }
+        }
+
+        private void DetachFailedChange(object entity)
+        {
+            EntityEntry entry = _context.Entry(entity);
+            if (entry.State != EntityState.Detached)
+            {
+                entry.State = EntityState.Detached;
             }
         }
     }

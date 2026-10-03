@@ -47,8 +47,11 @@ namespace LundBot.Infrastructure.Discord.Guilds
             }
             catch (Exception ex)
             {
-                _logger.Error(ex, "Failed to fetch invites for guild with ID {GuildId}", guildId);
-                return new List<DiscordInviteDto>();
+                _logger.Error(ex, "Failed to fetch invites for guild with ID {GuildId}.", guildId);
+                throw new LundBot.Application.Common.Exceptions.DiscordServiceException(
+                    $"Failed to fetch invites for Discord guild {guildId}.",
+                    ex
+                );
             }
         }
 

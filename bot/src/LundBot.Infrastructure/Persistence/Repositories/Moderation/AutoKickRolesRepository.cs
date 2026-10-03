@@ -46,7 +46,7 @@ namespace LundBot.Infrastructure.Persistence.Repositories.Moderation
             catch (Exception ex)
             {
                 _logger.Error(ex, "Failed to get auto kick roles for guild {GuildId}", guildId);
-                return new List<AutoKickRole>();
+                throw;
             }
         }
 

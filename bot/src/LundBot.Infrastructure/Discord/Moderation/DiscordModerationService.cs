@@ -23,6 +23,16 @@ namespace LundBot.Infrastructure.Discord.Moderation
                 var guild = await _discordClient.GetGuildAsync(guildId);
                 var member = await guild.GetMemberAsync(memberId);
 
+                if (member.IsPending == true)
+                {
+                    _logger.Information(
+                        "Member {MemberId} is completing onboarding in guild {GuildId}; skipping kick.",
+                        memberId,
+                        guildId
+                    );
+                    return false;
+                }
+
                 await member.RemoveAsync(reason);
 
                 return true;

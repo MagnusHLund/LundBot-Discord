@@ -9,6 +9,8 @@ namespace LundBot.Presentation.Discord.Bot
     {
         private readonly IDiscordInteractionService _discordInteractionService;
 
+        private readonly ILogger _logger = Log.ForContext<AbstractBaseCommand>();
+
         public AbstractBaseCommand(IDiscordInteractionService discordInteractionService)
         {
             _discordInteractionService = discordInteractionService;
@@ -45,21 +47,23 @@ namespace LundBot.Presentation.Discord.Bot
 
         private protected async Task TaskWithErrorHandlingAsync(
             CommandContext context,
-            Func<Task> action,
-            string successMessage = "Command executed successfully."
+            Func<Task<bool>> action,
+            string successMessage = "Command executed successfully.",
+            string failureMessage = "The command could not be completed. Please try again later."
         )
         {
             try
             {
-                await action();
-                await SendResponseAsync(context, successMessage);
+                bool success = await action();
+                await SendResponseAsync(context, success ? successMessage : failureMessage);
             }
             catch (CommandException ex)
             {
                 await SendResponseAsync(context, ex.GetMessage());
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                _logger.Error(ex, "Unhandled error while executing command {CommandName}", context.Command.Name);
                 await SendResponseAsync(
                     context,
                     "An error occurred while processing your command. Please try again later."

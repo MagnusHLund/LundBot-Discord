@@ -1,4 +1,4 @@
-using System.Collections.Concurrent;
+using LundBot.Application.Common.Concurrency;
 using LundBot.Application.Common.Exceptions;
 using LundBot.Application.Common.Persistence;
 using LundBot.Application.Discord.Channels;
@@ -22,8 +22,7 @@ namespace LundBot.Application.Features.Leaderboards.Shared
         // (Upvote, Invite) via a "has already scored" pre-check, this lock serializes the
         // check-then-insert sequence per (leaderboard, actor, target) so two concurrent requests
         // can't both pass the check and award duplicate points.
-        private static readonly ConcurrentDictionary<(int LeaderboardId, ulong ActorId, ulong TargetId), SemaphoreSlim> _scoreLocks =
-            new();
+        private static readonly KeyedAsyncLock<(int LeaderboardId, ulong ActorId, ulong TargetId)> _scoreLocks = new();
 
         protected AbstractLeaderboardService(
             IDiscordChannelService discordChannelService,
@@ -49,8 +48,8 @@ namespace LundBot.Application.Features.Leaderboards.Shared
             LeaderboardTypeEnum type
         ) => _leaderboardService.CreateLeaderboardAsync(channelId, title, message, type);
 
-        public Task<bool> RemoveLeaderboardAsync(ulong channelId) =>
-            _leaderboardService.RemoveLeaderboardAsync(channelId);
+        public Task<bool> RemoveLeaderboardAsync(ulong channelId, ulong guildId) =>
+            _leaderboardService.RemoveLeaderboardAsync(channelId, guildId);
 
         public Task<bool> RefreshLeaderboardAsync(ulong channelId, ulong guildId) =>
             _leaderboardService.RefreshLeaderboardAsync(channelId, guildId);
@@ -130,10 +129,7 @@ namespace LundBot.Application.Features.Leaderboards.Shared
         )
         {
             var lockKey = (leaderboard.Id, userId, targetUserId);
-            SemaphoreSlim scoreLock = _scoreLocks.GetOrAdd(lockKey, _ => new SemaphoreSlim(1, 1));
-            await scoreLock.WaitAsync();
-
-            try
+            using (await _scoreLocks.AcquireAsync(lockKey))
             {
                 bool hasAlreadyScored = await _leaderboardScoreSourceRepository.HasUserGivenScoreToTargetAsync(
                     userId,
@@ -148,10 +144,6 @@ namespace LundBot.Application.Features.Leaderboards.Shared
 
                 await AddScoreToLeaderboardAsync(userId, targetUserId, leaderboard);
                 return true;
-            }
-            finally
-            {
-                scoreLock.Release();
             }
         }
     }

@@ -5,6 +5,6 @@ namespace LundBot.Application.Features.MemberJoin
 {
     public interface IMemberJoinMessageRepository : IMessageRepository<MemberJoinMessage>
     {
-        Task<MemberJoinMessage?> GetByJoinedUserIdAsync(ulong joinedUserId);
+        Task<MemberJoinMessage?> GetByGuildAndJoinedUserIdAsync(ulong guildId, ulong joinedUserId);
     }
 }

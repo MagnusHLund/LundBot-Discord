@@ -31,7 +31,7 @@ namespace LundBot.Presentation.Discord.Events
             DiscordMemberDto memberDto = new DiscordMemberDto(
                 userId: eventArgs.Member.Id,
                 username: eventArgs.Member.Username,
-                displayName: eventArgs.Member.Discriminator
+                displayName: eventArgs.Member.DisplayName
             );
 
             DiscordGuildDto guildDto = new DiscordGuildDto(
@@ -43,7 +43,16 @@ namespace LundBot.Presentation.Discord.Events
             var inviteService = scope.ServiceProvider.GetRequiredService<IInviteService>();
             var memberJoinService = scope.ServiceProvider.GetRequiredService<IMemberJoinService>();
 
-            await memberJoinService.SendWelcomeMessageAsync(guildDto.GuildId, memberDto);
+            bool welcomeMessageSent = await memberJoinService.SendWelcomeMessageAsync(guildDto.GuildId, memberDto);
+            if (!welcomeMessageSent)
+            {
+                _logger.Warning(
+                    "Welcome message could not be sent for user {UserId} in guild {GuildId}. Continuing invite registration.",
+                    memberDto.UserId,
+                    guildDto.GuildId
+                );
+            }
+
             await inviteService.RegisterUserJoinedWithInviteAsync(guildDto, memberDto);
         }
     }

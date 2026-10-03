@@ -345,6 +345,8 @@ namespace LundBot.Infrastructure.Persistence
             );
 
             ConfigureMySqlColumnType(entity.Property(e => e.DiscordMessageId).IsRequired(), isMySql, "bigint unsigned");
+            ConfigureMySqlColumnType(entity.Property(e => e.GuildId).IsRequired(), isMySql, "bigint unsigned");
+            ConfigureMySqlColumnType(entity.Property(e => e.DiscordChannelId).IsRequired(), isMySql, "bigint unsigned");
             ConfigureMySqlColumnType(entity.Property(e => e.DiscordUserId).IsRequired(), isMySql, "bigint unsigned");
 
             ConfigureMySqlColumnType(
@@ -353,7 +355,10 @@ namespace LundBot.Infrastructure.Persistence
                 "datetime(3)"
             );
 
-            entity.HasIndex(e => e.DiscordUserId).IsUnique().HasDatabaseName("MemberJoinMessages_index_1");
+            entity
+                .HasIndex(e => new { e.GuildId, e.DiscordUserId })
+                .IsUnique()
+                .HasDatabaseName("MemberJoinMessages_index_1");
         }
 
         private static void ConfigureAutoKickRoles(EntityTypeBuilder<AutoKickRole> entity, bool isMySql)

@@ -37,7 +37,7 @@ namespace LundBot.Application.Features.MemberJoin
             _messageService = messageService;
         }
 
-        public async Task SendWelcomeMessageAsync(ulong guildId, DiscordMemberDto member)
+        public async Task<bool> SendWelcomeMessageAsync(ulong guildId, DiscordMemberDto member)
         {
             _logger.Information("Sending welcome message for user {UserId} in guild {GuildId}", member.UserId, guildId);
 
@@ -46,17 +46,17 @@ namespace LundBot.Application.Features.MemberJoin
             if (systemChannel is null)
             {
                 _logger.Warning("No system channel found for guild {GuildId}", guildId);
-                return;
+                return false;
             }
 
             short randomIndex = (short)Random.Shared.Next(WelcomeMessages.Messages.Count);
             string welcomeMessage = string.Format(WelcomeMessages.Messages[randomIndex], $"**{member.DisplayName}**");
 
-            _messageService.MessageFactory.SetJoinedUserId(member.UserId);
+            _messageService.MessageFactory.SetWelcomeMessageContext(guildId, systemChannel.ChannelId, member.UserId);
 
             string content = "Say Hi 👋";
             string interactionId = $"memberJoin_hi:{member.UserId}";
-            await _messageService.CreateMessageWithComponentsAsync(
+            DiscordMessageDto? createdMessage = await _messageService.CreateMessageWithComponentsAsync(
                 welcomeMessage,
                 systemChannel,
                 new List<AbstractDiscordMessageComponentDto>
@@ -65,7 +65,18 @@ namespace LundBot.Application.Features.MemberJoin
                 }
             );
 
+            if (createdMessage is null)
+            {
+                _logger.Error(
+                    "Failed to send welcome message for user {UserId} in guild {GuildId}",
+                    member.UserId,
+                    guildId
+                );
+                return false;
+            }
+
             _logger.Information("Welcome message sent for user {UserId} in guild {GuildId}", member.UserId, guildId);
+            return true;
         }
 
         public async Task<bool> HandleMemberJoinHiEventAsync(
@@ -94,11 +105,12 @@ namespace LundBot.Application.Features.MemberJoin
                 message.StickerIds = new List<ulong> { randomSticker.StickerId };
             }
 
-            MemberJoinMessage? welcomeMessage = await _memberJoinMessageRepository.GetByJoinedUserIdAsync(
+            MemberJoinMessage? welcomeMessage = await _memberJoinMessageRepository.GetByGuildAndJoinedUserIdAsync(
+                guildId,
                 targetUser.UserId
             );
 
-            if (welcomeMessage is null)
+            if (welcomeMessage is null || welcomeMessage.DiscordChannelId != systemChannelId)
             {
                 return false;
             }
@@ -106,7 +118,7 @@ namespace LundBot.Application.Features.MemberJoin
             message.ReplyToMessageId = welcomeMessage.DiscordMessageId;
             DiscordMessageDto? createdMessage = await _messageService.CreateMessageFromDiscordMessageBuilderAsync(
                 message,
-                systemChannelId
+                welcomeMessage.DiscordChannelId
             );
 
             return createdMessage is not null;
@@ -120,28 +132,10 @@ namespace LundBot.Application.Features.MemberJoin
                 guildId
             );
 
-            DiscordChannelDto? systemChannel = await _discordChannelService.GetSystemChannelAsync(guildId);
-
-            if (systemChannel is null)
-            {
-                _logger.Warning("No system channel found for guild {GuildId}", guildId);
-                return;
-            }
-
-            MemberJoinMessage? welcomeMessage;
-            try
-            {
-                welcomeMessage = await _memberJoinMessageRepository.GetByJoinedUserIdAsync(discordMemberId);
-            }
-            catch (KeyNotFoundException)
-            {
-                _logger.Warning(
-                    "No welcome message found for user {UserId} in guild {GuildId}; nothing to remove.",
-                    discordMemberId,
-                    guildId
-                );
-                return;
-            }
+            MemberJoinMessage? welcomeMessage = await _memberJoinMessageRepository.GetByGuildAndJoinedUserIdAsync(
+                guildId,
+                discordMemberId
+            );
 
             if (welcomeMessage is null)
             {
@@ -153,7 +147,22 @@ namespace LundBot.Application.Features.MemberJoin
                 return;
             }
 
-            await _messageService.DeleteMessageByIdAsync(welcomeMessage, systemChannel);
+            DiscordChannelDto? welcomeChannel = await _discordChannelService.GetChannelAsync(
+                welcomeMessage.DiscordChannelId
+            );
+
+            if (welcomeChannel is null)
+            {
+                _logger.Warning(
+                    "Welcome message channel {ChannelId} for user {UserId} in guild {GuildId} was not found.",
+                    welcomeMessage.DiscordChannelId,
+                    discordMemberId,
+                    guildId
+                );
+                return;
+            }
+
+            await _messageService.DeleteMessageByIdAsync(welcomeMessage, welcomeChannel);
 
             _logger.Information(
                 "Welcome message removed for user {UserId} in guild {GuildId}",

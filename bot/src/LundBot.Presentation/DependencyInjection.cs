@@ -1,3 +1,4 @@
+using System.Net;
 using DSharpPlus;
 using DSharpPlus.Commands;
 using DSharpPlus.Extensions;
@@ -10,7 +11,9 @@ using LundBot.Presentation.Discord.Events;
 using LundBot.Presentation.Discord.Interactions;
 using LundBot.Presentation.Discord.Leaderboards.BackgroundServices;
 using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.HttpOverrides;
 using Serilog.Events;
+using IPNetwork = System.Net.IPNetwork;
 
 namespace LundBot.Presentation
 {
@@ -34,6 +37,7 @@ namespace LundBot.Presentation
 
         public static WebApplication AddMiddleware(this WebApplication app)
         {
+            app.UseForwardedHeaders();
             app.UseMiddleware<ExceptionHandlingMiddleware>();
             app.UseMiddleware<CorsMiddleware>();
 
@@ -104,6 +108,56 @@ namespace LundBot.Presentation
             services.Configure<DiscordCommandConfig>(configuration.GetSection("Discord"));
             services.Configure<DiscordKickConfig>(configuration.GetSection("Discord"));
             services.Configure<DeveloperEnvironmentConfig>(configuration.GetSection("DeveloperEnvironment"));
+            services.AddForwardedHeadersConfiguration(configuration);
+
+            return services;
+        }
+
+        private static IServiceCollection AddForwardedHeadersConfiguration(
+            this IServiceCollection services,
+            IConfiguration configuration
+        )
+        {
+            ForwardedHeadersConfig forwardedHeadersConfig =
+                configuration.GetSection("ForwardedHeaders").Get<ForwardedHeadersConfig>() ?? new();
+
+            List<IPAddress> knownProxies = forwardedHeadersConfig
+                .KnownProxies.Select(proxy =>
+                    IPAddress.TryParse(proxy, out IPAddress? address)
+                        ? address
+                        : throw new InvalidOperationException($"Invalid trusted proxy IP address '{proxy}'.")
+                )
+                .ToList();
+
+            List<IPNetwork> knownNetworks = forwardedHeadersConfig
+                .KnownNetworks.Select(network =>
+                    IPNetwork.TryParse(network, out IPNetwork parsedNetwork)
+                        ? parsedNetwork
+                        : throw new InvalidOperationException($"Invalid trusted proxy network '{network}'.")
+                )
+                .ToList();
+
+            services.Configure<ForwardedHeadersOptions>(options =>
+            {
+                options.ForwardedHeaders = ForwardedHeaders.XForwardedFor;
+                if (knownProxies.Count == 0 && knownNetworks.Count == 0)
+                {
+                    return;
+                }
+
+                options.KnownProxies.Clear();
+                options.KnownIPNetworks.Clear();
+
+                foreach (IPAddress proxy in knownProxies)
+                {
+                    options.KnownProxies.Add(proxy);
+                }
+
+                foreach (IPNetwork network in knownNetworks)
+                {
+                    options.KnownIPNetworks.Add(network);
+                }
+            });
 
             return services;
         }

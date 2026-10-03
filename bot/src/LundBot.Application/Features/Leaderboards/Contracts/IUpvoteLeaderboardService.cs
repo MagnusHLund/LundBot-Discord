@@ -4,6 +4,11 @@ namespace LundBot.Application.Features.Leaderboards.Contracts
 {
     public interface IUpvoteLeaderboardService : ILeaderboardService
     {
-        Task<bool> UpvoteUserAsync(ulong channelId, DiscordUserDto userUpvoting, DiscordUserDto targetUser);
+        Task<bool> UpvoteUserAsync(
+            ulong channelId,
+            ulong guildId,
+            DiscordUserDto userUpvoting,
+            DiscordUserDto targetUser
+        );
     }
 }
