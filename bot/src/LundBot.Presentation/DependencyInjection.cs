@@ -95,6 +95,11 @@ namespace LundBot.Presentation
             IConfiguration configuration
         )
         {
+            if (string.IsNullOrWhiteSpace(configuration["Server:ApiKey"]))
+            {
+                throw new InvalidOperationException("Server API key is not configured.");
+            }
+
             services.Configure<ServerConfig>(configuration.GetSection("Server"));
             services.Configure<DiscordCommandConfig>(configuration.GetSection("Discord"));
             services.Configure<DiscordKickConfig>(configuration.GetSection("Discord"));

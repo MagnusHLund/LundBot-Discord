@@ -51,6 +51,7 @@ jobs:
         run: |
           echo "Discord__Token=dummy" >> $GITHUB_ENV
           echo "Database__ConnectionString=Server=127.0.0.1;Port=3306;Database=LundBotDiscord;User=root;Password=password;" >> $GITHUB_ENV
+          echo "Server__ApiKey=dummy" >> $GITHUB_ENV
 
       - name: Runtime DI validation
         run: |
