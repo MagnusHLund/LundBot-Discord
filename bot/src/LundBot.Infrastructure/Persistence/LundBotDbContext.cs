@@ -43,7 +43,7 @@ namespace LundBot.Infrastructure.Persistence
 
             if (isSqlite)
             {
-                var discordIdConverter = new ValueConverter<ulong, string>(
+                ValueConverter<ulong, string> discordIdConverter = new ValueConverter<ulong, string>(
                     value => value.ToString(CultureInfo.InvariantCulture),
                     value => ulong.Parse(value, CultureInfo.InvariantCulture)
                 );

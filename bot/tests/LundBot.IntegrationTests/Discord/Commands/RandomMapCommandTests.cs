@@ -4,7 +4,7 @@ using LundBot.Presentation.Discord.InfiniteWarfare.Maps;
 using NSubstitute;
 using Xunit;
 
-namespace LundBot.IntegrationTests.Discord;
+namespace LundBot.IntegrationTests.Discord.Commands;
 
 public sealed class RandomMapCommandTests
 {
@@ -15,13 +15,11 @@ public sealed class RandomMapCommandTests
         var interactionService = DiscordCommandTestDoubles.CreateInteractionService();
         IRandomMapService randomMapService = Substitute.For<IRandomMapService>();
         randomMapService.GetRandomMap().Returns("Shipment");
-        var command = new RandomMapCommand(interactionService, randomMapService);
+        RandomMapCommand command = new RandomMapCommand(interactionService, randomMapService);
 
         await command.RandomMapAsync(context);
 
-        await interactionService
-            .Received(1)
-            .SendResponseAsync(Arg.Any<CommandContext>(), "Random map: Shipment", true);
+        await interactionService.Received(1).SendResponseAsync(Arg.Any<CommandContext>(), "Random map: Shipment", true);
     }
 
     [Fact]

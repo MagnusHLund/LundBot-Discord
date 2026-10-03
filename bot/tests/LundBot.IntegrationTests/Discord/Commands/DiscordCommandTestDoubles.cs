@@ -2,7 +2,7 @@ using DSharpPlus.Commands;
 using LundBot.Presentation.Discord.Interactions;
 using NSubstitute;
 
-namespace LundBot.IntegrationTests.Discord;
+namespace LundBot.IntegrationTests.Discord.Commands;
 
 internal static class DiscordCommandTestDoubles
 {

@@ -4,7 +4,7 @@ using LundBot.Presentation.Discord.InfiniteWarfare.Maps;
 using LundBot.Presentation.Discord.Leaderboards.Commands;
 using Xunit;
 
-namespace LundBot.IntegrationTests.Discord;
+namespace LundBot.IntegrationTests.Discord.Commands;
 
 public sealed class DiscordCommandRegistrationTests
 {

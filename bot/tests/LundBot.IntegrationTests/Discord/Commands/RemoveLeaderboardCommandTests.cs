@@ -4,7 +4,7 @@ using LundBot.Presentation.Discord.Leaderboards.Commands;
 using NSubstitute;
 using Xunit;
 
-namespace LundBot.IntegrationTests.Discord;
+namespace LundBot.IntegrationTests.Discord.Commands;
 
 public sealed class RemoveLeaderboardCommandTests
 {
