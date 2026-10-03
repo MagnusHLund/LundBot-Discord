@@ -147,9 +147,17 @@ namespace LundBot.Application.Common.Messaging
                 return false;
             }
 
-            await _discordMessageService.DeleteMessageAsync(discordMessage.MessageId, channel.ChannelId);
-            await _messageRepository.DeleteManyAsync(new[] { message.Id });
-            return true;
+bool discordMessageDeleted = await _discordMessageService.DeleteMessageAsync(
+    discordMessage.MessageId,
+    channel.ChannelId
+);
+
+if (!discordMessageDeleted)
+{
+    return false;
+}
+
+return await _messageRepository.DeleteManyAsync(new[] { message.Id });
         }
 
         public async Task<DiscordMessageDto?> CreateMessageWithComponentsAsync(
