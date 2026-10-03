@@ -43,7 +43,16 @@ namespace LundBot.Presentation.Discord.Events
             var inviteService = scope.ServiceProvider.GetRequiredService<IInviteService>();
             var memberJoinService = scope.ServiceProvider.GetRequiredService<IMemberJoinService>();
 
-            await memberJoinService.SendWelcomeMessageAsync(guildDto.GuildId, memberDto);
+            bool welcomeMessageSent = await memberJoinService.SendWelcomeMessageAsync(guildDto.GuildId, memberDto);
+            if (!welcomeMessageSent)
+            {
+                _logger.Warning(
+                    "Welcome message could not be sent for user {UserId} in guild {GuildId}. Continuing invite registration.",
+                    memberDto.UserId,
+                    guildDto.GuildId
+                );
+            }
+
             await inviteService.RegisterUserJoinedWithInviteAsync(guildDto, memberDto);
         }
     }

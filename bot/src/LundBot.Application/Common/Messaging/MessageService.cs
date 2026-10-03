@@ -141,8 +141,7 @@ namespace LundBot.Application.Common.Messaging
                 return null;
             }
 
-            await _messageRepository.CreateAsync(MessageFactory.Create(discordMessage.MessageId));
-            return discordMessage;
+            return await PersistCreatedMessageAsync(discordMessage, channel.ChannelId);
         }
 
         public async Task<DiscordMessageDto?> CreateMessageFromDiscordMessageBuilderAsync(
@@ -163,10 +162,39 @@ namespace LundBot.Application.Common.Messaging
 
             if (shouldSaveMessageInDatabase)
             {
-                await _messageRepository.CreateAsync(MessageFactory.Create(discordMessage.MessageId));
+                return await PersistCreatedMessageAsync(discordMessage, channelId);
             }
 
             return discordMessage;
+        }
+
+        private async Task<DiscordMessageDto?> PersistCreatedMessageAsync(
+            DiscordMessageDto discordMessage,
+            ulong channelId
+        )
+        {
+            if (await _messageRepository.CreateAsync(MessageFactory.Create(discordMessage.MessageId)))
+            {
+                return discordMessage;
+            }
+
+            _logger.Error(
+                "Failed to store Discord message with ID {MessageId} in channel {ChannelId}. Removing the orphaned Discord message.",
+                discordMessage.MessageId,
+                channelId
+            );
+
+            bool removed = await _discordMessageService.DeleteMessageAsync(discordMessage.MessageId, channelId);
+            if (!removed)
+            {
+                _logger.Error(
+                    "Failed to remove orphaned Discord message with ID {MessageId} in channel {ChannelId}.",
+                    discordMessage.MessageId,
+                    channelId
+                );
+            }
+
+            return null;
         }
 
         private async Task<bool> UpdateMessagesAsync(

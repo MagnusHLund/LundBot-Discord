@@ -1,3 +1,4 @@
+using System.Net;
 using LundBot.Application.Features.WebsiteTraffic;
 using LundBot.Presentation.Api.Common;
 using LundBot.Presentation.Api.Common.Validation;
@@ -6,7 +7,6 @@ using LundBot.Presentation.Config;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
-using Microsoft.Extensions.Primitives;
 
 namespace LundBot.Presentation.Api.Traffic
 {
@@ -98,19 +98,7 @@ namespace LundBot.Presentation.Api.Traffic
                 return $"{random.Next(1, 256)}.{random.Next(0, 256)}.{random.Next(0, 256)}.{random.Next(1, 255)}";
             }
 
-            if (
-                request.Headers.TryGetValue("X-Forwarded-For", out StringValues forwarded)
-                && !StringValues.IsNullOrEmpty(forwarded)
-            )
-            {
-                string? first = forwarded.ToString().Split(',').Select(s => s.Trim()).FirstOrDefault();
-                if (!string.IsNullOrEmpty(first))
-                {
-                    return first;
-                }
-            }
-
-            var remoteIp = request.HttpContext.Connection.RemoteIpAddress;
+            IPAddress? remoteIp = request.HttpContext.Connection.RemoteIpAddress;
             if (remoteIp != null)
             {
                 return remoteIp.ToString();
