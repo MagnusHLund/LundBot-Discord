@@ -5,10 +5,6 @@ namespace LundBot.Application.Features.Invites
 {
     public interface IInviteService
     {
-        Task<bool> RegisterUserJoinedWithInviteAsync(
-            DiscordGuildDto guild,
-            DiscordUserDto userJoined,
-            DiscordUserDto invitedByUser
-        );
+        Task<bool> RegisterUserJoinedWithInviteAsync(DiscordGuildDto guild, DiscordUserDto userJoined);
     }
 }

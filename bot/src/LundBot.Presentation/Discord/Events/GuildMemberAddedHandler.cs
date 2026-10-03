@@ -1,5 +1,8 @@
 using DSharpPlus;
 using DSharpPlus.EventArgs;
+using LundBot.Application.Discord.Guilds;
+using LundBot.Application.Discord.Members;
+using LundBot.Application.Features.Invites;
 using LundBot.Application.Features.MemberJoin;
 
 namespace LundBot.Presentation.Discord.Events
@@ -25,11 +28,23 @@ namespace LundBot.Presentation.Discord.Events
                 eventArgs.Guild.Id
             );
 
+            DiscordMemberDto memberDto = new DiscordMemberDto(
+                userId: eventArgs.Member.Id,
+                username: eventArgs.Member.Username,
+                displayName: eventArgs.Member.Discriminator
+            );
+
+            DiscordGuildDto guildDto = new DiscordGuildDto(
+                guildId: eventArgs.Guild.Id,
+                guildName: eventArgs.Guild.Name
+            );
+
             using var scope = _serviceProvider.CreateScope();
+            var inviteService = scope.ServiceProvider.GetRequiredService<IInviteService>();
             var memberJoinService = scope.ServiceProvider.GetRequiredService<IMemberJoinService>();
 
-            // await memberJoinService.SendWelcomeMessageAsync(eventArgs.Guild, eventArgs.Member);
-            // await memberJoinService.RegisterWhoInvitedJoinedUser(eventArgs.Guild, eventArgs.Member);
+            await memberJoinService.SendWelcomeMessageAsync(guildDto.GuildId, memberDto);
+            await inviteService.RegisterUserJoinedWithInviteAsync(guildDto, memberDto);
         }
     }
 }
