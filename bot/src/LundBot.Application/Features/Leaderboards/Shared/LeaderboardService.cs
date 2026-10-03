@@ -168,7 +168,10 @@ namespace LundBot.Application.Features.Leaderboards.Shared
             }
 
             List<Leaderboard> existingLeaderboards = await GetLeaderboardsForGuildAsync(channel.GuildId);
-            existingLeaderboards.Add(leaderboard);
+            if (existingLeaderboards.All(existing => existing.Id != leaderboard.Id))
+            {
+                existingLeaderboards.Add(leaderboard);
+            }
 
             _cacheService.Update<List<Leaderboard>>(
                 CacheKeys.LeaderboardsPerGuild(channel.GuildId),
