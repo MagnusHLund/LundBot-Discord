@@ -2,6 +2,7 @@ using LundBot.Application.Common.Exceptions;
 using LundBot.Application.Features.MemberJoin;
 using LundBot.Domain.MemberJoin;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.ChangeTracking;
 using MySqlConnector;
 
 namespace LundBot.Infrastructure.Persistence.Repositories.MemberJoin
@@ -18,9 +19,11 @@ namespace LundBot.Infrastructure.Persistence.Repositories.MemberJoin
 
         public async Task<bool> CreateAsync(MemberJoinMessage entity)
         {
+            MemberJoinMessage? existingEntity = null;
+
             try
             {
-                var existingEntity = await _context.MemberJoinMessages.SingleOrDefaultAsync(wm =>
+                existingEntity = await _context.MemberJoinMessages.SingleOrDefaultAsync(wm =>
                     wm.GuildId == entity.GuildId && wm.DiscordUserId == entity.DiscordUserId
                 );
 
@@ -44,6 +47,12 @@ namespace LundBot.Infrastructure.Persistence.Repositories.MemberJoin
             }
             catch (Exception ex)
             {
+                DetachFailedChange(entity);
+                if (existingEntity is not null)
+                {
+                    DetachFailedChange(existingEntity);
+                }
+
                 _logger.Error(ex, "Error creating MemberJoinMessage: {Entity}", entity);
                 return false;
             }
@@ -51,9 +60,11 @@ namespace LundBot.Infrastructure.Persistence.Repositories.MemberJoin
 
         private async Task<bool> UpdateExistingByGuildAndDiscordUserIdAsync(MemberJoinMessage entity, Exception originalEx)
         {
+            MemberJoinMessage? existingEntity = null;
+
             try
             {
-                var existingEntity = await _context.MemberJoinMessages.SingleOrDefaultAsync(wm =>
+                existingEntity = await _context.MemberJoinMessages.SingleOrDefaultAsync(wm =>
                     wm.GuildId == entity.GuildId && wm.DiscordUserId == entity.DiscordUserId
                 );
 
@@ -77,6 +88,11 @@ namespace LundBot.Infrastructure.Persistence.Repositories.MemberJoin
             }
             catch (Exception ex)
             {
+                if (existingEntity is not null)
+                {
+                    DetachFailedChange(existingEntity);
+                }
+
                 _logger.Error(ex, "Error updating MemberJoinMessage after unique-key conflict: {Entity}", entity);
                 return false;
             }
@@ -149,8 +165,18 @@ namespace LundBot.Infrastructure.Persistence.Repositories.MemberJoin
             }
             catch (Exception ex)
             {
+                DetachFailedChange(entity);
                 _logger.Error(ex, "Error updating MemberJoinMessage: {Entity}", entity);
                 return false;
+            }
+        }
+
+        private void DetachFailedChange(object entity)
+        {
+            EntityEntry entry = _context.Entry(entity);
+            if (entry.State != EntityState.Detached)
+            {
+                entry.State = EntityState.Detached;
             }
         }
     }

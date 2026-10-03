@@ -296,15 +296,13 @@ return await _messageRepository.DeleteManyAsync(new[] { message.Id });
                         continue;
                     }
 
+                    ulong originalDiscordMessageId = existingMessage.DiscordMessageId;
                     existingMessage.DiscordMessageId = replacement.MessageId;
 
                     if (!await _messageRepository.UpdateAsync(existingMessage))
                     {
-                        _logger.Warning(
-                            "Failed to store replacement message with ID {MessageId} in channel {ChannelId}.",
-                            replacement.MessageId,
-                            channelId
-                        );
+                        existingMessage.DiscordMessageId = originalDiscordMessageId;
+                        await RemoveUnstoredReplacementAsync(replacement.MessageId, channelId);
                         success = false;
                     }
                 }
@@ -320,6 +318,25 @@ return await _messageRepository.DeleteManyAsync(new[] { message.Id });
                 }
             }
             return success;
+        }
+
+        private async Task RemoveUnstoredReplacementAsync(ulong replacementMessageId, ulong channelId)
+        {
+            _logger.Error(
+                "Failed to store replacement message with ID {MessageId} in channel {ChannelId}. Removing the orphaned replacement.",
+                replacementMessageId,
+                channelId
+            );
+
+            bool removed = await _discordMessageService.DeleteMessageAsync(replacementMessageId, channelId);
+            if (!removed)
+            {
+                _logger.Error(
+                    "Failed to remove orphaned replacement message with ID {MessageId} in channel {ChannelId}.",
+                    replacementMessageId,
+                    channelId
+                );
+            }
         }
 
         private async Task<bool> CreateNewMessagesAsync(List<string> chunks, List<TEntity> existing, ulong channelId)
@@ -344,13 +361,8 @@ return await _messageRepository.DeleteManyAsync(new[] { message.Id });
                     continue;
                 }
 
-                if (!await _messageRepository.CreateAsync(MessageFactory.Create(newMessage.MessageId)))
+                if (await PersistCreatedMessageAsync(newMessage, channelId) is null)
                 {
-                    _logger.Warning(
-                        "Failed to store new Discord message with ID {MessageId} in channel {ChannelId}.",
-                        newMessage.MessageId,
-                        channelId
-                    );
                     success = false;
                 }
             }
