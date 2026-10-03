@@ -1,7 +1,6 @@
 using System.ComponentModel;
 using DSharpPlus.Commands;
 using LundBot.Application.Features.InfiniteWarfare.Maps;
-using LundBot.Domain.Common.Enums;
 using LundBot.Presentation.Discord.Bot;
 using LundBot.Presentation.Discord.Interactions;
 
@@ -10,6 +9,8 @@ namespace LundBot.Presentation.Discord.InfiniteWarfare.Maps
     public sealed class RandomMapCommand : AbstractBaseCommand
     {
         private readonly IRandomMapService _randomMapService;
+
+        private readonly ILogger _logger = Log.ForContext<RandomMapCommand>();
 
         public RandomMapCommand(
             IDiscordInteractionService discordInteractionService,
@@ -32,7 +33,8 @@ namespace LundBot.Presentation.Discord.InfiniteWarfare.Maps
             }
             catch (Exception ex)
             {
-                await context.RespondAsync($"An error occurred: {ex.Message}");
+                _logger.Error(ex, "An error occurred while selecting a random map.");
+                await context.RespondAsync("An error occurred while selecting a random map.");
                 return;
             }
 

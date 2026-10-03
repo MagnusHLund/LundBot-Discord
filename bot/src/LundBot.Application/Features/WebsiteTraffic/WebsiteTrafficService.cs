@@ -69,9 +69,7 @@ namespace LundBot.Application.Features.WebsiteTraffic
                 return false;
             }
 
-            await UpdateWebsiteStatsMessageAsync(trafficChannel);
-
-            return true;
+            return await UpdateWebsiteStatsMessageAsync(trafficChannel);
         }
 
         public async Task<bool> RegisterInviteLinkClickAsync(string ipAddress, ulong guildId)
@@ -96,12 +94,10 @@ namespace LundBot.Application.Features.WebsiteTraffic
                 return false;
             }
 
-            await UpdateWebsiteStatsMessageAsync(trafficChannel);
-
-            return true;
+            return await UpdateWebsiteStatsMessageAsync(trafficChannel);
         }
 
-        private async Task UpdateWebsiteStatsMessageAsync(WebsiteTrafficAnalyticsChannel trafficChannel)
+        private async Task<bool> UpdateWebsiteStatsMessageAsync(WebsiteTrafficAnalyticsChannel trafficChannel)
         {
             string message = await GenerateWebsiteStatsMessageAsync(trafficChannel.Id);
 
@@ -118,7 +114,16 @@ namespace LundBot.Application.Features.WebsiteTraffic
 
             ulong channelId = trafficChannel.ChannelId;
 
-            await _messageService.SynchronizeDiscordMessagesAsync(message, existingMessages, channelId);
+            bool synchronized = await _messageService.SynchronizeDiscordMessagesAsync(message, existingMessages, channelId);
+            if (!synchronized)
+            {
+                _logger.Warning(
+                    "Failed to synchronize website traffic messages for channel {ChannelId} in guild {GuildId}.",
+                    channelId,
+                    trafficChannel.GuildId
+                );
+            }
+            return synchronized;
         }
 
         private async Task<string> GenerateWebsiteStatsMessageAsync(int websiteTrafficAnalyticsChannelId)
