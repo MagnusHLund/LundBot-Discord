@@ -8,10 +8,14 @@ namespace LundBot.Domain.MemberJoin
     /// </summary>
     public sealed class MemberJoinMessage : AbstractMessageEntity
     {
+        public ulong GuildId { get; set; }
+        public ulong DiscordChannelId { get; set; }
         public ulong DiscordUserId { get; set; }
 
-        public MemberJoinMessage(ulong discordUserId, ulong discordMessageId)
+        public MemberJoinMessage(ulong guildId, ulong discordChannelId, ulong discordUserId, ulong discordMessageId)
         {
+            GuildId = guildId;
+            DiscordChannelId = discordChannelId;
             DiscordUserId = discordUserId;
             DiscordMessageId = discordMessageId;
         }

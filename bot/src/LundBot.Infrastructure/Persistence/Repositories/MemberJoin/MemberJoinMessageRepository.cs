@@ -21,11 +21,12 @@ namespace LundBot.Infrastructure.Persistence.Repositories.MemberJoin
             try
             {
                 var existingEntity = await _context.MemberJoinMessages.SingleOrDefaultAsync(wm =>
-                    wm.DiscordUserId == entity.DiscordUserId
+                    wm.GuildId == entity.GuildId && wm.DiscordUserId == entity.DiscordUserId
                 );
 
                 if (existingEntity is not null)
                 {
+                    existingEntity.DiscordChannelId = entity.DiscordChannelId;
                     existingEntity.DiscordMessageId = entity.DiscordMessageId;
                     await _context.SaveChangesAsync();
                     return true;
@@ -39,7 +40,7 @@ namespace LundBot.Infrastructure.Persistence.Repositories.MemberJoin
             {
                 _context.Entry(entity).State = EntityState.Detached;
 
-                return await UpdateExistingByDiscordUserIdAsync(entity, ex);
+                return await UpdateExistingByGuildAndDiscordUserIdAsync(entity, ex);
             }
             catch (Exception ex)
             {
@@ -48,26 +49,28 @@ namespace LundBot.Infrastructure.Persistence.Repositories.MemberJoin
             }
         }
 
-        private async Task<bool> UpdateExistingByDiscordUserIdAsync(MemberJoinMessage entity, Exception originalEx)
+        private async Task<bool> UpdateExistingByGuildAndDiscordUserIdAsync(MemberJoinMessage entity, Exception originalEx)
         {
             try
             {
                 var existingEntity = await _context.MemberJoinMessages.SingleOrDefaultAsync(wm =>
-                    wm.DiscordUserId == entity.DiscordUserId
+                    wm.GuildId == entity.GuildId && wm.DiscordUserId == entity.DiscordUserId
                 );
 
                 if (existingEntity is null)
                 {
                     _logger.Error(
                         originalEx,
-                        "Unique-key conflict creating MemberJoinMessage for DiscordUserId {DiscordUserId}, "
+                        "Unique-key conflict creating MemberJoinMessage for DiscordUserId {DiscordUserId} in guild {GuildId}, "
                             + "but no existing row was found to update.",
-                        entity.DiscordUserId
+                        entity.DiscordUserId,
+                        entity.GuildId
                     );
 
                     return false;
                 }
 
+                existingEntity.DiscordChannelId = entity.DiscordChannelId;
                 existingEntity.DiscordMessageId = entity.DiscordMessageId;
                 await _context.SaveChangesAsync();
                 return true;
@@ -101,28 +104,36 @@ namespace LundBot.Infrastructure.Persistence.Repositories.MemberJoin
             }
         }
 
-        public async Task<MemberJoinMessage?> GetByJoinedUserIdAsync(ulong joinedUserId)
+        public async Task<MemberJoinMessage?> GetByGuildAndJoinedUserIdAsync(ulong guildId, ulong joinedUserId)
         {
             try
             {
-                return await _context.MemberJoinMessages.FirstOrDefaultAsync(e => e.DiscordUserId == joinedUserId)
-                    ?? throw new KeyNotFoundException($"No welcome message found for DiscordUserId {joinedUserId}.");
-            }
-            catch (KeyNotFoundException)
-            {
-                _logger.Warning("No MemberJoinMessage found for DiscordUserId: {DiscordUserId}", joinedUserId);
-                return null;
+                MemberJoinMessage? message = await _context.MemberJoinMessages.FirstOrDefaultAsync(e =>
+                    e.GuildId == guildId && e.DiscordUserId == joinedUserId
+                );
+
+                if (message is null)
+                {
+                    _logger.Warning(
+                        "No MemberJoinMessage found for DiscordUserId {DiscordUserId} in guild {GuildId}",
+                        joinedUserId,
+                        guildId
+                    );
+                }
+
+                return message;
             }
             catch (Exception ex)
             {
                 _logger.Error(
                     ex,
-                    "Error retrieving MemberJoinMessage for DiscordUserId: {DiscordUserId}",
-                    joinedUserId
+                    "Error retrieving MemberJoinMessage for DiscordUserId {DiscordUserId} in guild {GuildId}",
+                    joinedUserId,
+                    guildId
                 );
 
                 throw new RepositoryException(
-                    $"Failed to retrieve the welcome message for Discord user ID {joinedUserId}.",
+                    $"Failed to retrieve the welcome message for Discord user ID {joinedUserId} in guild {guildId}.",
                     ex
                 );
             }
