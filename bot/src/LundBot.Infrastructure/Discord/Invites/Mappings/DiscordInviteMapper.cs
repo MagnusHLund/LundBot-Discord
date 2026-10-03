@@ -10,7 +10,7 @@ namespace LundBot.Infrastructure.Discord.Invites.Mappings
         public static DiscordInviteDto Map(this DiscordInvite invite)
         {
             DiscordUserDto? inviter = invite.Inviter is null ? null : DiscordUserMapper.Map(invite.Inviter);
-            return new DiscordInviteDto(inviteCode: invite.Code, uses: (ushort)invite.Uses, inviter: inviter);
+            return new DiscordInviteDto(inviteCode: invite.Code, uses: invite.Uses, inviter: inviter);
         }
 
         public static IReadOnlyList<DiscordInviteDto> Map(this IReadOnlyList<DiscordInvite> invites)

@@ -5,10 +5,10 @@ namespace LundBot.Application.Discord.Invites
     public sealed record DiscordInviteDto
     {
         public string InviteCode { get; }
-        public ushort Uses { get; }
+        public int Uses { get; }
         public DiscordUserDto? Inviter { get; }
 
-        public DiscordInviteDto(string inviteCode, ushort uses, DiscordUserDto? inviter)
+        public DiscordInviteDto(string inviteCode, int uses, DiscordUserDto? inviter)
         {
             InviteCode = inviteCode;
             Uses = uses;

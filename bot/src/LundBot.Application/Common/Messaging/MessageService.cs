@@ -1,4 +1,5 @@
 using System.Text;
+using LundBot.Application.Common.Exceptions;
 using LundBot.Application.Discord.Channels;
 using LundBot.Application.Discord.Interactions;
 using LundBot.Application.Discord.Messages;
@@ -68,10 +69,22 @@ namespace LundBot.Application.Common.Messaging
 
             foreach (TEntity message in existing)
             {
-                DiscordMessageDto? discordMessage = await _discordMessageService.GetMessageAsync(
-                    message.DiscordMessageId,
-                    channelId
-                );
+                DiscordMessageDto? discordMessage;
+                try
+                {
+                    discordMessage = await _discordMessageService.GetMessageAsync(message.DiscordMessageId, channelId);
+                }
+                catch (DiscordServiceException ex)
+                {
+                    _logger.Error(
+                        ex,
+                        "Could not confirm whether message with ID {MessageId} exists in channel {ChannelId}. "
+                            + "Aborting deletion to keep stored records intact.",
+                        message.DiscordMessageId,
+                        channelId
+                    );
+                    return false;
+                }
 
                 if (discordMessage is null)
                 {
@@ -109,10 +122,25 @@ namespace LundBot.Application.Common.Messaging
 
         public async Task<bool> DeleteMessageByIdAsync(TEntity message, DiscordChannelDto channel)
         {
-            DiscordMessageDto? discordMessage = await _discordMessageService.GetMessageAsync(
-                message.DiscordMessageId,
-                channel.ChannelId
-            );
+            DiscordMessageDto? discordMessage;
+            try
+            {
+                discordMessage = await _discordMessageService.GetMessageAsync(
+                    message.DiscordMessageId,
+                    channel.ChannelId
+                );
+            }
+            catch (DiscordServiceException ex)
+            {
+                _logger.Error(
+                    ex,
+                    "Could not confirm whether message with ID {MessageId} exists in channel {ChannelId}. "
+                        + "Aborting deletion.",
+                    message.DiscordMessageId,
+                    channel.ChannelId
+                );
+                return false;
+            }
 
             if (discordMessage is null)
             {

@@ -1,5 +1,7 @@
 using DSharpPlus;
 using DSharpPlus.Entities;
+using DSharpPlus.Exceptions;
+using LundBot.Application.Common.Exceptions;
 using LundBot.Application.Discord.Interactions;
 using LundBot.Application.Discord.Messages;
 using LundBot.Infrastructure.Discord.Messages.Mappings;
@@ -42,6 +44,15 @@ namespace LundBot.Infrastructure.Discord.Messages
 
                 return message.Map();
             }
+            catch (NotFoundException)
+            {
+                _logger.Warning(
+                    "Discord reported message with ID {MessageId} or channel {ChannelId} as not found.",
+                    messageId,
+                    channelId
+                );
+                return null;
+            }
             catch (Exception ex)
             {
                 _logger.Error(
@@ -50,7 +61,11 @@ namespace LundBot.Infrastructure.Discord.Messages
                     messageId,
                     channelId
                 );
-                return null;
+
+                throw new DiscordServiceException(
+                    $"Failed to fetch Discord message {messageId} from channel {channelId}.",
+                    ex
+                );
             }
         }
 
