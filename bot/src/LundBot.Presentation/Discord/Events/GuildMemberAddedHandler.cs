@@ -31,7 +31,7 @@ namespace LundBot.Presentation.Discord.Events
             DiscordMemberDto memberDto = new DiscordMemberDto(
                 userId: eventArgs.Member.Id,
                 username: eventArgs.Member.Username,
-                displayName: eventArgs.Member.Discriminator
+                displayName: eventArgs.Member.DisplayName
             );
 
             DiscordGuildDto guildDto = new DiscordGuildDto(
