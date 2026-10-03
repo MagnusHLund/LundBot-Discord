@@ -230,10 +230,10 @@ namespace LundBot.Application.Features.Leaderboards.Shared
             );
         }
 
-        public async Task<bool> RemoveLeaderboardAsync(ulong channelId)
+        public async Task<bool> RemoveLeaderboardAsync(ulong channelId, ulong guildId)
         {
             DiscordChannelDto? channel = await _discordChannelService.GetChannelAsync(channelId);
-            if (channel is null)
+            if (channel is null || channel.GuildId != guildId)
             {
                 throw new CommandException($"The channel <#{channelId}> could not be found.", showMessageToUser: true);
             }

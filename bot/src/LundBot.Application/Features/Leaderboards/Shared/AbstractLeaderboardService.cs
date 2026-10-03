@@ -48,8 +48,8 @@ namespace LundBot.Application.Features.Leaderboards.Shared
             LeaderboardTypeEnum type
         ) => _leaderboardService.CreateLeaderboardAsync(channelId, title, message, type);
 
-        public Task<bool> RemoveLeaderboardAsync(ulong channelId) =>
-            _leaderboardService.RemoveLeaderboardAsync(channelId);
+        public Task<bool> RemoveLeaderboardAsync(ulong channelId, ulong guildId) =>
+            _leaderboardService.RemoveLeaderboardAsync(channelId, guildId);
 
         public Task<bool> RefreshLeaderboardAsync(ulong channelId, ulong guildId) =>
             _leaderboardService.RefreshLeaderboardAsync(channelId, guildId);

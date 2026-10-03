@@ -34,10 +34,15 @@ namespace LundBot.Application.Features.Leaderboards.Types
             _discordChannelService = discordChannelService;
         }
 
-        public async Task<bool> UpvoteUserAsync(ulong channelId, DiscordUserDto userUpvoting, DiscordUserDto targetUser)
+        public async Task<bool> UpvoteUserAsync(
+            ulong channelId,
+            ulong guildId,
+            DiscordUserDto userUpvoting,
+            DiscordUserDto targetUser
+        )
         {
             DiscordChannelDto? channel = await _discordChannelService.GetChannelAsync(channelId);
-            if (channel is null)
+            if (channel is null || channel.GuildId != guildId)
             {
                 throw new CommandException($"The channel <#{channelId}> could not be found.", showMessageToUser: true);
             }

@@ -12,7 +12,7 @@ namespace LundBot.Application.Features.Leaderboards.Contracts
             LeaderboardTypeEnum leaderboardType
         );
 
-        Task<bool> RemoveLeaderboardAsync(ulong channelId);
+        Task<bool> RemoveLeaderboardAsync(ulong channelId, ulong guildId);
 
         Task<bool> RefreshLeaderboardAsync(ulong channelId, ulong guildId);
 

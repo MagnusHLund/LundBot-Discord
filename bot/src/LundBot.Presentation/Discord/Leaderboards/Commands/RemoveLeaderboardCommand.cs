@@ -56,7 +56,7 @@ namespace LundBot.Presentation.Discord.Leaderboards.Commands
 
             await TaskWithErrorHandlingAsync(
                 context,
-                () => _leaderboardService.RemoveLeaderboardAsync(channelId),
+                () => _leaderboardService.RemoveLeaderboardAsync(channelId, context.Guild!.Id),
                 $"Leaderboard removed successfully from <#{channelId}>."
             );
         }
