@@ -16,7 +16,9 @@ namespace LundBot.Infrastructure.Caching
         public T? Get<T>(string key)
         {
             if (!_cache.TryGetValue(key, out var entry))
+            {
                 return default;
+            }
 
             if (entry.Expiration is not null && entry.Expiration < DateTime.UtcNow)
             {

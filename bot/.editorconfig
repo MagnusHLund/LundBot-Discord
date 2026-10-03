@@ -61,7 +61,8 @@ dotnet_naming_style.prefix_underscore.required_prefix = _
 dotnet_naming_style.prefix_underscore.capitalization = camel_case
 
 # File and code layout settings
-csharp_prefer_braces = true:suggestion
+csharp_prefer_braces = true:error
+dotnet_diagnostic.IDE0011.severity = error
 csharp_prefer_simple_default_expression = false:suggestion
 csharp_prefer_switch_expression = false:suggestion
 csharp_style_expression_bodied_methods = never:suggestion

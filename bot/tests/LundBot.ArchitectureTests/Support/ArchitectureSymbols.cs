@@ -48,13 +48,17 @@ internal static class ArchitectureSymbols
         if (type is IArrayTypeSymbol array)
         {
             foreach (INamedTypeSymbol element in ExpandType(array.ElementType))
+            {
                 yield return element;
+            }
         }
         if (type is INamedTypeSymbol named)
         {
             yield return named;
             foreach (INamedTypeSymbol argument in named.TypeArguments.SelectMany(ExpandType))
+            {
                 yield return argument;
+            }
         }
     }
 }

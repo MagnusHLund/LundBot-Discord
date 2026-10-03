@@ -64,4 +64,32 @@ public sealed class LeaderboardControllerIntegrationTests : ApiIntegrationTestBa
 
         Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
     }
+
+    [Fact]
+    public async Task Refresh_requires_channel_id()
+    {
+        using HttpResponseMessage response = await SendAuthorizedAsync(
+            HttpMethod.Post,
+            $"/api/leaderboard/refresh?guildId={ApiTestIds.GuildId}"
+        );
+
+        Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+    }
+
+    [Theory]
+    [InlineData("")]
+    [InlineData("channelId=1531717575338102914")]
+    [InlineData("guildId=1531716596022644876")]
+    [InlineData("channelId=1&guildId=1531716596022644876")]
+    [InlineData("channelId=1531717575338102914&guildId=1")]
+    public async Task Refresh_does_not_call_service_for_invalid_query(string query)
+    {
+        using HttpResponseMessage response = await SendAuthorizedAsync(
+            HttpMethod.Post,
+            $"/api/leaderboard/refresh?{query}"
+        );
+
+        await Host.LeaderboardService.DidNotReceive()
+            .RefreshLeaderboardAsync(Arg.Any<ulong>(), Arg.Any<ulong>());
+    }
 }

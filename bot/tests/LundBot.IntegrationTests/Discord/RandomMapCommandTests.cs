@@ -9,7 +9,7 @@ namespace LundBot.IntegrationTests.Discord;
 public sealed class RandomMapCommandTests
 {
     [Fact]
-    public async Task RandomMap_sends_selected_map()
+    public async Task RandomMap_sends_selected_map_privately()
     {
         CommandContext context = DiscordCommandTestDoubles.CreateContext();
         var interactionService = DiscordCommandTestDoubles.CreateInteractionService();
@@ -21,11 +21,11 @@ public sealed class RandomMapCommandTests
 
         await interactionService
             .Received(1)
-            .SendResponseAsync(Arg.Any<CommandContext>(), "Random map: Shipment", false);
+            .SendResponseAsync(Arg.Any<CommandContext>(), "Random map: Shipment", true);
     }
 
     [Fact]
-    public async Task RandomMap_reports_service_exception()
+    public async Task RandomMap_reports_safe_error_privately_when_service_throws()
     {
         CommandContext context = DiscordCommandTestDoubles.CreateContext();
         var interactionService = DiscordCommandTestDoubles.CreateInteractionService();
@@ -37,6 +37,6 @@ public sealed class RandomMapCommandTests
 
         await interactionService
             .Received(1)
-            .SendResponseAsync(Arg.Any<CommandContext>(), "An error occurred: Map unavailable", false);
+            .SendResponseAsync(Arg.Any<CommandContext>(), "An error occurred while selecting a random map.", true);
     }
 }
